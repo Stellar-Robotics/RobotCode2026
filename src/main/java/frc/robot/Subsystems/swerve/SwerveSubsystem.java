@@ -6,7 +6,7 @@ package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Controller.StellarController;
+import frc.robot.StellarHID.StellarHID;
 
 import java.io.File;
 
@@ -166,7 +166,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Command methods
   // A method for using the custom Stellar Controller with YAGSL
-  public Command stellarCTRLDriveCommand(StellarController controller) {
+  public Command stellarCTRLDriveCommand(StellarHID controller) {
 
     return run(() -> {
 

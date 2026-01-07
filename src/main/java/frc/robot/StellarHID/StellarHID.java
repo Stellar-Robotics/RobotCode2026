@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.Controller;
+package frc.robot.StellarHID;
 
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.controller.PIDController;
@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.event.BooleanEvent;
 import edu.wpi.first.wpilibj.event.EventLoop;
 
 
-public class StellarController extends GenericHID {
+public class StellarHID extends GenericHID {
 
   // Define the PID for the rotary dial
   private PIDController rightRotaryPID = new PIDController(0.01, 0 , 0);
@@ -123,7 +123,7 @@ public class StellarController extends GenericHID {
    *
    * @param port The port index on the Driver Station that the controller is plugged into.
    */
-  public StellarController(final int port) {
+  public StellarHID(final int port) {
     super(port);
 
     HAL.report(tResourceType.kResourceType_Controller, port + 1);
