@@ -7,11 +7,14 @@ package frc.robot.Subsystems.swerve;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -26,23 +29,48 @@ public class IntakeSubsystem extends SubsystemBase {
     SparkMaxConfig rollerMotorConfig = new SparkMaxConfig();
     SparkMaxConfig extendMotorConfig = new SparkMaxConfig();
 
+
     rollerMotorConfig.inverted(false)
       .smartCurrentLimit(40);
     extendMotorConfig.inverted(false)
-      .smartCurrentLimit(40);
+      .smartCurrentLimit(40)
+      .closedLoop.pid(0.01, 0, 0.005);
     
     rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     extendMotor.configure(extendMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
-    private void intakeFuel() {
-      rollerMotor.set(0.4);
+    private void goToPosition(int rotations){
+
+      SparkClosedLoopController clc = extendMotor.getClosedLoopController();
+      clc.setSetpoint(rotations, ControlType.kPosition);
+      
+
     }
-   private void stopIntake() {
+
+    private void intakeFuel(double intakeSpeed) {
+      rollerMotor.set(intakeSpeed);
+    }
+    private void stopIntake() {
       rollerMotor.stopMotor();
     }
 
+    public Command intakeFuelCommand(double intakeSpeed) {
+
+      Command intakeFuelCommand = Commands.run(()->{
+        intakeFuel(intakeSpeed);
+      }, this).handleInterrupt(()->{
+        stopIntake();
+      }) ;
+      return intakeFuelCommand;
+    }
+    public Command stopIntakeCommand(){
+      Command stopIntake = Commands.run(()->{
+        stopIntake();
+      }, this);
+      return stopIntake;
+    }
 
   @Override
   public void periodic() {
