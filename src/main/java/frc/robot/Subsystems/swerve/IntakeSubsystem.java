@@ -57,7 +57,6 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command intakeFuelCommand(double intakeSpeed) {
-
       Command intakeFuelCommand = Commands.run(()->{
         intakeFuel(intakeSpeed);
       }, this).handleInterrupt(()->{
@@ -65,6 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
       }) ;
       return intakeFuelCommand;
     }
+    
     public Command stopIntakeCommand(){
       Command stopIntake = Commands.run(()->{
         stopIntake();
