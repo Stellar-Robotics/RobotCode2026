@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 
-package frc.robot.Subsystems.swerve;
+package frc.robot.Subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -14,7 +14,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -41,36 +40,26 @@ public class IntakeSubsystem extends SubsystemBase {
 
   }
 
-    private void goToPosition(int rotations){
+  private void goToPosition(int rotations){
 
-      SparkClosedLoopController clc = extendMotor.getClosedLoopController();
-      clc.setSetpoint(rotations, ControlType.kPosition);
-      
+    SparkClosedLoopController clc = extendMotor.getClosedLoopController();
+    clc.setSetpoint(rotations, ControlType.kPosition);
+  }
 
-    }
 
-    private void intakeFuel(double intakeSpeed) {
-      rollerMotor.set(intakeSpeed);
-    }
-    private void stopIntake() {
-      rollerMotor.stopMotor();
-    }
+  public Command intakeFuelCommand(double intakeSpeed) {
 
-    public Command intakeFuelCommand(double intakeSpeed) {
-      Command intakeFuelCommand = Commands.run(()->{
-        intakeFuel(intakeSpeed);
-      }, this).handleInterrupt(()->{
-        stopIntake();
-      }) ;
-      return intakeFuelCommand;
-    }
-    
-    public Command stopIntakeCommand(){
-      Command stopIntake = Commands.run(()->{
-        stopIntake();
-      }, this);
-      return stopIntake;
-    }
+    Command intakeFuelCommand = runEnd(
+      () -> {
+        rollerMotor.set(intakeSpeed);
+      },
+      () -> {
+        rollerMotor.stopMotor();
+      }
+    );
+
+    return intakeFuelCommand;
+  }
 
   @Override
   public void periodic() {

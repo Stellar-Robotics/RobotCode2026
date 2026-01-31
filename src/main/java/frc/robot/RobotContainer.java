@@ -7,39 +7,51 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Subsystems.swerve.HooperSubsystem;
-import frc.robot.Subsystems.swerve.IntakeSubsystem;
+import frc.robot.Subsystems.ClimberSubsystem;
+import frc.robot.Subsystems.HopperSubsystem;
+import frc.robot.Subsystems.IntakeSubsystem;
+import frc.robot.Subsystems.ShooterSubsystem;
 
 public class RobotContainer {
   
-  CommandXboxController operaController = new CommandXboxController(2);
+  CommandXboxController operatorController = new CommandXboxController(2);
 
   IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  HooperSubsystem hooperSubsystem = new HooperSubsystem();
+  HopperSubsystem hopperSubsystem = new HopperSubsystem();
+  ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   public RobotContainer() {
     configureBindings();
   }
 
   private void configureBindings() {
-    
-    operaController.a().whileTrue(intakeSubsystem.intakeFuelCommand(0.4));
-    operaController.b().whileTrue(intakeSubsystem.intakeFuelCommand(-0.4));
-    operaController.x().whileTrue(
-      new ParallelCommandGroup(
-        hooperSubsystem.startMecMotorCommand(0.4),
-        hooperSubsystem.startBeltMotorCommand(0.4)
-      )
-    );
 
-    operaController.y().whileTrue(
-      new ParallelCommandGroup(
-        hooperSubsystem.startBeltMotorCommand(-0.4),
-        hooperSubsystem.startMecMotorCommand(-0.4)
+    climberSubsystem.setDefaultCommand(climberSubsystem.setExtendMode(false));
+    
+    operatorController.a().whileTrue(intakeSubsystem.intakeFuelCommand(0.4));
+    operatorController.b().whileTrue(intakeSubsystem.intakeFuelCommand(-0.4));
+    operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
+
+
+    // Spins up the shooter and then feeds the fuel after a 3 second delay.
+    operatorController.leftTrigger(0.5).whileTrue(
+      new SequentialCommandGroup(
+        shooterSubsystem.setFlywheelSpeed(4000),
+        new WaitCommand(3),
+        hopperSubsystem.runHopperMechs(0.5, true, true, true)
       )
+    ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
+
+    operatorController.back().onTrue(
+      climberSubsystem.setExtendMode(true)
     );
   }
+
+  
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");

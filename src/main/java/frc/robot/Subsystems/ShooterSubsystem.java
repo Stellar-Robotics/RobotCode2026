@@ -21,12 +21,10 @@ public class ShooterSubsystem extends SubsystemBase {
   // Create motor (motor controller) objects.
   SparkMax flywheelMotor = new SparkMax(0, MotorType.kBrushless);
   SparkMax bonnetMotor = new SparkMax(0, MotorType.kBrushless);
-  SparkMax turretMotor = new SparkMax(0, MotorType.kBrushless);
 
   // Store refrences to the motors' closed loop controllers.
   SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
   SparkClosedLoopController bonnetCLC = bonnetMotor.getClosedLoopController();
-  SparkClosedLoopController turretCLC = turretMotor.getClosedLoopController();
   
 
   /** Creates a new Shooter. */
@@ -35,7 +33,6 @@ public class ShooterSubsystem extends SubsystemBase {
     // Create configuration objects for the motor controllers.
     SparkMaxConfig flywheelMotorConfig = new SparkMaxConfig();
     SparkMaxConfig bonnetMotorConfig = new SparkMaxConfig();
-    SparkMaxConfig turretMotorConfig = new SparkMaxConfig();
 
     // Set configuration options by calling methods on the configuration objects.
     flywheelMotorConfig
@@ -46,23 +43,16 @@ public class ShooterSubsystem extends SubsystemBase {
       .inverted(false)
       .smartCurrentLimit(40)
       .closedLoop.pid(0.01, 0, 0.005);
-    turretMotorConfig
-      .inverted(false)
-      .smartCurrentLimit(30)
-      .closedLoop.pid(0.01, 0, 0.005);
     
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
     bonnetMotorConfig.encoder.positionConversionFactor(0);
-    // Set conversion factors (adjust so it corresponds with degrees).
-    turretMotorConfig.encoder.positionConversionFactor(0);
     // Set so we get accurate conversion of RPMs at the flywheel.
     flywheelMotorConfig.encoder.positionConversionFactor(0);
 
     // Call the configure method on the motor objects in order to apply the config objects.
     flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     bonnetMotor.configure(bonnetMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    turretMotor.configure(turretMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
@@ -74,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Create a command with an anonymous method that sets the closed
     // loop controller to the velocity (RPMs) specified in the parameter.
-    Command flywheelCommand = run(() -> {
+    Command flywheelCommand = runOnce(() -> {
       flywheelCLC.setSetpoint(flywheelSpeedRPMs, ControlType.kVelocity);
     });
 
@@ -100,26 +90,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Return the bonnetPositionCommand object
     return bonnetPositionCommand;
-  }
-
-
-  // Method that returns a command to set the target position of the turret motor
-  public Command setTurretPositionCommand(double turretPositionDegrees) {
-
-    // Run our parameter through a clamp algorithm to make sure
-    // we can't accidentally extend past the turret's mechanical limits.
-    // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedPosition = MathUtil.clamp(turretPositionDegrees, 0, 5000); // Adjust me!
-
-    // Create a command with an anonymous method that sets the target
-    // position using the closed loop controller.
-    Command turretPositionCommand = run(() -> {
-      // Pass in our clamped value as the arguement.
-      turretCLC.setSetpoint(clampedPosition, ControlType.kPosition);
-    });
-
-    // Return the turretPositionCommand object.
-    return turretPositionCommand;
   }
 
 
