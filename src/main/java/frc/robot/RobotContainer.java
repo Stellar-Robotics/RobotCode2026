@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -32,8 +31,8 @@ public class RobotContainer {
 
     climberSubsystem.setDefaultCommand(climberSubsystem.setExtendMode(false));
     
-    operatorController.a().whileTrue(intakeSubsystem.intakeFuelCommand(0.4));
-    operatorController.b().whileTrue(intakeSubsystem.intakeFuelCommand(-0.4));
+    operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
+    operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
     operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
 
 

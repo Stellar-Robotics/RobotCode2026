@@ -16,33 +16,38 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.MotorConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-  SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless);
-  SparkMax extendMotor = new SparkMax(0, MotorType.kBrushless);
-  Servo lockingServo = new Servo(0);
+  SparkMax climberMotor = new SparkMax(MotorConstants.kClimberCANID, MotorType.kBrushless);
+  SparkMax extensionMotor = new SparkMax(MotorConstants.kClimberExtensionCANID, MotorType.kBrushless);
+  Servo lockingServo = new Servo(MotorConstants.kLatchChannel);
 
   SparkClosedLoopController climberCLC = climberMotor.getClosedLoopController();
-  SparkClosedLoopController extendCLC = extendMotor.getClosedLoopController();
+  SparkClosedLoopController extendCLC = extensionMotor.getClosedLoopController();
 
   public ClimberSubsystem() {
     SparkMaxConfig climberMotorConfig = new SparkMaxConfig();
-    SparkMaxConfig extendMotorConfig = new SparkMaxConfig();
+    SparkMaxConfig extensionMotorConfig = new SparkMaxConfig();
 
-    climberMotorConfig.inverted(false)
-    .smartCurrentLimit(40)
-    .closedLoop.pid(0.01, 0, 0.005);
+    climberMotorConfig.inverted(MotorConstants.kClimberInverted)
+    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
+    .closedLoop.pid(MotorConstants.kClimberPID[0], MotorConstants.kClimberPID[1], MotorConstants.kClimberPID[2]);
 
-    extendMotorConfig.inverted(false)
-    .smartCurrentLimit(40)
-    .closedLoop.pid(0.01, 0, 0.005);
+    extensionMotorConfig.inverted(MotorConstants.kClimberExtensionInverted)
+    .smartCurrentLimit(MotorConstants.kCommonNeo550CurrentLimit)
+    .closedLoop.pid(
+      MotorConstants.kClimberExtensionPID[0], 
+      MotorConstants.kClimberExtensionPID[1], 
+      MotorConstants.kClimberExtensionPID[2]
+    );
 
-    extendMotorConfig.encoder.positionConversionFactor(0);
-    climberMotorConfig.encoder.positionConversionFactor(0);
+    extensionMotorConfig.encoder.positionConversionFactor(MotorConstants.kClimberExtensionConversionFactor);
+    climberMotorConfig.encoder.positionConversionFactor(MotorConstants.kClimberConversionFactor);
 
     climberMotor.configure(climberMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    extendMotor.configure(extendMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    extensionMotor.configure(extensionMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public Command setClimberPositionCommand(double climberExtensionMillimeters) {
@@ -50,7 +55,11 @@ public class ClimberSubsystem extends SubsystemBase {
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the climber's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedClimberExtension = MathUtil.clamp(climberExtensionMillimeters, 0, 5000); // Adjust me!
+    double clampedClimberExtension = MathUtil.clamp(
+      climberExtensionMillimeters, 
+      0, 
+      MotorConstants.kClimberMaxExtensionMM
+    ); // Adjust me!
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.
@@ -68,10 +77,10 @@ public class ClimberSubsystem extends SubsystemBase {
   public Command lock(boolean unlock) {
     Command lock = run(() -> {
       if(unlock == true) {
-        lockingServo.setAngle(0); //set to unlocked posion
+        lockingServo.setAngle(MotorConstants.kLatchUnlockPosition); //set to unlocked posion
       }
       else{
-        lockingServo.setAngle(0); //set to locked position
+        lockingServo.setAngle(MotorConstants.kLatchLockPosition); //set to locked position
       }
 
     }
@@ -84,7 +93,11 @@ public class ClimberSubsystem extends SubsystemBase {
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the climber's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedExtendExtension = MathUtil.clamp(extendExtensionMillimeters, 0, 5000); // Adjust me!
+    double clampedExtendExtension = MathUtil.clamp(
+      extendExtensionMillimeters, 
+      0, 
+      MotorConstants.kClimberExtensionMaxExtensionMM
+    ); // Adjust me!
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.
@@ -98,15 +111,15 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   
-  //true is when it is extended
-  public Command setExtendMode(boolean ExtendMode) {
+  // true is when it is extended
+  public Command setExtendMode(boolean extendMode) {
 
     Command setExtendMode = runOnce(() -> {
-        if(ExtendMode == true) {
-          extendCLC.setSetpoint(23456789, ControlType.kPosition); //change thius
+        if(extendMode == true) {
+          extendCLC.setSetpoint(23456789, ControlType.kPosition); // change this
         }
         else {
-          extendCLC.setSetpoint(5456789, ControlType.kPosition); ///chhange this too
+          extendCLC.setSetpoint(5456789, ControlType.kPosition); // change this too
         }
       }
     );

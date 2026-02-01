@@ -11,32 +11,34 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.MotorConstants;
 
 public class HopperSubsystem extends SubsystemBase {
 
-  SparkMax beltMotor = new SparkMax(0, MotorType.kBrushless);
-  SparkMax corralMotor = new SparkMax(0, MotorType.kBrushless);
-  SparkMax kickerMotor = new SparkMax(0, MotorType.kBrushless);
+  SparkMax beltMotor = new SparkMax(MotorConstants.kBeltCANID, MotorType.kBrushless);
+  SparkMax corralMotor = new SparkMax(MotorConstants.kCorralCANID, MotorType.kBrushless);
+  SparkMax kickerMotor = new SparkMax(MotorConstants.kKickerCANID, MotorType.kBrushless);
 
   public HopperSubsystem() {
     SparkMaxConfig beltMotorConfig = new SparkMaxConfig();
     SparkMaxConfig corralMotorConfig = new SparkMaxConfig();
-    SparkMaxConfig KickerMotorConfig = new SparkMaxConfig();
+    SparkMaxConfig kickerMotorConfig = new SparkMaxConfig();
 
-    beltMotorConfig.inverted(false)
-    .smartCurrentLimit(40);
-    corralMotorConfig.inverted(false)
-    .smartCurrentLimit(40);
-    KickerMotorConfig.inverted(false)
-    .smartCurrentLimit(40);
+    beltMotorConfig.inverted(MotorConstants.kBeltInverted)
+    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit);
+    corralMotorConfig.inverted(MotorConstants.kCorralInverted)
+    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit);
+    kickerMotorConfig.inverted(MotorConstants.kKickerInverted)
+    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
+    .closedLoop.pid(MotorConstants.kKickerPID[0], MotorConstants.kKickerPID[1], MotorConstants.kKickerPID[2]);
+
+    kickerMotorConfig.encoder.positionConversionFactor(MotorConstants.kKickerConversionFactor);
     
     beltMotor.configure(beltMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     corralMotor.configure(corralMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    kickerMotor.configure(KickerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    kickerMotor.configure(kickerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
-
 
   public Command runBeltCommand(double beltMotorSpeed) {
      Command runBeltCommand = runEnd(
@@ -64,7 +66,6 @@ public class HopperSubsystem extends SubsystemBase {
     return runKickerCommand;
   }
 
-
   public Command runCorralCommand(double corralMotorSpeed) {
      Command runCorralCommand = runEnd(
         () -> {
@@ -78,7 +79,6 @@ public class HopperSubsystem extends SubsystemBase {
     runCorralCommand.setName("RunCorral");
     return runCorralCommand;
   }
-
 
   public Command runHopperMechs(double power, boolean corral, boolean kicker, boolean belt) {
 
@@ -98,8 +98,6 @@ public class HopperSubsystem extends SubsystemBase {
     runCommand.setName("RunSelectiveHopperComps");
     return runCommand;
   }
-
-  
 
   @Override
   public void periodic() {

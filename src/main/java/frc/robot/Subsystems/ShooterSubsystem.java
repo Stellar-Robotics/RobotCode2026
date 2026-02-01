@@ -16,11 +16,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import frc.robot.Constants.MotorConstants;
+
 public class ShooterSubsystem extends SubsystemBase {
 
   // Create motor (motor controller) objects.
-  SparkMax flywheelMotor = new SparkMax(0, MotorType.kBrushless);
-  SparkMax bonnetMotor = new SparkMax(0, MotorType.kBrushless);
+  SparkMax flywheelMotor = new SparkMax(MotorConstants.kFlywheelCANID, MotorType.kBrushless);
+  SparkMax bonnetMotor = new SparkMax(MotorConstants.kBonnetCANID, MotorType.kBrushless);
 
   // Store refrences to the motors' closed loop controllers.
   SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
@@ -36,19 +38,19 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Set configuration options by calling methods on the configuration objects.
     flywheelMotorConfig
-      .inverted(false)
-      .smartCurrentLimit(40)
-      .closedLoop.pid(0.01, 0, 0.005);
+      .inverted(MotorConstants.kFlywheelInverted)
+      .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
+      .closedLoop.pid(MotorConstants.kFlywheelPID[0], MotorConstants.kFlywheelPID[1], MotorConstants.kFlywheelPID[2]);
     bonnetMotorConfig
-      .inverted(false)
-      .smartCurrentLimit(40)
-      .closedLoop.pid(0.01, 0, 0.005);
+      .inverted(MotorConstants.kBonnetInverted)
+      .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
+      .closedLoop.pid(MotorConstants.kBonnetPID[0], MotorConstants.kBonnetPID[1], MotorConstants.kBonnetPID[2]);
     
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
-    bonnetMotorConfig.encoder.positionConversionFactor(0);
+    bonnetMotorConfig.encoder.positionConversionFactor(MotorConstants.kBonnetConversionFactor);
     // Set so we get accurate conversion of RPMs at the flywheel.
-    flywheelMotorConfig.encoder.positionConversionFactor(0);
+    flywheelMotorConfig.encoder.positionConversionFactor(MotorConstants.kFlywheelConversionFactor);
 
     // Call the configure method on the motor objects in order to apply the config objects.
     flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -62,13 +64,17 @@ public class ShooterSubsystem extends SubsystemBase {
   // Method that returns a command to set the target velocity of the flywheel shaft.
   public Command setFlywheelSpeed(double flywheelSpeedRPMs) {
 
+    // Clamp our specified speed to a safe range
+    double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -MotorConstants.kFlywheelMaxRPM, MotorConstants.kFlywheelMaxRPM);
+
     // Create a command with an anonymous method that sets the closed
     // loop controller to the velocity (RPMs) specified in the parameter.
     Command flywheelCommand = runOnce(() -> {
-      flywheelCLC.setSetpoint(flywheelSpeedRPMs, ControlType.kVelocity);
+      flywheelCLC.setSetpoint(clampedRPM, ControlType.kVelocity);
     });
 
-    // Return the flywheelCommand object.
+    // Set the command name and return the flywheelCommand object.
+    flywheelCommand.setName("SetFlywheelTo" + clampedRPM + "RPM");
     return flywheelCommand;
   }
 
@@ -79,16 +85,17 @@ public class ShooterSubsystem extends SubsystemBase {
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the bonnet's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionMillimeters, 0, 5000); // Adjust me!
+    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionMillimeters, 0, MotorConstants.kBonnetMaxExtensionMM); // Adjust me!
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.
-    Command bonnetPositionCommand = run(() -> {
+    Command bonnetPositionCommand = runOnce(() -> {
       // Pass in our clamped value as the arguement.
       bonnetCLC.setSetpoint(clampedBonnetExtension, ControlType.kPosition);
     });
 
-    // Return the bonnetPositionCommand object
+    // Set the command name and return the bonnetPositionCommand object
+    bonnetPositionCommand.setName("SetBonnetTo" + clampedBonnetExtension + "MM");
     return bonnetPositionCommand;
   }
 
