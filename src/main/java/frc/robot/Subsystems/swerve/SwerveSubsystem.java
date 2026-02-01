@@ -6,17 +6,17 @@ package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.MiscUtils;
 import frc.robot.StellarHID.StellarHID;
 
 import java.io.File;
 
-/* Pathplanner for 2026 is not yet released! */
-// import com.pathplanner.lib.auto.AutoBuilder;
-// import com.pathplanner.lib.commands.PathfindingCommand;
-// import com.pathplanner.lib.config.PIDConstants;
-// import com.pathplanner.lib.config.RobotConfig;
-// import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-// import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,6 +25,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import swervelib.SwerveDrive;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -70,61 +71,59 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.stopOdometryThread(); // We'll manually update along with vision for better syncronization.
     }
 
-    /* Pathplanner for 2026 is not yet released! */
-    // // Initialize PathPlanner AutoBuilder
-    // initPathPlanner();
+    // Initialize PathPlanner AutoBuilder
+    initPathPlanner();
   }
 
 
-  /* Pathplanner for 2026 is not yet released! */
-  // // Initialize PathPlanner
-  // public void initPathPlanner() {
+  // Initialize PathPlanner
+  public void initPathPlanner() {
 
-  //   RobotConfig config;
+    RobotConfig config;
 
-  //   try {
+    try {
 
-  //     config = RobotConfig.fromGUISettings(); // Attempt to load from the GUI prefrences
-  //     final boolean enableFeedforward = true;
+      config = RobotConfig.fromGUISettings(); // Attempt to load from the GUI prefrences
+      final boolean enableFeedforward = true;
 
-  //     AutoBuilder.configure(
+      AutoBuilder.configure(
 
-  //       swerveDrive::getPose,
-  //       swerveDrive::resetOdometry,
-  //       swerveDrive::getRobotVelocity,
+        swerveDrive::getPose,
+        swerveDrive::resetOdometry,
+        swerveDrive::getRobotVelocity,
 
-  //       (speedsBotRel, feedForwards) -> {
-  //         if (enableFeedforward) {
-  //           swerveDrive.drive(
-  //             speedsBotRel,
-  //             swerveDrive.kinematics.toSwerveModuleStates(speedsBotRel),
-  //             feedForwards.linearForces()
-  //           );
-  //         } else {
-  //           swerveDrive.setChassisSpeeds(speedsBotRel);
-  //         }
-  //       },
+        (speedsBotRel, feedForwards) -> {
+          if (enableFeedforward) {
+            swerveDrive.drive(
+              speedsBotRel,
+              swerveDrive.kinematics.toSwerveModuleStates(speedsBotRel),
+              feedForwards.linearForces()
+            );
+          } else {
+            swerveDrive.setChassisSpeeds(speedsBotRel);
+          }
+        },
 
-  //       new PPHolonomicDriveController (
-  //           new PIDConstants(10, 0.0, 0.0),
-  //           new PIDConstants(5, 0.0, 0.0)
-  //       ),
+        new PPHolonomicDriveController (
+            new PIDConstants(10, 0.0, 0.0),
+            new PIDConstants(5, 0.0, 0.0)
+        ),
 
-  //       config,
-  //       MiscUtils.isRedAlliance(),
-  //       this
+        config,
+        MiscUtils.isRedAlliance(),
+        this
 
-  //     );
+      );
 
-  //   } catch (Exception e) {
-  //     System.out.println("ERROR: Failed to obtain Path Planner config from GUI!");
-  //     e.printStackTrace();
-  //   }
+    } catch (Exception e) {
+      System.out.println("ERROR: Failed to obtain Path Planner config from GUI!");
+      e.printStackTrace();
+    }
 
-  //   // Avoid delays by preloading the pathfinding functionality
-  //   // NOTE: Custom path following commands should be put before this.
-  //   PathfindingCommand.warmupCommand().schedule();
-  // }
+    // Avoid delays by preloading the pathfinding functionality
+    // NOTE: Custom path following commands should be put before this.
+    PathfindingCommand.warmupCommand().schedule();
+  }
 
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
@@ -198,24 +197,23 @@ public class SwerveSubsystem extends SubsystemBase {
     });
   }
 
-  /* Pathplanner for 2026 is not yet released! */
-  // // Use PathPlanner to path find to a position
-  // public Command driveToPose(Pose2d pose) {
+  // Use PathPlanner to path find to a position
+  public Command driveToPose(Pose2d pose) {
 
-  //   // Path finding constraints
-  //   PathConstraints constraints = new PathConstraints(
-  //     swerveDrive.getMaximumChassisVelocity(), 
-  //     4.0,
-  //     swerveDrive.getMaximumChassisAngularVelocity(), 
-  //     Units.degreesToRadians(720)
-  //   );
+    // Path finding constraints
+    PathConstraints constraints = new PathConstraints(
+      swerveDrive.getMaximumChassisVelocity(), 
+      4.0,
+      swerveDrive.getMaximumChassisAngularVelocity(), 
+      Units.degreesToRadians(720)
+    );
 
-  //   return AutoBuilder.pathfindToPose(
-  //     pose,
-  //     constraints,
-  //     edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-  //   );
-  // }
+    return AutoBuilder.pathfindToPose(
+      pose,
+      constraints,
+      edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+    );
+  }
 
 
   @Override
