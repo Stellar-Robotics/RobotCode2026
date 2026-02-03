@@ -10,6 +10,7 @@ import frc.robot.MiscUtils;
 import frc.robot.StellarHID.StellarHID;
 
 import java.io.File;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -195,6 +196,27 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldRelative(positionCommanded);
 
     });
+  }
+
+
+  public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
+
+    // Create command
+    Command driveCommand = run(
+      () -> {
+        swerveDrive.driveFieldOriented(velocity.get());
+      }
+    );
+    
+    // Name and return
+    driveCommand.setName("DriveFieldOriented");
+    return driveCommand;
+  }
+
+
+  public SwerveDrive getSwerveDrive() {
+
+    return swerveDrive;
   }
 
   // Use PathPlanner to path find to a position

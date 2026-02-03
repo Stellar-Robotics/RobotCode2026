@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -13,7 +14,8 @@ import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.HopperSubsystem;
 import frc.robot.Subsystems.IntakeSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
-//import frc.robot.Subsystems.swerve.SwerveSubsystem;
+import frc.robot.Subsystems.swerve.SwerveSubsystem;
+import swervelib.SwerveInputStream;
 
 public class RobotContainer {
   
@@ -24,10 +26,11 @@ public class RobotContainer {
   ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
-  //SwerveSubsystem swerveChassis = new SwerveSubsystem("swerve");
+  SwerveSubsystem swerveChassis = new SwerveSubsystem("swerve");
 
   public RobotContainer() {
-    configureBindings();
+    //configureBindings();
+    initSwerve();
   }
 
   private void configureBindings() {
@@ -51,6 +54,25 @@ public class RobotContainer {
     operatorController.back().onTrue(
       climberSubsystem.setExtendMode(true)
     );
+  }
+
+  private void initSwerve() {
+
+    XboxController driverController = new XboxController(0);
+
+    SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
+      swerveChassis.getSwerveDrive(),
+      () -> driverController.getLeftY() * -1,
+      () -> driverController.getLeftX() * -1
+    )
+      .withControllerRotationAxis(driverController::getRightX)
+      .deadband(0)
+      .scaleTranslation(0.2)
+      .allianceRelativeControl(true);
+
+    Command driveFieldOrientedAngularVelocity = swerveChassis.driveFieldOriented(driveAngularVelocity);
+    swerveChassis.setDefaultCommand(driveFieldOrientedAngularVelocity);
+    
   }
 
   
