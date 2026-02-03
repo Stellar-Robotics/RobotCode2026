@@ -153,10 +153,19 @@ public class StellarHID extends GenericHID {
   /**
    * Get the angle of the right rotary encoder
    *
-   * @return The angle in degrees.
+   * @return The Rotation2D angle [degrees range -180 to 180] [wraps]
    */
   public Rotation2d getRightRotary() {
     return Rotation2d.fromDegrees((360 - (getRawAxis(Axis.kRightRotary.value) + 1) * 180) - 180);
+  }
+
+  /**
+   * Get the raw value of the right rotary encoder
+   * 
+   * @return Raw encoder [-1 to 1] [wraps]
+   */
+  public double getRawRightEncoderValue() {
+    return getRawAxis(Axis.kRightRotary.value);
   }
 
 

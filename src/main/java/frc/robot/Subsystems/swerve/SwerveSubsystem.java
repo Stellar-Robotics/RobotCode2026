@@ -195,6 +195,12 @@ public class SwerveSubsystem extends SubsystemBase {
       ChassisSpeeds positionCommanded = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
       driveFieldRelative(positionCommanded);
 
+      // Report some telemetry to the dashboard
+      SmartDashboard.putNumber("RightRotaryRawValue", controller.getRawRightEncoderValue());
+      SmartDashboard.putNumber("RightRotaryAngleValue", controller.getRightRotary().getDegrees());
+
+      SmartDashboard.putNumber("RotaryDesired", desiredAngle);
+      SmartDashboard.putNumber("RotaryPosition", currentAngle);
     });
   }
 
