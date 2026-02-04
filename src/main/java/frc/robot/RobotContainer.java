@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.StellarHID.CommandStellarHID;
 import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.HopperSubsystem;
 import frc.robot.Subsystems.IntakeSubsystem;
@@ -58,7 +59,8 @@ public class RobotContainer {
 
   private void initSwerve() {
 
-    CommandXboxController driverController = new CommandXboxController(0);
+    CommandXboxController driverController = new CommandXboxController(1);
+    CommandStellarHID altDriverCTRL = new CommandStellarHID(0);
 
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
       swerveChassis.getSwerveDrive(),
@@ -71,9 +73,14 @@ public class RobotContainer {
       .allianceRelativeControl(true);
 
     Command driveFieldOrientedAngularVelocity = swerveChassis.driveFieldOriented(driveAngularVelocity);
-    swerveChassis.setDefaultCommand(driveFieldOrientedAngularVelocity);
-
+    //swerveChassis.setDefaultCommand(driveFieldOrientedAngularVelocity);
+    swerveChassis.setDefaultCommand(swerveChassis.stellarCTRLDriveCommand(altDriverCTRL.getHID()));
     driverController.back().onTrue(
+      Commands.runOnce(() -> {
+        swerveChassis.zeroGyro();
+      }, swerveChassis)
+    );
+    altDriverCTRL.center().onTrue(
       Commands.runOnce(() -> {
         swerveChassis.zeroGyro();
       }, swerveChassis)

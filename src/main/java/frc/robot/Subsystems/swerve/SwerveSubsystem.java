@@ -171,8 +171,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
 
       // Controller raw input
-      double transX = -controller.getLeftX(); // Inverted
-      double transY = controller.getLeftY();
+      double[] inputsWithDB = MiscUtils.circularDeadband(-controller.getLeftX(), controller.getLeftY(), 0.2);
+      double transX = inputsWithDB[0];
+      double transY =  inputsWithDB[1];
       Rotation2d rightRotaryAngle = controller.getRightRotary();
 
       // Current and desired robot angles (range of 0:360)
@@ -201,6 +202,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
       SmartDashboard.putNumber("RotaryDesired", desiredAngle);
       SmartDashboard.putNumber("RotaryPosition", currentAngle);
+
+      SmartDashboard.putNumber("SwerveYaw", swerveDrive.getYaw().getDegrees());
     });
   }
 
