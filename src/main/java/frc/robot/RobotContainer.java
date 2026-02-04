@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -19,77 +18,135 @@ import frc.robot.Subsystems.swerve.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
+
+  // Whether the use the custom Stellar controller or a standard Xbox controller
+  boolean useCustomController = true;
   
-  CommandXboxController operatorController = new CommandXboxController(2);
+  // Create a class-wide accessable operator controller object
+  CommandXboxController operatorController = new CommandXboxController(1);
 
-  // IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  // HopperSubsystem hopperSubsystem = new HopperSubsystem();
-  // ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  // ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  // We will only use one of these, so we'll only declare them for now
+  CommandStellarHID stellarDriveController;
+  CommandXboxController xboxDriveController;
 
-  SwerveSubsystem swerveChassis = new SwerveSubsystem("swerve");
+  // Declare subsystems, but do not define them yet
+  SwerveSubsystem swerveChassis;
+
+  IntakeSubsystem intakeSubsystem;
+  HopperSubsystem hopperSubsystem;
+  ShooterSubsystem shooterSubsystem;
+  ClimberSubsystem climberSubsystem;
+
+
 
   public RobotContainer() {
-    //configureBindings();
+    // initMechanisms();
     initSwerve();
   }
 
-  // private void configureBindings() {
 
-  //   climberSubsystem.setDefaultCommand(climberSubsystem.setExtendMode(false));
+  private void initMechanisms() {
+
+    // Define subsystems
+    intakeSubsystem = new IntakeSubsystem();
+    hopperSubsystem = new HopperSubsystem();
+    shooterSubsystem = new ShooterSubsystem();
+    climberSubsystem = new ClimberSubsystem();
+
+    climberSubsystem.setDefaultCommand(climberSubsystem.setExtendMode(false));
     
-  //   operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
-  //   operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
-  //   operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
+    operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
+    operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
+    operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
 
 
-  //   // Spins up the shooter and then feeds the fuel after a 3 second delay.
-  //   operatorController.leftTrigger(0.5).whileTrue(
-  //     new SequentialCommandGroup(
-  //       shooterSubsystem.setFlywheelSpeed(4000),
-  //       new WaitCommand(3),
-  //       hopperSubsystem.runHopperMechs(0.5, true, true, true)
-  //     )
-  //   ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
+    // Spins up the shooter and then feeds the fuel after a 3 second delay.
+    operatorController.leftTrigger(0.5).whileTrue(
+      new SequentialCommandGroup(
+        shooterSubsystem.setFlywheelSpeed(4000),
+        new WaitCommand(3),
+        hopperSubsystem.runHopperMechs(0.5, true, true, true)
+      )
+    ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
 
-  //   operatorController.back().onTrue(
-  //     climberSubsystem.setExtendMode(true)
-  //   );
-  // }
+    operatorController.back().onTrue(
+      climberSubsystem.setExtendMode(true)
+    );
+  }
+
 
   private void initSwerve() {
 
-    CommandXboxController driverController = new CommandXboxController(1);
-    CommandStellarHID altDriverCTRL = new CommandStellarHID(0);
+    // Define swerve chassis
+     swerveChassis = new SwerveSubsystem("swerve");
 
-    SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
-      swerveChassis.getSwerveDrive(),
-      () -> driverController.getLeftY() * -1,
-      () -> driverController.getLeftX() * -1
-    )
-      .withControllerRotationAxis(() -> driverController.getRightX() * -1)
-      .deadband(0.2)
-      .scaleTranslation(1)
-      .allianceRelativeControl(true);
+    if (useCustomController) { // Create Stellar controller and setup the swerve to use it
 
-    Command driveFieldOrientedAngularVelocity = swerveChassis.driveFieldOriented(driveAngularVelocity);
-    //swerveChassis.setDefaultCommand(driveFieldOrientedAngularVelocity);
-    swerveChassis.setDefaultCommand(swerveChassis.stellarCTRLDriveCommand(altDriverCTRL.getHID()));
-    driverController.back().onTrue(
-      Commands.runOnce(() -> {
-        swerveChassis.zeroGyro();
-      }, swerveChassis)
-    );
-    altDriverCTRL.center().onTrue(
-      Commands.runOnce(() -> {
-        swerveChassis.zeroGyro();
-      }, swerveChassis)
-    );
+      // Define custom controller object
+      stellarDriveController = new CommandStellarHID(0);
+      
+
+      // Create and set the default drive command
+      Command driveCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
+        -stellarDriveController.getLeftX(), 
+        stellarDriveController.getLeftY(), 
+        stellarDriveController.getRightRotary(), 
+        0.1
+      );
+      swerveChassis.setDefaultCommand(driveCommand);
+
+      // Create alt drive command that aims at the hub, then bind it to right center
+      Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
+        -stellarDriveController.getLeftX(), 
+        stellarDriveController.getLeftY(), 
+        stellarDriveController.getRightRotary(), // Change my yaw to point wherever the hub is!
+        0.1
+      );
+      stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
+
+      /*
+       * Other button binds for stellar controller
+       */
+
+      // Bind the center button on the controller for zeroing the gyro
+      stellarDriveController.center().onTrue(
+        Commands.runOnce(() -> {
+          swerveChassis.zeroGyro();
+        }, swerveChassis)
+      );
+    } else { // Setup Xbox controller and setup the swerve to use it
+
+      // Define xbox controller object
+      xboxDriveController = new CommandXboxController(0);
+
+      // Create an input stream to convert between robot relative and field oriented control
+      SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
+        swerveChassis.getSwerveDrive(),
+        () -> xboxDriveController.getLeftY() * -1,
+        () -> xboxDriveController.getLeftX() * -1
+      )
+        .withControllerRotationAxis(() -> xboxDriveController.getRightX() * -1)
+        .deadband(0.2)
+        .scaleTranslation(1)
+        .allianceRelativeControl(true);
+
+      // Create a command using the input stream to drive the robot
+      Command driveFieldOrientedAngularVelocity = swerveChassis.driveFieldOriented(driveAngularVelocity);
+
+      // Set the created command above as the default command for the swerve chassis
+      swerveChassis.setDefaultCommand(driveFieldOrientedAngularVelocity);
+
+      // Bind the back button on the controller for zeroing the gryo
+      xboxDriveController.back().onTrue(
+        Commands.runOnce(() -> {
+          swerveChassis.zeroGyro();
+        }, swerveChassis)
+      );
+    }
     
   }
 
   
-
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }

@@ -26,20 +26,23 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import swervelib.SwerveDrive;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 
 public class SwerveSubsystem extends SubsystemBase {
 
   // Enable/Disable vision/odometry updates
   boolean visionUpdates = false;
+  boolean usePathplanner = false;
 
   // Class accessable objects
   private SwerveDrive swerveDrive;
   private Vision vision;
+
+  private PIDController absoluteAnglePID = new PIDController(0.01, 0, 0);
 
 
   public SwerveSubsystem(String configDirectory) {
@@ -73,7 +76,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Initialize PathPlanner AutoBuilder
-    //initPathPlanner();
+    if (usePathplanner) {
+      initPathPlanner();
+    }
   }
 
 
@@ -127,44 +132,74 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
 
+  // Method for other code to obtain the swerve object
+  public SwerveDrive getSwerveDrive() {
+
+    return swerveDrive;
+  }
+
+
+  // Drive relative to the robots frame of refrence
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
     
     swerveDrive.setChassisSpeeds(robotRelativeSpeeds);
   }
 
 
-  public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
-
-    ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, swerveDrive.getYaw());
-    swerveDrive.setChassisSpeeds(robotRelativeSpeeds);
-  }
-
-
+  // Cross all modules to keep the chassis from moving
   public void lock() {
 
     swerveDrive.lockPose();
   }
 
 
-  public void turnInPlace() {
-    
-    SwerveModuleState[] states = {
-      new SwerveModuleState(),
-      new SwerveModuleState(),
-      new SwerveModuleState(),
-      new SwerveModuleState()
-    };
-    swerveDrive.setModuleStates(states, false);
-  }
-
-
+  // Zero the gyro to the red aliance station
   public void zeroGyro() {
 
     swerveDrive.zeroGyro();
   }
 
 
-  // Command methods
+  // Drive relative to the coordinates on the field
+  public void driveFieldOriented(ChassisSpeeds fieldRelativeSpeeds) {
+
+    ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, swerveDrive.getYaw());
+    swerveDrive.setChassisSpeeds(robotRelativeSpeeds);
+  }
+
+
+  @Override
+  public void periodic() {
+
+    // This method will be called once per scheduler run
+    if (visionUpdates) {
+
+      swerveDrive.updateOdometry();
+      vision.updateEstimatedPose(swerveDrive);
+
+    }
+  }
+
+  /* -------------------------
+  * Command methods
+  * ------------------------- */
+
+  // Command to drive relative to the coordinates on the field
+  public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
+
+    // Create command
+    Command driveCommand = run(
+      () -> {
+        swerveDrive.driveFieldOriented(velocity.get());
+      }
+    );
+    
+    // Name and return
+    driveCommand.setName("DriveFieldOriented");
+    return driveCommand;
+  }
+
+
   // A method for using the custom Stellar Controller with YAGSL
   public Command stellarCTRLDriveCommand(StellarHID controller) {
 
@@ -194,7 +229,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
       // Create chassis speed object and issue it to the subsystem
       ChassisSpeeds positionCommanded = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
-      driveFieldRelative(positionCommanded);
+      driveFieldOriented(positionCommanded);
 
       // Report some telemetry to the dashboard
       SmartDashboard.putNumber("RightRotaryRawValue", controller.getRawRightEncoderValue());
@@ -208,25 +243,43 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
 
-  public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
+  /**
+   * An all in one method to control the swerve via translational velocities and an absolute angle
+   * 
+   * @param radiusX radial/translational velocity on the X axis (range from -1 to 1)
+   * @param radiusY radial/translational velocity on the Y axis (range from -1 to 1)
+   * @param yaw absolute desired yaw angle (range from -180 to 180)
+   * @param deadband cutoff point where the value is no longer registered (set 0 for none)
+   * 
+   * @return command object to drive the robot chassis
+   */
+  public Command driveFieldOrientedWithAbsoluteYaw(double radiusX, double radiusY, Rotation2d yaw, double deadband) {
 
-    // Create command
-    Command driveCommand = run(
-      () -> {
-        swerveDrive.driveFieldOriented(velocity.get());
-      }
-    );
-    
-    // Name and return
-    driveCommand.setName("DriveFieldOriented");
+    // Create command object to contain our drive code
+    Command driveCommand = run(() -> {
+
+      // Apply a deadband to translational inputs
+      double[] filteredTranslation = MiscUtils.circularDeadband(radiusX, radiusY, deadband);
+      double velocityX = filteredTranslation[0];
+      double velocityY = filteredTranslation[1];
+
+      // Obtain current and desired angles (Map continuous robot angle to a wrapping standard range)
+      double robotAngle = MathUtil.inputModulus(swerveDrive.getYaw().getDegrees(), -180, 180);
+      double desiredAngle = yaw.getDegrees();
+
+      // With a PID controller, calculate the angular velocity to align the robot with the controller angle
+      double angularVelocity = absoluteAnglePID.calculate(robotAngle, desiredAngle);
+
+      // Create a chassis speeds object from the information above, and then
+      // convert it so that it's field oriented.
+      ChassisSpeeds targetSpeeds = new ChassisSpeeds(velocityX, velocityY, angularVelocity);
+      driveFieldOriented(targetSpeeds);
+    });
+
+    // return the command
     return driveCommand;
   }
 
-
-  public SwerveDrive getSwerveDrive() {
-
-    return swerveDrive;
-  }
 
   // Use PathPlanner to path find to a position
   public Command driveToPose(Pose2d pose) {
@@ -244,18 +297,5 @@ public class SwerveSubsystem extends SubsystemBase {
       constraints,
       edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
     );
-  }
-
-
-  @Override
-  public void periodic() {
-
-    // This method will be called once per scheduler run
-    if (visionUpdates) {
-
-      swerveDrive.updateOdometry();
-      vision.updateEstimatedPose(swerveDrive);
-
-    }
   }
 }
