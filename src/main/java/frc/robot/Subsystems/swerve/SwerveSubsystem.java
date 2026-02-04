@@ -45,7 +45,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem(String configDirectory) {
 
     // The limiting speed of the drive train
-    double maxSpeed = Units.feetToMeters(2);
+    double maxSpeed = Units.feetToMeters(12);
 
     // Set desired level of debugging verbosity for the swerve system
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -73,7 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Initialize PathPlanner AutoBuilder
-    initPathPlanner();
+    //initPathPlanner();
   }
 
 

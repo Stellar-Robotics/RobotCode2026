@@ -21,10 +21,10 @@ public class RobotContainer {
   
   CommandXboxController operatorController = new CommandXboxController(2);
 
-  IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  HopperSubsystem hopperSubsystem = new HopperSubsystem();
-  ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  // IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  // HopperSubsystem hopperSubsystem = new HopperSubsystem();
+  // ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  // ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   SwerveSubsystem swerveChassis = new SwerveSubsystem("swerve");
 
@@ -33,45 +33,51 @@ public class RobotContainer {
     initSwerve();
   }
 
-  private void configureBindings() {
+  // private void configureBindings() {
 
-    climberSubsystem.setDefaultCommand(climberSubsystem.setExtendMode(false));
+  //   climberSubsystem.setDefaultCommand(climberSubsystem.setExtendMode(false));
     
-    operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
-    operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
-    operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
+  //   operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
+  //   operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
+  //   operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
 
 
-    // Spins up the shooter and then feeds the fuel after a 3 second delay.
-    operatorController.leftTrigger(0.5).whileTrue(
-      new SequentialCommandGroup(
-        shooterSubsystem.setFlywheelSpeed(4000),
-        new WaitCommand(3),
-        hopperSubsystem.runHopperMechs(0.5, true, true, true)
-      )
-    ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
+  //   // Spins up the shooter and then feeds the fuel after a 3 second delay.
+  //   operatorController.leftTrigger(0.5).whileTrue(
+  //     new SequentialCommandGroup(
+  //       shooterSubsystem.setFlywheelSpeed(4000),
+  //       new WaitCommand(3),
+  //       hopperSubsystem.runHopperMechs(0.5, true, true, true)
+  //     )
+  //   ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
 
-    operatorController.back().onTrue(
-      climberSubsystem.setExtendMode(true)
-    );
-  }
+  //   operatorController.back().onTrue(
+  //     climberSubsystem.setExtendMode(true)
+  //   );
+  // }
 
   private void initSwerve() {
 
-    XboxController driverController = new XboxController(0);
+    CommandXboxController driverController = new CommandXboxController(0);
 
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
       swerveChassis.getSwerveDrive(),
       () -> driverController.getLeftY() * -1,
       () -> driverController.getLeftX() * -1
     )
-      .withControllerRotationAxis(driverController::getRightX)
-      .deadband(0)
-      .scaleTranslation(0.2)
+      .withControllerRotationAxis(() -> driverController.getRightX() * -1)
+      .deadband(0.2)
+      .scaleTranslation(1)
       .allianceRelativeControl(true);
 
     Command driveFieldOrientedAngularVelocity = swerveChassis.driveFieldOriented(driveAngularVelocity);
     swerveChassis.setDefaultCommand(driveFieldOrientedAngularVelocity);
+
+    driverController.back().onTrue(
+      Commands.runOnce(() -> {
+        swerveChassis.zeroGyro();
+      }, swerveChassis)
+    );
     
   }
 
