@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
 /** Add your docs here. */
 public class Constants {
 
@@ -80,5 +83,12 @@ public class Constants {
 
         public static final int kLatchLockPosition = 50; // Change me!
         public static final int kLatchUnlockPosition = 0; // May need changed!
+    }
+
+
+    public class MiscConstants {
+
+        public static final Pose2d kRedHubPosition = new Pose2d(0, 0, new Rotation2d());
+        public static final Pose2d kBlueHubPosition = new Pose2d(0, 0, new Rotation2d());
     }
 }

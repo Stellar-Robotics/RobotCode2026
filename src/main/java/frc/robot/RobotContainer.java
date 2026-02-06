@@ -4,11 +4,16 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonUtils;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
 import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.HopperSubsystem;
@@ -95,11 +100,12 @@ public class RobotContainer {
       );
       swerveChassis.setDefaultCommand(driveCommand);
 
-      // Create alt drive command that aims at the hub, then bind it to right center
+      // Obtain angle diff to hub and create orbit drive command, then bind it to right center
+      Pose2d targetHub = MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;
       Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
-        () -> stellarDriveController.getRightRotary(), // Change my yaw to point wherever the hub is!
+        () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub), // Change my yaw to point wherever the hub is!
         0.1
       );
       stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
