@@ -42,13 +42,17 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveDrive swerveDrive;
   private Vision vision;
 
-  private PIDController absoluteAnglePID = new PIDController(0.01, 0, 0);
+  private PIDController absoluteAnglePID = new PIDController(0.015, 0, 0);
 
 
   public SwerveSubsystem(String configDirectory) {
 
     // The limiting speed of the drive train
-    double maxSpeed = Units.feetToMeters(12);
+    double maxSpeed = Units.feetToMeters(25);
+
+    absoluteAnglePID.enableContinuousInput(-180, 180);
+    SmartDashboard.putNumber("TranslationSpeed", 4.8);
+    SmartDashboard.putNumber("RotationSpeed", 4.0);
 
     // Set desired level of debugging verbosity for the swerve system
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -253,27 +257,38 @@ public class SwerveSubsystem extends SubsystemBase {
    * 
    * @return command object to drive the robot chassis
    */
-  public Command driveFieldOrientedWithAbsoluteYaw(double radiusX, double radiusY, Rotation2d yaw, double deadband) {
+  public Command driveFieldOrientedWithAbsoluteYaw(Supplier<Double> radiusX, Supplier<Double> radiusY, Supplier<Rotation2d> yaw, double deadband) {
 
     // Create command object to contain our drive code
     Command driveCommand = run(() -> {
 
       // Apply a deadband to translational inputs
-      double[] filteredTranslation = MiscUtils.circularDeadband(radiusX, radiusY, deadband);
+      double[] filteredTranslation = MiscUtils.circularDeadband(radiusX.get(), radiusY.get(), deadband);
       double velocityX = filteredTranslation[0];
       double velocityY = filteredTranslation[1];
 
       // Obtain current and desired angles (Map continuous robot angle to a wrapping standard range)
       double robotAngle = MathUtil.inputModulus(swerveDrive.getYaw().getDegrees(), -180, 180);
-      double desiredAngle = yaw.getDegrees();
+      double desiredAngle = yaw.get().getDegrees();
 
       // With a PID controller, calculate the angular velocity to align the robot with the controller angle
-      double angularVelocity = absoluteAnglePID.calculate(robotAngle, desiredAngle);
+      double angularVelocity = absoluteAnglePID.calculate(robotAngle - 180, desiredAngle);
+
+      // Obtain the base speed multipliers
+      double dashTranslationSpeed = SmartDashboard.getNumber("TranslationSpeed", 4.8);
+      double dashAngularSpeed =  SmartDashboard.getNumber("RotationSpeed", 4.0);
 
       // Create a chassis speeds object from the information above, and then
       // convert it so that it's field oriented.
-      ChassisSpeeds targetSpeeds = new ChassisSpeeds(velocityX, velocityY, angularVelocity);
+      ChassisSpeeds targetSpeeds = new ChassisSpeeds(velocityX * dashTranslationSpeed, velocityY * dashTranslationSpeed, angularVelocity * dashAngularSpeed);
       driveFieldOriented(targetSpeeds);
+
+      // Report some telemetry to the dashboard
+
+      SmartDashboard.putNumber("RotaryDesired", desiredAngle);
+      SmartDashboard.putNumber("RobotPosition", robotAngle);
+
+      SmartDashboard.putNumber("SwerveYaw", swerveDrive.getYaw().getDegrees());
     });
 
     // return the command

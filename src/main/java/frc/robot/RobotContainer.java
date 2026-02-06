@@ -88,18 +88,18 @@ public class RobotContainer {
 
       // Create and set the default drive command
       Command driveCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
-        -stellarDriveController.getLeftX(), 
-        stellarDriveController.getLeftY(), 
-        stellarDriveController.getRightRotary(), 
+        () -> -stellarDriveController.getLeftY(), 
+        () -> -stellarDriveController.getLeftX(), 
+        () -> stellarDriveController.getRightRotary(), 
         0.1
       );
       swerveChassis.setDefaultCommand(driveCommand);
 
       // Create alt drive command that aims at the hub, then bind it to right center
       Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
-        -stellarDriveController.getLeftX(), 
-        stellarDriveController.getLeftY(), 
-        stellarDriveController.getRightRotary(), // Change my yaw to point wherever the hub is!
+        () -> -stellarDriveController.getLeftY(), 
+        () -> -stellarDriveController.getLeftX(), 
+        () -> stellarDriveController.getRightRotary(), // Change my yaw to point wherever the hub is!
         0.1
       );
       stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
@@ -127,7 +127,7 @@ public class RobotContainer {
       )
         .withControllerRotationAxis(() -> xboxDriveController.getRightX() * -1)
         .deadband(0.2)
-        .scaleTranslation(1)
+        .scaleTranslation(0.5)
         .allianceRelativeControl(true);
 
       // Create a command using the input stream to drive the robot
