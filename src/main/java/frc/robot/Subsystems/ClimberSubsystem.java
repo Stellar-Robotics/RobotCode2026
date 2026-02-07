@@ -110,16 +110,19 @@ public class ClimberSubsystem extends SubsystemBase {
     return ExtendPositionCommand;
   }
 
-  
+  boolean extendMode = false;
   // true is when it is extended
-  public Command setExtendMode(boolean extendMode) {
-
+  public Command toggleExtension() {
     Command setExtendMode = runOnce(() -> {
         if(extendMode == true) {
+          // retract
           extendCLC.setSetpoint(23456789, ControlType.kPosition); // change this
+          extendMode = false;
         }
         else {
+          // extend
           extendCLC.setSetpoint(5456789, ControlType.kPosition); // change this too
+          extendMode = true;
         }
       }
     );

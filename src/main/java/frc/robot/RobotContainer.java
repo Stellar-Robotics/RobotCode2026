@@ -57,7 +57,7 @@ public class RobotContainer {
     shooterSubsystem = new ShooterSubsystem();
     climberSubsystem = new ClimberSubsystem();
 
-    climberSubsystem.setDefaultCommand(climberSubsystem.setExtendMode(false));
+    climberSubsystem.setDefaultCommand(climberSubsystem.toggleExtension());
     
     operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
     operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
@@ -74,7 +74,7 @@ public class RobotContainer {
     ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
 
     operatorController.back().onTrue(
-      climberSubsystem.setExtendMode(true)
+      climberSubsystem.toggleExtension()
     );
   }
 

@@ -7,6 +7,7 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -37,7 +38,8 @@ public class IntakeSubsystem extends SubsystemBase {
     extensionMotorConfig
       .inverted(MotorConstants.kintakeExtensionInverted)
       .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
-      .closedLoop.pid(MotorConstants.kintakeExtensionPID[0], 
+      .closedLoop.pid(
+        MotorConstants.kintakeExtensionPID[0], 
         MotorConstants.kintakeExtensionPID[1], 
         MotorConstants.kintakeExtensionPID[2]
       );
@@ -62,6 +64,25 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   // TODO: Create command to extend and retract intake
+  boolean extendMode = false;
+  // true is when it is extended
+  public Command toggleExtension() {
+    Command setExtendMode = runOnce(() -> {
+        if(extendMode == true) {
+          // retract
+          extensionCLC.setSetpoint(23456789, ControlType.kPosition); // change this
+          extendMode = false;
+        }
+        else {
+          // extend
+          extensionCLC.setSetpoint(5456789, ControlType.kPosition); // change this too
+          extendMode = true;
+        }
+      }
+    );
+    return setExtendMode;
+  }
+
 
   @Override
   public void periodic() {
