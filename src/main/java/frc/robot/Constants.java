@@ -4,8 +4,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 
 /** Add your docs here. */
 public class Constants {
@@ -83,6 +93,22 @@ public class Constants {
 
         public static final int kLatchLockPosition = 50; // Change me!
         public static final int kLatchUnlockPosition = 0; // May need changed!
+    }
+
+
+    public class VisionConstants {
+
+        // Pose estimator arguments
+        public static final String kCameraName = "stellarvision";
+        public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+        public static final Transform3d kRobotToCam = new Transform3d(
+            new Translation3d(Units.inchesToMeters(-7), Units.inchesToMeters(11.3), 0), 
+            new Rotation3d(0, Units.degreesToRadians(292), 0)
+        );
+
+        // Standard Deviation Constraints
+        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
     }
 
 

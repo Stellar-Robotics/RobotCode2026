@@ -35,7 +35,7 @@ import edu.wpi.first.math.util.Units;
 public class SwerveSubsystem extends SubsystemBase {
 
   // Enable/Disable vision/odometry updates
-  boolean visionUpdates = false;
+  boolean visionUpdates = true;
   boolean usePathplanner = false;
 
   // Class accessable objects
@@ -75,7 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Initialize vision system
     if (visionUpdates) {
-      vision = new Vision(swerveDrive::getPose, swerveDrive.field);
+      vision = new Vision(swerveDrive::addVisionMeasurement);
       swerveDrive.stopOdometryThread(); // We'll manually update along with vision for better syncronization.
     }
 
@@ -179,8 +179,7 @@ public class SwerveSubsystem extends SubsystemBase {
     if (visionUpdates) {
 
       swerveDrive.updateOdometry();
-      vision.updateEstimatedPose(swerveDrive);
-
+      vision.periodic();
     }
   }
 
