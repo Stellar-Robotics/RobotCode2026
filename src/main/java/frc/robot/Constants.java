@@ -114,7 +114,15 @@ public class Constants {
 
     public class MiscConstants {
 
-        public static final Pose2d kRedHubPosition = new Pose2d(0, 0, new Rotation2d());
-        public static final Pose2d kBlueHubPosition = new Pose2d(0, 0, new Rotation2d());
+        public static final Pose2d kRedHubPosition = new Pose2d(
+            Units.inchesToMeters(464.5), 
+            Units.inchesToMeters(161.7), 
+            new Rotation2d()
+        );
+        public static final Pose2d kBlueHubPosition = new Pose2d(
+            Units.inchesToMeters(186.5), 
+            Units.inchesToMeters(161.7), 
+            new Rotation2d()
+        );
     }
 }

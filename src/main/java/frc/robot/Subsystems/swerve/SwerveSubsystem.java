@@ -271,7 +271,7 @@ public class SwerveSubsystem extends SubsystemBase {
       double desiredAngle = yaw.get().getDegrees();
 
       // With a PID controller, calculate the angular velocity to align the robot with the controller angle
-      double angularVelocity = absoluteAnglePID.calculate(robotAngle - 180, desiredAngle);
+      double angularVelocity = absoluteAnglePID.calculate(robotAngle, desiredAngle);
 
       // Obtain the base speed multipliers
       double dashTranslationSpeed = SmartDashboard.getNumber("TranslationSpeed", 4.8);
