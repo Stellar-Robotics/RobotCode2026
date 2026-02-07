@@ -57,6 +57,8 @@ public class RobotContainer {
     shooterSubsystem = new ShooterSubsystem();
     climberSubsystem = new ClimberSubsystem();
 
+    climberSubsystem.setDefaultCommand(climberSubsystem.lock(false).ignoringDisable(true));
+
     climberSubsystem.setDefaultCommand(climberSubsystem.toggleExtension());
     
     operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
@@ -76,7 +78,18 @@ public class RobotContainer {
     operatorController.back().onTrue(
       climberSubsystem.toggleExtension()
     );
+
+    operatorController.start().onTrue(
+      climberSubsystem.climbing()
+    );
+
+    operatorController.y().onTrue(             //change button
+      intakeSubsystem.toggleExtension()
+    );
   }
+
+
+    
 
 
   private void initSwerve() {

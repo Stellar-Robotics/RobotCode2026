@@ -13,9 +13,12 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.MotorConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
@@ -129,7 +132,40 @@ public class ClimberSubsystem extends SubsystemBase {
     return setExtendMode;
   }
 
+  public Command emergencyLock() {
+    Command emergencyLockCommand = run(() -> {
+      double timeLeft = DriverStation.getMatchTime();
+      if(timeLeft <= 0.5) {
+        lockingServo.set(0);                    //change this
+      }
+    }
+    );
+    return emergencyLockCommand;
+  } 
 
+  public Command climbing() {
+    //this does the climbing sequence
+    Command climbing = new SequentialCommandGroup(
+
+      lock(true),
+
+      setClimberPositionCommand(0),   //first climb
+      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
+      setClimberPositionCommand(0),   //first reverse
+      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
+
+      setClimberPositionCommand(0),   //second climb
+      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
+      setClimberPositionCommand(0),   //second reverse
+      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
+
+      setClimberPositionCommand(0),   //thrid climb
+      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
+
+      lock(false)  //this is locked now
+    );
+    return climbing;
+  }
   
 
 
