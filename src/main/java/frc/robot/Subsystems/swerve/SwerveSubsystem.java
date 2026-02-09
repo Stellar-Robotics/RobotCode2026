@@ -136,11 +136,11 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
 
-  // Method for other code to obtain the swerve object
-  public SwerveDrive getSwerveDrive() {
+  // Get the YAGSL swerveDrive object
+  public SwerveDrive getSwerveDrive() { return swerveDrive; }
 
-    return swerveDrive;
-  }
+  // Get the robot's current position esimate
+  public Pose2d getOdometryEstimate() { return swerveDrive.swerveDrivePoseEstimator.getEstimatedPosition(); }
 
 
   // Drive relative to the robots frame of refrence

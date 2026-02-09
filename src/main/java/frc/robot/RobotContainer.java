@@ -117,7 +117,7 @@ public class RobotContainer {
       Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
-        () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub), // Change my yaw to point wherever the hub is!
+        () -> PhotonUtils.getYawToPose(swerveChassis.getOdometryEstimate(), targetHub), // Change my yaw to point wherever the hub is!
         0.1
       );
       stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
