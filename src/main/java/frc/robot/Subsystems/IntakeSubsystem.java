@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MotorConstants;
@@ -63,24 +64,39 @@ public class IntakeSubsystem extends SubsystemBase {
     return intakeFuelCommand;
   }
 
+
+
   // TODO: Create command to extend and retract intake
-  boolean extendMode = false;
+  public boolean extendMode = false;
   // true is when it is extended
   public Command toggleExtension() {
     Command setExtendMode = runOnce(() -> {
         if(extendMode == true) {
           // retract
-          extensionCLC.setSetpoint(23456789, ControlType.kPosition); // change this
+          extensionCLC.setSetpoint(23456789, ControlType.kPosition);                    // change this
           extendMode = false;
         }
         else {
           // extend
-          extensionCLC.setSetpoint(5456789, ControlType.kPosition); // change this too
+          extensionCLC.setSetpoint(5456789, ControlType.kPosition);                     // change this too
           extendMode = true;
         }
       }
     );
     return setExtendMode;
+  }
+  
+
+  double matchTime = DriverStation.getMatchTime();
+  public Command initialExtend() {
+    Command initialExtend = runOnce(()->{
+        if(matchTime >= 23535) {                                          //change this 
+          toggleExtension();
+        }
+
+      }
+    );
+      return initialExtend;
   }
 
 
