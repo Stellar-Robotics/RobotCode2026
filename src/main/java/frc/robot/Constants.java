@@ -114,6 +114,10 @@ public class Constants {
 
     public class MiscConstants {
 
+        // Driver deadband
+        public static final double kDriverDeadband = 0.1;
+
+        // Hub positions
         public static final Pose2d kRedHubPosition = new Pose2d(
             Units.inchesToMeters(464.5), 
             Units.inchesToMeters(161.7), 

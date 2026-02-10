@@ -7,7 +7,6 @@ package frc.robot;
 import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -43,13 +42,14 @@ public class RobotContainer {
   ClimberSubsystem climberSubsystem;
 
 
-
+  // This method will be called once when the robot starts
   public RobotContainer() {
     // initMechanisms();
     initSwerve();
   }
 
 
+  // Dedicated method to initialize the mechanisms and assign button binds
   private void initMechanisms() {
 
     // Define subsystems
@@ -58,10 +58,12 @@ public class RobotContainer {
     shooterSubsystem = new ShooterSubsystem();
     climberSubsystem = new ClimberSubsystem();
 
+    // Make sure climber lock is locked by default
     climberSubsystem.setDefaultCommand(climberSubsystem.lock(false).ignoringDisable(true));
 
-    climberSubsystem.setDefaultCommand(climberSubsystem.toggleExtension());
+    climberSubsystem.setDefaultCommand(climberSubsystem.toggleExtension()); // Evaluate Me!
     
+    // Bind buttons to actions
     operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
     operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
     operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
@@ -90,9 +92,7 @@ public class RobotContainer {
   }
 
 
-    
-
-
+  // Dedicated method to initialize the swerve chassis and set bindings
   private void initSwerve() {
 
     // Define swerve chassis
@@ -102,6 +102,9 @@ public class RobotContainer {
 
       // Define custom controller object
       stellarDriveController = new CommandStellarHID(0);
+
+      // Shorten our deadband constant
+      double deadband = MiscConstants.kDriverDeadband;
       
 
       // Create and set the default drive command
@@ -109,7 +112,7 @@ public class RobotContainer {
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
         () -> stellarDriveController.getRightRotary(), 
-        0.1
+        deadband
       );
       swerveChassis.setDefaultCommand(driveCommand);
 
@@ -118,8 +121,8 @@ public class RobotContainer {
       Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithOrbit(
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
-        () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub), // Change my yaw to point wherever the hub is!
-        0.1
+        () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub),
+        deadband
       );
       stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
 
@@ -150,7 +153,7 @@ public class RobotContainer {
         .allianceRelativeControl(true);
 
       // Create a command using the input stream to drive the robot
-      Command driveFieldOrientedAngularVelocity = swerveChassis.driveFieldOriented(driveAngularVelocity);
+      Command driveFieldOrientedAngularVelocity = swerveChassis.driveFieldOrientedCommand(driveAngularVelocity);
 
       // Set the created command above as the default command for the swerve chassis
       swerveChassis.setDefaultCommand(driveFieldOrientedAngularVelocity);
@@ -163,11 +166,6 @@ public class RobotContainer {
       );
     }
     
-  }
-
-
-  public void periodic() {
-    SmartDashboard.putNumber("AngleDiff", PhotonUtils.getYawToPose(swerveChassis.getOdometryEstimate(), MiscConstants.kRedHubPosition).getDegrees());
   }
 
   

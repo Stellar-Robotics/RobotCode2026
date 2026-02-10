@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.MiscUtils;
 import frc.robot.Constants.MiscConstants;
-import frc.robot.StellarHID.StellarHID;
 
 import java.io.File;
 import java.util.function.Supplier;
@@ -46,6 +45,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private PIDController absoluteAnglePID = new PIDController(0.015, 0, 0);
 
 
+  // SwerveSubsystem constructor
   public SwerveSubsystem(String configDirectory) {
 
     // The limiting speed of the drive train
@@ -88,6 +88,18 @@ public class SwerveSubsystem extends SubsystemBase {
       initPathPlanner();
     }
   }
+
+
+  /* -------
+  * Methods
+  --------- */
+
+  // Get the YAGSL swerveDrive object
+  public SwerveDrive getSwerveDrive() { return swerveDrive; }
+
+
+  // Get the robot's current position esimate
+  public Pose2d getOdometryEstimate() { return swerveDrive.swerveDrivePoseEstimator.getEstimatedPosition(); }
 
 
   // Initialize PathPlanner
@@ -140,20 +152,6 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
 
-  // Get the YAGSL swerveDrive object
-  public SwerveDrive getSwerveDrive() { return swerveDrive; }
-
-  // Get the robot's current position esimate
-  public Pose2d getOdometryEstimate() { return swerveDrive.swerveDrivePoseEstimator.getEstimatedPosition(); }
-
-
-  // Drive relative to the robots frame of refrence
-  public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    
-    swerveDrive.setChassisSpeeds(robotRelativeSpeeds);
-  }
-
-
   // Cross all modules to keep the chassis from moving
   public void lock() {
 
@@ -165,6 +163,13 @@ public class SwerveSubsystem extends SubsystemBase {
   public void zeroGyro() {
 
     swerveDrive.zeroGyro();
+  }
+
+
+  // Drive relative to the robots frame of refrence
+  public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
+    
+    swerveDrive.setChassisSpeeds(robotRelativeSpeeds);
   }
 
 
@@ -192,7 +197,7 @@ public class SwerveSubsystem extends SubsystemBase {
   * ------------------------- */
 
   // Command to drive relative to the coordinates on the field
-  public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
+  public Command driveFieldOrientedCommand(Supplier<ChassisSpeeds> velocity) {
 
     // Create command
     Command driveCommand = run(
@@ -204,49 +209,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // Name and return
     driveCommand.setName("DriveFieldOriented");
     return driveCommand;
-  }
-
-
-  // A method for using the custom Stellar Controller with YAGSL
-  public Command stellarCTRLDriveCommand(StellarHID controller) {
-
-    return run(() -> {
-
-      // Controller raw input
-      double[] inputsWithDB = MiscUtils.circularDeadband(-controller.getLeftX(), controller.getLeftY(), 0.2);
-      double transX = inputsWithDB[0];
-      double transY =  inputsWithDB[1];
-      Rotation2d rightRotaryAngle = controller.getRightRotary();
-
-      // Current and desired robot angles (range of 0:360)
-      double currentAngle = MathUtil.inputModulus(swerveDrive.getYaw().getDegrees(), 0, 360);
-      double desiredAngle = rightRotaryAngle.getDegrees();
-
-      // rotary PID Calculations
-      double diffRot = controller.calcRotaryPID(currentAngle, desiredAngle, 0);
-
-      // Obtain the base speed multipliers
-      double dashTranslationSpeed = SmartDashboard.getNumber("TranslationSpeed", 4.8);
-      double dashAngularSpeed =  SmartDashboard.getNumber("RotationSpeed", 4.0);
-
-      // This can be manipulated in logic to facilitate speed mode control
-      double xSpeedDelivered = transX * dashTranslationSpeed;
-      double ySpeedDelivered = transY * dashTranslationSpeed;
-      double rotDelivered = diffRot * dashAngularSpeed;
-
-      // Create chassis speed object and issue it to the subsystem
-      ChassisSpeeds positionCommanded = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
-      driveFieldOriented(positionCommanded);
-
-      // Report some telemetry to the dashboard
-      SmartDashboard.putNumber("RightRotaryRawValue", controller.getRawRightEncoderValue());
-      SmartDashboard.putNumber("RightRotaryAngleValue", controller.getRightRotary().getDegrees());
-
-      SmartDashboard.putNumber("RotaryDesired", desiredAngle);
-      SmartDashboard.putNumber("RotaryPosition", currentAngle);
-
-      SmartDashboard.putNumber("SwerveYaw", swerveDrive.getYaw().getDegrees());
-    });
   }
 
 
@@ -287,13 +249,8 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOriented(targetSpeeds);
 
       // Report some telemetry to the dashboard
-
-      SmartDashboard.putNumber("RotaryDesired", desiredAngle);
-      SmartDashboard.putNumber("RobotPosition", robotAngle);
-
-      SmartDashboard.putNumber("SwerveYaw", swerveDrive.getYaw().getDegrees());
-
-      swerveDrive.field.getObject("HubTarget").setPose(MiscConstants.kRedHubPosition);
+      SmartDashboard.putNumber("DesiredHeading", desiredAngle);
+      SmartDashboard.putNumber("RobotHeading", robotAngle);
     });
 
     // return the command
@@ -302,11 +259,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
   /**
-   * An all in one method to control the swerve via translational velocities and an absolute angle
+   * Controlls the swerve chassis via translational velocities and a desired setpoint difference
    * 
    * @param radiusX radial/translational velocity on the X axis (range from -1 to 1)
    * @param radiusY radial/translational velocity on the Y axis (range from -1 to 1)
-   * @param yaw absolute desired yaw angle (range from -180 to 180)
+   * @param yaw the difference of the desired yaw angle from the robot (range from -180 to 180)
    * @param deadband cutoff point where the value is no longer registered (set 0 for none)
    * 
    * @return command object to drive the robot chassis
@@ -338,13 +295,11 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOriented(targetSpeeds);
 
       // Report some telemetry to the dashboard
+      SmartDashboard.putNumber("DesiredHeading", desiredAngle);
+      SmartDashboard.putNumber("RobotHeading", robotAngle);
 
-      SmartDashboard.putNumber("RotaryDesired", desiredAngle);
-      SmartDashboard.putNumber("RobotPosition", robotAngle);
-
-      SmartDashboard.putNumber("SwerveYaw", swerveDrive.getYaw().getDegrees());
-
-      swerveDrive.field.getObject("HubTarget").setPose(MiscConstants.kRedHubPosition);
+      Pose2d orbitTarget = MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;
+      swerveDrive.field.getObject("OrbitTarget").setPose(orbitTarget);
     });
 
     // return the command
