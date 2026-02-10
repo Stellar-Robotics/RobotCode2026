@@ -7,6 +7,7 @@ package frc.robot.Subsystems.swerve;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.MiscUtils;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.StellarHID;
 
 import java.io.File;
@@ -67,6 +68,9 @@ public class SwerveSubsystem extends SubsystemBase {
       e.printStackTrace();
       throw new RuntimeException();
     }
+
+    // Smart dashboard params
+    SmartDashboard.putNumber("SetPoint", 0);
 
     // Set some conditions for the swerve systems
     swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
@@ -288,6 +292,59 @@ public class SwerveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("RobotPosition", robotAngle);
 
       SmartDashboard.putNumber("SwerveYaw", swerveDrive.getYaw().getDegrees());
+
+      swerveDrive.field.getObject("HubTarget").setPose(MiscConstants.kRedHubPosition);
+    });
+
+    // return the command
+    return driveCommand;
+  }
+
+
+  /**
+   * An all in one method to control the swerve via translational velocities and an absolute angle
+   * 
+   * @param radiusX radial/translational velocity on the X axis (range from -1 to 1)
+   * @param radiusY radial/translational velocity on the Y axis (range from -1 to 1)
+   * @param yaw absolute desired yaw angle (range from -180 to 180)
+   * @param deadband cutoff point where the value is no longer registered (set 0 for none)
+   * 
+   * @return command object to drive the robot chassis
+   */
+  public Command driveFieldOrientedWithOrbit(Supplier<Double> radiusX, Supplier<Double> radiusY, Supplier<Rotation2d> yaw, double deadband) {
+
+    // Create command object to contain our drive code
+    Command driveCommand = run(() -> {
+
+      // Apply a deadband to translational inputs
+      double[] filteredTranslation = MiscUtils.circularDeadband(radiusX.get(), radiusY.get(), deadband);
+      double velocityX = filteredTranslation[0];
+      double velocityY = filteredTranslation[1];
+
+      // Obtain current and desired angles (Map continuous robot angle to a wrapping standard range)
+      double robotAngle = MathUtil.inputModulus(swerveDrive.getOdometryHeading().getDegrees(), -180, 180);
+      double desiredAngle = yaw.get().getDegrees();
+
+      // With a PID controller, calculate the angular velocity to align the robot with the controller angle
+      double angularVelocity = absoluteAnglePID.calculate(robotAngle, robotAngle + desiredAngle);
+
+      // Obtain the base speed multipliers
+      double dashTranslationSpeed = SmartDashboard.getNumber("TranslationSpeed", 4.8);
+      double dashAngularSpeed =  SmartDashboard.getNumber("RotationSpeed", 4.0);
+
+      // Create a chassis speeds object from the information above, and then
+      // convert it so that it's field oriented.
+      ChassisSpeeds targetSpeeds = new ChassisSpeeds(velocityX * dashTranslationSpeed, velocityY * dashTranslationSpeed, angularVelocity * dashAngularSpeed);
+      driveFieldOriented(targetSpeeds);
+
+      // Report some telemetry to the dashboard
+
+      SmartDashboard.putNumber("RotaryDesired", desiredAngle);
+      SmartDashboard.putNumber("RobotPosition", robotAngle);
+
+      SmartDashboard.putNumber("SwerveYaw", swerveDrive.getYaw().getDegrees());
+
+      swerveDrive.field.getObject("HubTarget").setPose(MiscConstants.kRedHubPosition);
     });
 
     // return the command

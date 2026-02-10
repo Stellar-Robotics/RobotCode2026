@@ -7,6 +7,7 @@ package frc.robot;
 import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -114,10 +115,10 @@ public class RobotContainer {
 
       // Obtain angle diff to hub and create orbit drive command, then bind it to right center
       Pose2d targetHub = MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;
-      Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
+      Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithOrbit(
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
-        () -> PhotonUtils.getYawToPose(swerveChassis.getOdometryEstimate(), targetHub), // Change my yaw to point wherever the hub is!
+        () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub), // Change my yaw to point wherever the hub is!
         0.1
       );
       stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
@@ -162,6 +163,11 @@ public class RobotContainer {
       );
     }
     
+  }
+
+
+  public void periodic() {
+    SmartDashboard.putNumber("AngleDiff", PhotonUtils.getYawToPose(swerveChassis.getOdometryEstimate(), MiscConstants.kRedHubPosition).getDegrees());
   }
 
   
