@@ -87,6 +87,8 @@ public class SwerveSubsystem extends SubsystemBase {
     if (usePathplanner) {
       initPathPlanner();
     }
+
+    SmartDashboard.putNumber("robotTravel", getOdometryEstimate().getX());
   }
 
 
@@ -190,6 +192,7 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.updateOdometry();
       vision.periodic();
     }
+    SmartDashboard.putNumber("robotTravel", getOdometryEstimate().getX());
   }
 
   /* -------------------------
