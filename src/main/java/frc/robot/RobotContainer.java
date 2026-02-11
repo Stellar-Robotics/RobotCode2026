@@ -6,9 +6,13 @@ package frc.robot;
 
 import org.photonvision.PhotonUtils;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -27,6 +31,9 @@ public class RobotContainer {
 
   // Whether the use the custom Stellar controller or a standard Xbox controller
   boolean useCustomController = true;
+
+  // Autonomous program selector
+  SendableChooser<Command> autoSelector;
   
   // Create a class-wide accessable operator controller object
   CommandXboxController operatorController = new CommandXboxController(1);
@@ -46,8 +53,13 @@ public class RobotContainer {
 
   // This method will be called once when the robot starts
   public RobotContainer() {
+
     // initMechanisms();
     initSwerve();
+
+    // Build list of pathplanner autos and publish them as a selector
+    autoSelector = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(autoSelector);
   }
 
 
@@ -172,21 +184,35 @@ public class RobotContainer {
 
   
   public Command getAutonomousCommand() {
-    //return Commands.print("No autonomous command configured");
-    ChassisSpeeds desiredSpeed = new ChassisSpeeds(0.5, 0, Units.degreesToRadians(3.5));
 
-    Command driveCommand = swerveChassis.runOnce(
-      () -> {
-        while (swerveChassis.getOdometryEstimate().getX() <= 7.5) {
-          swerveChassis.driveFieldOriented(desiredSpeed);
+    // If using pathplanner
+    if (MiscConstants.kUsePathplanner) {
+
+      // Source auto selection from pathplanner options on dashboard
+      Command selectedAuto = autoSelector.getSelected();
+      if (selectedAuto != null) { return selectedAuto; } // Return selected auto if it exists
+      else { return new Command() {}; } // return empty command if no auto is selected
+
+    } else {
+
+      // Alternate auto:
+
+      // Create and return command to drive robot forward in the x (field relative)
+      // for a specific distance, and then stop.
+      ChassisSpeeds desiredSpeed = new ChassisSpeeds(0.5, 0, Units.degreesToRadians(3.5));
+
+      Command driveCommand = swerveChassis.runOnce(
+        () -> {
+          while (swerveChassis.getOdometryEstimate().getX() <= 7.5) {
+            swerveChassis.driveFieldOriented(desiredSpeed);
+          }
+
+          swerveChassis.driveFieldOriented(new ChassisSpeeds(0, 0, 0));
+          swerveChassis.lock();
         }
+      );
 
-        swerveChassis.driveFieldOriented(new ChassisSpeeds(0, 0, 0));
-        swerveChassis.lock();
-      }
-    );
-
-    return driveCommand;
-
+      return driveCommand;
+    }
   }
 }

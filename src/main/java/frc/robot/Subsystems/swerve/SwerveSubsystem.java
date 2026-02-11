@@ -36,7 +36,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Enable/Disable vision/odometry updates
   boolean visionUpdates = true;
-  boolean usePathplanner = false;
 
   // Class accessable objects
   private SwerveDrive swerveDrive;
@@ -84,7 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Initialize PathPlanner AutoBuilder
-    if (usePathplanner) {
+    if (MiscConstants.kUsePathplanner) {
       initPathPlanner();
     }
 
