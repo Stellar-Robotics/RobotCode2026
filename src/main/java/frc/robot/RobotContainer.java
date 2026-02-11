@@ -9,7 +9,6 @@ import org.photonvision.PhotonUtils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -176,9 +175,14 @@ public class RobotContainer {
     //return Commands.print("No autonomous command configured");
     ChassisSpeeds desiredSpeed = new ChassisSpeeds(0.5, 0, Units.degreesToRadians(3.5));
 
-    Command driveCommand = swerveChassis.run(
+    Command driveCommand = swerveChassis.runOnce(
       () -> {
-        swerveChassis.driveFieldOriented(desiredSpeed);
+        while (swerveChassis.getOdometryEstimate().getX() <= 7.5) {
+          swerveChassis.driveFieldOriented(desiredSpeed);
+        }
+
+        swerveChassis.driveFieldOriented(new ChassisSpeeds(0, 0, 0));
+        swerveChassis.lock();
       }
     );
 
