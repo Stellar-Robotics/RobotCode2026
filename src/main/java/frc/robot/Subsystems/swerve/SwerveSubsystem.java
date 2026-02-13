@@ -83,9 +83,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Initialize PathPlanner AutoBuilder
-    if (MiscConstants.kUsePathplanner) {
-      initPathPlanner();
-    }
+    // if (MiscConstants.kUsePathplanner) {
+    //   initPathPlanner();
+    // }
 
     SmartDashboard.putNumber("robotTravel", getOdometryEstimate().getX());
   }
