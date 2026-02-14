@@ -118,7 +118,7 @@ public class Constants {
         public static final double kDriverDeadband = 0.1;
 
         // Whether pathplanner should be used
-        public static final boolean kUsePathplanner = false;
+        public static final boolean kUsePathplanner = true;
 
         // Hub positions
         public static final Pose2d kRedHubPosition = new Pose2d(

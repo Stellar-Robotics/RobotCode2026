@@ -56,6 +56,15 @@ public class RobotContainer {
 
     // initMechanisms();
     initSwerve();
+
+    if (MiscConstants.kUsePathplanner) {
+      // Init AutoBuilder
+      swerveChassis.initPathPlanner();
+
+      // Build list of pathplanner autos and publish them as a selector
+      autoSelector = AutoBuilder.buildAutoChooser();
+      SmartDashboard.putData("Select Auto", autoSelector);
+    }
   }
 
 
@@ -184,13 +193,6 @@ public class RobotContainer {
     // If using pathplanner
     if (MiscConstants.kUsePathplanner) {
 
-      // Init AutoBuilder
-      swerveChassis.initPathPlanner();
-
-      // Build list of pathplanner autos and publish them as a selector
-      autoSelector = AutoBuilder.buildAutoChooser();
-      SmartDashboard.putData(autoSelector);
-
       // Source auto selection from pathplanner options on dashboard
       Command selectedAuto = autoSelector.getSelected();
       if (selectedAuto != null) { return selectedAuto; } // Return selected auto if it exists
@@ -202,7 +204,7 @@ public class RobotContainer {
 
       // Create and return command to drive robot forward in the x (field relative)
       // for a specific distance, and then stop.
-      ChassisSpeeds desiredSpeed = new ChassisSpeeds(0.5, 0, Units.degreesToRadians(4));
+      ChassisSpeeds desiredSpeed = new ChassisSpeeds(0.5, 0, Units.degreesToRadians(3.8));
 
       Command driveCommand = swerveChassis.run(
         () -> {
