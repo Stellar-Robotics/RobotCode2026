@@ -4,6 +4,8 @@
 
 package frc.robot.Subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -13,8 +15,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.PneumaticHub;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,14 +25,33 @@ import frc.robot.Constants.MotorConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
+  // Declare holders for pneumatic hub and solenoids
+  Solenoid extensionSolenoid; // Off is retracted
+  Solenoid lockSolenoid; // Off is locked
+
+  // Create motor and CLC objects
   SparkMax climberMotor = new SparkMax(MotorConstants.kClimberCANID, MotorType.kBrushless);
-  SparkMax extensionMotor = new SparkMax(MotorConstants.kClimberExtensionCANID, MotorType.kBrushless);
-  Servo lockingServo = new Servo(MotorConstants.kLatchChannel);
-
   SparkClosedLoopController climberCLC = climberMotor.getClosedLoopController();
-  SparkClosedLoopController extendCLC = extensionMotor.getClosedLoopController();
 
-  public ClimberSubsystem() {
+  // Define known climber extensions
+  int homePosition = 0; // Set me! Position the upper hooks will reset to.
+  int latchPosition = 0; // Set me! Full travel to engage ladder hooks.
+  int lockPosition = 0; // Set me! Somewhere between home and the latch positions (for 3rd stage only).
+
+  // Climber encoder position supplier
+  Supplier<Double> climberMotorPosition = () -> climberMotor.getEncoder().getPosition();
+
+  // Create over/under bias to account for PID innacuracies in the climber motor
+  int climberPositionBias = 5; // Tune me
+
+
+  public ClimberSubsystem(PneumaticHub pneumatics) {
+
+    // Setup pneumatics
+    extensionSolenoid = pneumatics.makeSolenoid(0);
+    lockSolenoid = pneumatics.makeSolenoid(1);
+
+    // Create and configure motor configs
     SparkMaxConfig climberMotorConfig = new SparkMaxConfig();
     SparkMaxConfig extensionMotorConfig = new SparkMaxConfig();
 
@@ -50,8 +71,8 @@ public class ClimberSubsystem extends SubsystemBase {
     climberMotorConfig.encoder.positionConversionFactor(MotorConstants.kClimberConversionFactor);
 
     climberMotor.configure(climberMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    extensionMotor.configure(extensionMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
+
 
   public Command setClimberPositionCommand(double climberExtensionMillimeters) {
 
@@ -76,97 +97,80 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
 
-  //true is unlocked
-  public Command lock(boolean unlock) {
-    Command lock = run(() -> {
-      if(unlock == true) {
-        lockingServo.setAngle(MotorConstants.kLatchUnlockPosition); //set to unlocked posion
-      }
-      else{
-        lockingServo.setAngle(MotorConstants.kLatchLockPosition); //set to locked position
-      }
+  // Direct and command methods to set the lock state
+  private void setLock(boolean locked) { lockSolenoid.set(locked ? false : true); }
+  public Command setLockCommand(boolean locked) { return runOnce(() -> setLock(locked)); }
 
-    }
-  );
-    return lock;
-  }
+  // Command to toggle the lock
+  public Command toggleLockCommand() { return runOnce(() -> lockSolenoid.toggle()); }
 
-  public Command setExtendPositionCommand(double extendExtensionMillimeters) {
+  // Direct and command methods to actuate (extend and retract) the climber
+  private void actuate(boolean extend) { extensionSolenoid.set(extend ? true : false); }
+  public Command actuateCommand(boolean extend) { return runOnce(() -> actuate(extend)); }
 
-    // Run our parameter through a clamp algorithm to make sure
-    // we can't accidentally extend past the climber's mechanical limits.
-    // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedExtendExtension = MathUtil.clamp(
-      extendExtensionMillimeters, 
-      0, 
-      MotorConstants.kClimberExtensionMaxExtensionMM
-    ); // Adjust me!
+  // Command to toggle the climber actuation (extend and retract)
+  public Command toggleExtensionCommand() { return runOnce(() -> extensionSolenoid.toggle()); }
 
-    // Create a command with an anonymous method that sets the target
-    // position using the closed loop controller.
-    Command ExtendPositionCommand = runOnce(() -> {
-      // Pass in our clamped value as the arguement.
-      extendCLC.setSetpoint(clampedExtendExtension, ControlType.kPosition);
-    });
+  // Primary command for the endgame climb
+  public Command executeClimbSequenceCommand() {
 
-    // Return the ClimberPositionCommand object
-    return ExtendPositionCommand;
-  }
-
-  boolean extendMode = false;
-  // true is when it is extended
-  public Command toggleExtension() {
-    Command setExtendMode = runOnce(() -> {
-        if(extendMode == true) {
-          // retract
-          extendCLC.setSetpoint(23456789, ControlType.kPosition); // change this
-          extendMode = false;
-        }
-        else {
-          // extend
-          extendCLC.setSetpoint(5456789, ControlType.kPosition); // change this too
-          extendMode = true;
-        }
-      }
+    // Reusable sequence to climb a full rung
+    Command climbFullRungCommand = new SequentialCommandGroup(
+      setClimberPositionCommand(latchPosition),
+      new WaitUntilCommand(() -> climberMotorPosition.get() + climberPositionBias >= latchPosition),
+      setClimberPositionCommand(homePosition),
+      new WaitUntilCommand(() -> climberMotorPosition.get() - climberPositionBias <= homePosition)
     );
-    return setExtendMode;
+
+    Command commandSequence = new SequentialCommandGroup(
+
+      setLockCommand(false), // Set the lock state to be unlocked.
+      climbFullRungCommand, // First rung stage (Starting from the ground).
+      climbFullRungCommand, // Second rung stage (at this point, the ladder hooks are on the first rung).
+
+      // Third run stage (at this point, the ladder hooks are on the second rung).
+      // This stage will not engage the ladder hooks, it will go about half way before
+      // engaging the lock.
+      setClimberPositionCommand(lockPosition),
+      new WaitUntilCommand(() -> climberMotorPosition.get() + climberPositionBias >= lockPosition),
+
+      setLockCommand(true) // Engage the pneumatic lock
+    );
+
+    return commandSequence;
   }
 
-  public Command emergencyLock() {
-    Command emergencyLockCommand = run(() -> {
-      double timeLeft = DriverStation.getMatchTime();
-      if(timeLeft <= 0.5) {
-        lockingServo.set(0);                    //change this
-      }
-    }
+  // Command for partial auto climb
+  public Command executeAutoClimbSequenceCommand() {
+
+    // Sequence to climb and then lock
+    Command climbPartialRungCommand = new SequentialCommandGroup(
+      setClimberPositionCommand(lockPosition),
+      new WaitUntilCommand(() -> climberMotorPosition.get() + climberPositionBias >= lockPosition),
+      setLockCommand(true)
     );
-    return emergencyLockCommand;
-  } 
 
-  public Command climbing() {
-    //this does the climbing sequence
-    Command climbing = new SequentialCommandGroup(
-
-      lock(true),
-
-      setClimberPositionCommand(0),   //first climb
-      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
-      setClimberPositionCommand(0),   //first reverse
-      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
-
-      setClimberPositionCommand(0),   //second climb
-      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
-      setClimberPositionCommand(0),   //second reverse
-      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
-
-      setClimberPositionCommand(0),   //thrid climb
-      new WaitUntilCommand(() -> climberMotor.getEncoder().getPosition() >= 2344789),
-
-      lock(false)  //this is locked now
-    );
-    return climbing;
+    return climbPartialRungCommand;
   }
-  
+
+  // Command to disengage the climb in teleop (only for the auto climb)
+  public Command disengageAutoClimb() {
+
+    Command disengageCommand = new SequentialCommandGroup(
+      setLockCommand(false),
+      setClimberPositionCommand(homePosition),
+      new WaitUntilCommand(() -> climberMotorPosition.get() - climberPositionBias <= homePosition),
+      setLockCommand(true),
+      actuateCommand(false)
+    ).onlyIf( // Only run this command if the robot looks like it climbed during auto
+      () -> climberMotorPosition.get() >= homePosition + climberPositionBias);
+
+    return disengageCommand;
+  }
+
+
+
+
 
 
   @Override

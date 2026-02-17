@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -71,16 +72,19 @@ public class RobotContainer {
   // Dedicated method to initialize the mechanisms and assign button binds
   private void initMechanisms() {
 
+    // Shared Pneumatic hub
+    PneumaticHub airBender = new PneumaticHub(35); // Change module num to CANID
+
     // Define subsystems
+    climberSubsystem = new ClimberSubsystem(airBender);
     intakeSubsystem = new IntakeSubsystem();
     hopperSubsystem = new HopperSubsystem();
     shooterSubsystem = new ShooterSubsystem();
-    climberSubsystem = new ClimberSubsystem();
 
-    // Make sure climber lock is locked by default
-    climberSubsystem.setDefaultCommand(climberSubsystem.lock(false).ignoringDisable(true));
+    // // Make sure climber lock is locked by default
+    // climberSubsystem.setDefaultCommand(climberSubsystem.lock(false).ignoringDisable(true));
 
-    climberSubsystem.setDefaultCommand(climberSubsystem.toggleExtension()); // Evaluate Me!
+    // climberSubsystem.setDefaultCommand(climberSubsystem.toggleExtension()); // Evaluate Me!
     
     // Bind buttons to actions
     operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
@@ -97,13 +101,13 @@ public class RobotContainer {
       )
     ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
 
-    operatorController.back().onTrue(
-      climberSubsystem.toggleExtension()
-    );
+    // operatorController.back().onTrue(
+    //   climberSubsystem.toggleExtension()
+    // );
 
-    operatorController.start().onTrue(
-      climberSubsystem.climbing()
-    );
+    // operatorController.start().onTrue(
+    //   climberSubsystem.climbing()
+    // );
 
     operatorController.y().onTrue(             //change button
       intakeSubsystem.toggleExtension()
