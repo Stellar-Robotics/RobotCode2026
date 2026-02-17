@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.ActuatorConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
@@ -116,11 +117,21 @@ public class RobotContainer {
     // Endgame Climb Action
     Command climbEndgame = climberSubsystem.executeClimbSequenceCommand();
 
+    // Teleop Start Actions
+    Command teleopInit = new SequentialCommandGroup(
+      climberSubsystem.disengageAutoClimb(),
+      intakeSubsystem.setExtensionCommand(true)
+    );
+
 
     /* -------------------------
       * Bind Commands to Triggers
       * ------------------------- */
 
+    // Mode triggers
+    RobotModeTriggers.teleop().onTrue(teleopInit);
+
+    // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
