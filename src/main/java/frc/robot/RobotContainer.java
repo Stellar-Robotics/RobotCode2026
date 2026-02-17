@@ -101,13 +101,13 @@ public class RobotContainer {
       )
     ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
 
-    // operatorController.back().onTrue(
-    //   climberSubsystem.toggleExtension()
-    // );
+    operatorController.back().onTrue(
+      climberSubsystem.toggleExtensionCommand()
+    );
 
-    // operatorController.start().onTrue(
-    //   climberSubsystem.climbing()
-    // );
+    operatorController.start().onTrue(
+      climberSubsystem.executeClimbSequenceCommand()
+    );
 
     operatorController.y().onTrue(             //change button
       intakeSubsystem.toggleExtension()

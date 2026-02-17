@@ -135,7 +135,8 @@ public class ClimberSubsystem extends SubsystemBase {
       new WaitUntilCommand(() -> climberMotorPosition.get() + climberPositionBias >= lockPosition),
 
       setLockCommand(true) // Engage the pneumatic lock
-    );
+    ).onlyIf( // Don't run if climber is not extended
+      () -> extensionSolenoid.get() == true);
 
     return commandSequence;
   }
@@ -145,6 +146,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     // Sequence to climb and then lock
     Command climbPartialRungCommand = new SequentialCommandGroup(
+      actuateCommand(true),
       setClimberPositionCommand(lockPosition),
       new WaitUntilCommand(() -> climberMotorPosition.get() + climberPositionBias >= lockPosition),
       setLockCommand(true)
