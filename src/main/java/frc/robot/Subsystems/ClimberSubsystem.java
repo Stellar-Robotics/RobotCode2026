@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.Constants.ActuatorConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
@@ -30,7 +30,7 @@ public class ClimberSubsystem extends SubsystemBase {
   Solenoid lockSolenoid; // Off is locked
 
   // Create motor and CLC objects
-  SparkMax climberMotor = new SparkMax(MotorConstants.kClimberCANID, MotorType.kBrushless);
+  SparkMax climberMotor = new SparkMax(ActuatorConstants.kClimberCANID, MotorType.kBrushless);
   SparkClosedLoopController climberCLC = climberMotor.getClosedLoopController();
 
   // Define known climber extensions
@@ -48,27 +48,17 @@ public class ClimberSubsystem extends SubsystemBase {
   public ClimberSubsystem(PneumaticHub pneumatics) {
 
     // Setup pneumatics
-    extensionSolenoid = pneumatics.makeSolenoid(0);
-    lockSolenoid = pneumatics.makeSolenoid(1);
+    extensionSolenoid = pneumatics.makeSolenoid(ActuatorConstants.kClimberExtensionChannel);
+    lockSolenoid = pneumatics.makeSolenoid(ActuatorConstants.kLockSolenoidChannel);
 
-    // Create and configure motor configs
+    // Create and configure motor config
     SparkMaxConfig climberMotorConfig = new SparkMaxConfig();
-    SparkMaxConfig extensionMotorConfig = new SparkMaxConfig();
 
-    climberMotorConfig.inverted(MotorConstants.kClimberInverted)
-    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
-    .closedLoop.pid(MotorConstants.kClimberPID[0], MotorConstants.kClimberPID[1], MotorConstants.kClimberPID[2]);
+    climberMotorConfig.inverted(ActuatorConstants.kClimberInverted)
+    .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit)
+    .closedLoop.pid(ActuatorConstants.kClimberPID[0], ActuatorConstants.kClimberPID[1], ActuatorConstants.kClimberPID[2]);
 
-    extensionMotorConfig.inverted(MotorConstants.kClimberExtensionInverted)
-    .smartCurrentLimit(MotorConstants.kCommonNeo550CurrentLimit)
-    .closedLoop.pid(
-      MotorConstants.kClimberExtensionPID[0], 
-      MotorConstants.kClimberExtensionPID[1], 
-      MotorConstants.kClimberExtensionPID[2]
-    );
-
-    extensionMotorConfig.encoder.positionConversionFactor(MotorConstants.kClimberExtensionConversionFactor);
-    climberMotorConfig.encoder.positionConversionFactor(MotorConstants.kClimberConversionFactor);
+    climberMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kClimberConversionFactor);
 
     climberMotor.configure(climberMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
@@ -82,7 +72,7 @@ public class ClimberSubsystem extends SubsystemBase {
     double clampedClimberExtension = MathUtil.clamp(
       climberExtensionMillimeters, 
       0, 
-      MotorConstants.kClimberMaxExtensionMM
+      ActuatorConstants.kClimberMaxExtensionMM
     ); // Adjust me!
 
     // Create a command with an anonymous method that sets the target

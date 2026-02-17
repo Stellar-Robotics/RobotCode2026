@@ -12,28 +12,28 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.Constants.ActuatorConstants;
 
 public class HopperSubsystem extends SubsystemBase {
 
-  SparkMax beltMotor = new SparkMax(MotorConstants.kBeltCANID, MotorType.kBrushless);
-  SparkMax corralMotor = new SparkMax(MotorConstants.kCorralCANID, MotorType.kBrushless);
-  SparkMax kickerMotor = new SparkMax(MotorConstants.kKickerCANID, MotorType.kBrushless);
+  SparkMax beltMotor = new SparkMax(ActuatorConstants.kBeltCANID, MotorType.kBrushless);
+  SparkMax corralMotor = new SparkMax(ActuatorConstants.kCorralCANID, MotorType.kBrushless);
+  SparkMax kickerMotor = new SparkMax(ActuatorConstants.kKickerCANID, MotorType.kBrushless);
 
   public HopperSubsystem() {
     SparkMaxConfig beltMotorConfig = new SparkMaxConfig();
     SparkMaxConfig corralMotorConfig = new SparkMaxConfig();
     SparkMaxConfig kickerMotorConfig = new SparkMaxConfig();
 
-    beltMotorConfig.inverted(MotorConstants.kBeltInverted)
-    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit);
-    corralMotorConfig.inverted(MotorConstants.kCorralInverted)
-    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit);
-    kickerMotorConfig.inverted(MotorConstants.kKickerInverted)
-    .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
-    .closedLoop.pid(MotorConstants.kKickerPID[0], MotorConstants.kKickerPID[1], MotorConstants.kKickerPID[2]);
+    beltMotorConfig.inverted(ActuatorConstants.kBeltInverted)
+    .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit);
+    corralMotorConfig.inverted(ActuatorConstants.kCorralInverted)
+    .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit);
+    kickerMotorConfig.inverted(ActuatorConstants.kKickerInverted)
+    .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit)
+    .closedLoop.pid(ActuatorConstants.kKickerPID[0], ActuatorConstants.kKickerPID[1], ActuatorConstants.kKickerPID[2]);
 
-    kickerMotorConfig.encoder.positionConversionFactor(MotorConstants.kKickerConversionFactor);
+    kickerMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kKickerConversionFactor);
     
     beltMotor.configure(beltMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     corralMotor.configure(corralMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

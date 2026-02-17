@@ -7,97 +7,48 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PneumaticHub;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.Constants.ActuatorConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
   
-  SparkMax rollerMotor = new SparkMax(MotorConstants.kRollerCANID, MotorType.kBrushless);
-  SparkMax extensionMotor = new SparkMax(MotorConstants.kintakeExtensionCANID, MotorType.kBrushless);
+  // Declare variable to hold a class wide solenoid refrence
+  Solenoid extensionSolenoid; // Off is retracted
+  SparkMax rollerMotor = new SparkMax(ActuatorConstants.kRollerCANID, MotorType.kBrushless);
 
-  SparkClosedLoopController extensionCLC = extensionMotor.getClosedLoopController();
 
+  public IntakeSubsystem(PneumaticHub pneumatics) {
 
-  /** Creates a new IntakeSubsystem. */
-  public IntakeSubsystem() {
+    // Use given pneumatic hub to define the extension solenoid
+    extensionSolenoid = pneumatics.makeSolenoid(ActuatorConstants.kintakeExtensionChannel);
 
+    // Configure roller motor
     SparkMaxConfig rollerMotorConfig = new SparkMaxConfig();
-    SparkMaxConfig extensionMotorConfig = new SparkMaxConfig();
-
-
     rollerMotorConfig
-      .inverted(MotorConstants.kRollerInverted)
-      .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit);
-    extensionMotorConfig
-      .inverted(MotorConstants.kintakeExtensionInverted)
-      .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
-      .closedLoop.pid(
-        MotorConstants.kintakeExtensionPID[0], 
-        MotorConstants.kintakeExtensionPID[1], 
-        MotorConstants.kintakeExtensionPID[2]
-      );
-    
+      .inverted(ActuatorConstants.kRollerInverted)
+      .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit);
     rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    extensionMotor.configure(extensionMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public Command runRollerCommand(double intakeSpeed) {
-
-    Command intakeFuelCommand = runEnd(
-      () -> {
-        rollerMotor.set(intakeSpeed);
-      },
-      () -> {
-        rollerMotor.stopMotor();
-      }
-    );
-
-    // 
-    return intakeFuelCommand;
+  // Standard and command methods to run the intake roller
+  private void setRollerPower(double powerPercentage) { rollerMotor.set(powerPercentage); }
+  public Command setRollerPowerCommand(double powerPercentage) {
+    return runEnd(() -> setRollerPower(powerPercentage), () -> { setRollerPower(0); });
   }
 
+  // Standard and command methods to set the intake's extension
+  private void setExtension(boolean extend) { extensionSolenoid.set( extend ? true : false); }
+  public Command setExtensionCommand(boolean extend) { return runOnce(() -> setExtension(extend)); }
 
-
-  // TODO: Create command to extend and retract intake
-  public boolean extendMode = false;
-  // true is when it is extended
-  public Command toggleExtension() {
-    Command setExtendMode = runOnce(() -> {
-        if(extendMode == true) {
-          // retract
-          extensionCLC.setSetpoint(23456789, ControlType.kPosition);                    // change this
-          extendMode = false;
-        }
-        else {
-          // extend
-          extensionCLC.setSetpoint(5456789, ControlType.kPosition);                     // change this too
-          extendMode = true;
-        }
-      }
-    );
-    return setExtendMode;
-  }
-  
-
-  double matchTime = DriverStation.getMatchTime();
-  public Command initialExtend() {
-    Command initialExtend = runOnce(()->{
-        if(matchTime >= 23535) {                                          //change this 
-          toggleExtension();
-        }
-
-      }
-    );
-      return initialExtend;
-  }
+  // Command to toggle the extension
+  public Command toggleExtensionCommand() { return runOnce(() -> extensionSolenoid.toggle()); }
 
 
   @Override

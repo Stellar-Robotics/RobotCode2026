@@ -16,13 +16,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.MotorConstants;
+import frc.robot.Constants.ActuatorConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
   // Create motor (motor controller) objects.
-  SparkMax flywheelMotor = new SparkMax(MotorConstants.kFlywheelCANID, MotorType.kBrushless);
-  SparkMax bonnetMotor = new SparkMax(MotorConstants.kBonnetCANID, MotorType.kBrushless);
+  SparkMax flywheelMotor = new SparkMax(ActuatorConstants.kFlywheelCANID, MotorType.kBrushless);
+  SparkMax bonnetMotor = new SparkMax(ActuatorConstants.kBonnetCANID, MotorType.kBrushless);
 
   // Store refrences to the motors' closed loop controllers.
   SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
@@ -38,19 +38,19 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Set configuration options by calling methods on the configuration objects.
     flywheelMotorConfig
-      .inverted(MotorConstants.kFlywheelInverted)
-      .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
-      .closedLoop.pid(MotorConstants.kFlywheelPID[0], MotorConstants.kFlywheelPID[1], MotorConstants.kFlywheelPID[2]);
+      .inverted(ActuatorConstants.kFlywheelInverted)
+      .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit)
+      .closedLoop.pid(ActuatorConstants.kFlywheelPID[0], ActuatorConstants.kFlywheelPID[1], ActuatorConstants.kFlywheelPID[2]);
     bonnetMotorConfig
-      .inverted(MotorConstants.kBonnetInverted)
-      .smartCurrentLimit(MotorConstants.kCommonNeoCurrentLimit)
-      .closedLoop.pid(MotorConstants.kBonnetPID[0], MotorConstants.kBonnetPID[1], MotorConstants.kBonnetPID[2]);
+      .inverted(ActuatorConstants.kBonnetInverted)
+      .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit)
+      .closedLoop.pid(ActuatorConstants.kBonnetPID[0], ActuatorConstants.kBonnetPID[1], ActuatorConstants.kBonnetPID[2]);
     
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
-    bonnetMotorConfig.encoder.positionConversionFactor(MotorConstants.kBonnetConversionFactor);
+    bonnetMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kBonnetConversionFactor);
     // Set so we get accurate conversion of RPMs at the flywheel.
-    flywheelMotorConfig.encoder.positionConversionFactor(MotorConstants.kFlywheelConversionFactor);
+    flywheelMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kFlywheelConversionFactor);
 
     // Call the configure method on the motor objects in order to apply the config objects.
     flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -59,13 +59,16 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
 
+  // Method that stops the flywheel motor
+  public void stopShooter() { flywheelMotor.stopMotor(); }
+
   // Create methods that return command objects so we can have the CommmandScheduler run them.
 
   // Method that returns a command to set the target velocity of the flywheel shaft.
   public Command setFlywheelSpeed(double flywheelSpeedRPMs) {
 
     // Clamp our specified speed to a safe range
-    double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -MotorConstants.kFlywheelMaxRPM, MotorConstants.kFlywheelMaxRPM);
+    double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM, ActuatorConstants.kFlywheelMaxRPM);
 
     // Create a command with an anonymous method that sets the closed
     // loop controller to the velocity (RPMs) specified in the parameter.
@@ -85,7 +88,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the bonnet's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionMillimeters, 0, MotorConstants.kBonnetMaxExtensionMM); // Adjust me!
+    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionMillimeters, 0, ActuatorConstants.kBonnetMaxExtensionMM); // Adjust me!
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.

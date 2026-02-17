@@ -22,7 +22,10 @@ public class Constants {
 
     // Whole class is static, meaning it won't be used for creating objects.
     // Whole class is final, meaning values cannot be changed.
-    public class MotorConstants {
+    public class ActuatorConstants {
+
+        // Shared pneumatic hub CAN
+        public static final int kPneumaticHubCANID = 30; // Change Me!
 
         // Use these to adjust global current limits across most motors
         public static final int kCommonNeoCurrentLimit = 40;
@@ -62,37 +65,24 @@ public class Constants {
 
 
         // Intake Constants
-        public static final int kintakeExtensionCANID = 10; // Change me!
+        public static final int kintakeExtensionChannel = 0; // Change me!
         public static final int kRollerCANID = 11; // Change me!
 
-        public static final boolean kintakeExtensionInverted = false; // May need changed!
         public static final boolean kRollerInverted = false; // May need changed!
-
-        public static final double kintakeExtensionConversionFactor = 0; // Change me!
-        public static final int kintakeExtensionMaxExtensionMM = 50; // Change me!
-
-        public static final double[] kintakeExtensionPID = {0.005, 0, 0}; // Tune me!
 
 
         // Climber Constants
-        public static final int kClimberExtensionCANID = 12; // Change me!
         public static final int kClimberCANID = 13; // Change me!
-        public static final int kLatchChannel = 14;
+        public static final int kClimberExtensionChannel = 1; // Change me!
+        public static final int kLockSolenoidChannel = 2; // Change me!
 
-        public static final boolean kClimberExtensionInverted = false; // May need changed!
         public static final boolean kClimberInverted = false; // May need changed!
 
-        public static final double kClimberExtensionConversionFactor = 0; // Change me!
         public static final double kClimberConversionFactor = 0; // Change me!
 
-        public static final int kClimberExtensionMaxExtensionMM = 50; // Change me!
         public static final int kClimberMaxExtensionMM = 50;
 
-        public static final double[] kClimberExtensionPID = {0.005, 0, 0}; // Tune me!
         public static final double[] kClimberPID = {0.005, 0, 0,}; // Tune me!
-
-        public static final int kLatchLockPosition = 50; // Change me!
-        public static final int kLatchUnlockPosition = 0; // May need changed!
     }
 
 

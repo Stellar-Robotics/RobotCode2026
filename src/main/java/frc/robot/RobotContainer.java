@@ -16,9 +16,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.ActuatorConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
 import frc.robot.Subsystems.ClimberSubsystem;
@@ -73,45 +75,58 @@ public class RobotContainer {
   private void initMechanisms() {
 
     // Shared Pneumatic hub
-    PneumaticHub airBender = new PneumaticHub(35); // Change module num to CANID
+    PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
 
     // Define subsystems
     climberSubsystem = new ClimberSubsystem(airBender);
-    intakeSubsystem = new IntakeSubsystem();
+    intakeSubsystem = new IntakeSubsystem(airBender);
     hopperSubsystem = new HopperSubsystem();
     shooterSubsystem = new ShooterSubsystem();
 
-    // // Make sure climber lock is locked by default
-    // climberSubsystem.setDefaultCommand(climberSubsystem.lock(false).ignoringDisable(true));
-
-    // climberSubsystem.setDefaultCommand(climberSubsystem.toggleExtension()); // Evaluate Me!
     
-    // Bind buttons to actions
-    operatorController.a().whileTrue(intakeSubsystem.runRollerCommand(0.4));
-    operatorController.b().whileTrue(intakeSubsystem.runRollerCommand(-0.4));
-    operatorController.x().whileTrue(hopperSubsystem.runHopperMechs(0.5, true, true, true));
+    /* -------------------------
+     * Command Actions
+     * ------------------------- */
 
-
-    // Spins up the shooter and then feeds the fuel after a 3 second delay.
-    operatorController.leftTrigger(0.5).whileTrue(
-      new SequentialCommandGroup(
-        shooterSubsystem.setFlywheelSpeed(4000),
-        new WaitCommand(3),
-        hopperSubsystem.runHopperMechs(0.5, true, true, true)
-      )
-    ).onFalse(shooterSubsystem.setFlywheelSpeed(0));
-
-    operatorController.back().onTrue(
-      climberSubsystem.toggleExtensionCommand()
+    // Intake Fuel Action
+    Command intakeFuel = new ParallelCommandGroup(
+      intakeSubsystem.setRollerPowerCommand(0.75),
+      hopperSubsystem.runHopperMechs(0.25, false, false, true)
     );
 
-    operatorController.start().onTrue(
-      climberSubsystem.executeClimbSequenceCommand()
+    // Expel Fuel Action
+    Command expelFuel = new ParallelCommandGroup(
+      intakeSubsystem.setRollerPowerCommand(-0.75),
+      hopperSubsystem.runHopperMechs(-0.5, false, true, true)
     );
 
-    operatorController.y().onTrue(             //change button
-      intakeSubsystem.toggleExtension()
-    );
+    // Extend/Retract Intake Action
+    Command toggleIntakeExtension = intakeSubsystem.toggleExtensionCommand();
+
+    // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
+    Command shootFuel = new SequentialCommandGroup(
+      shooterSubsystem.setFlywheelSpeed(4000),
+      new WaitCommand(3),
+      hopperSubsystem.runHopperMechs(0.5, true, true, true)
+    ).handleInterrupt(() -> shooterSubsystem.stopShooter());
+
+    // Extend/Retract Climber Action
+    Command toggleClimberExtension = climberSubsystem.toggleExtensionCommand();
+
+    // Endgame Climb Action
+    Command climbEndgame = climberSubsystem.executeClimbSequenceCommand();
+
+
+    /* -------------------------
+      * Bind Commands to Triggers
+      * ------------------------- */
+
+    operatorController.leftBumper().whileTrue(intakeFuel);
+    operatorController.leftTrigger(0.5).whileTrue(expelFuel);
+    operatorController.y().onTrue(toggleIntakeExtension);
+    operatorController.leftTrigger(0.5).whileTrue(shootFuel);
+    operatorController.back().onTrue(toggleClimberExtension);
+    operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
   }
 
 
