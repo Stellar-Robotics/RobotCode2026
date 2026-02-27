@@ -55,7 +55,7 @@ public class RobotContainer {
   ClimberSubsystem climberSubsystem;
 
 
-  // This method will be called once when the robot starts
+  // This method will be called only once when the robot starts
   public RobotContainer() {
 
     // initMechanisms();
@@ -73,7 +73,7 @@ public class RobotContainer {
 
 
   // Dedicated method to initialize the mechanisms and assign button binds
-  private void initMechanisms() {
+  private void initMechanisms() { //Claims to be "unused"
 
     // Shared Pneumatic hub
     PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
@@ -133,7 +133,7 @@ public class RobotContainer {
 
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
-    operatorController.leftTrigger(0.5).whileTrue(expelFuel);
+    operatorController.leftTrigger(0.5).whileTrue(expelFuel); //Both this (expelFuel) and the shootFuel (Two lines below this) use the left trigger
     operatorController.y().onTrue(toggleIntakeExtension);
     operatorController.leftTrigger(0.5).whileTrue(shootFuel);
     operatorController.back().onTrue(toggleClimberExtension);
