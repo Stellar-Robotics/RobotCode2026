@@ -25,7 +25,7 @@ public class Constants {
     public class ActuatorConstants {
 
         // Shared pneumatic hub CAN
-        public static final int kPneumaticHubCANID = 30; // Change Me!
+        public static final int kPneumaticHubCANID = 5; // Change Me!
 
         // Use these to adjust global current limits across most motors
         public static final int kCommonNeoCurrentLimit = 40;
@@ -33,8 +33,8 @@ public class Constants {
 
 
         // Shooter Constants
-        public static final int kFlywheelCANID = 5; // Change me!
-        public static final int kBonnetCANID = 6; // Change me!
+        public static final int kFlywheelCANID = 6; // Change me!
+        public static final int kBonnetCANID = 7; // Change me!
 
         public static final boolean kFlywheelInverted = false; // May need changed!
         public static final boolean kBonnetInverted = false; // May need changed!
@@ -50,9 +50,9 @@ public class Constants {
 
 
         // Hopper Constants
-        public static final int kBeltCANID = 7; // Change me!
-        public static final int kCorralCANID = 8; // Change me!
-        public static final int kKickerCANID = 9; // Change me!
+        public static final int kBeltCANID = 8; // Change me!
+        public static final int kCorralCANID = 9; // Change me!
+        public static final int kKickerCANID = 10; // Change me!
 
         public static final boolean kBeltInverted = false; // May need changed!
         public static final boolean kCorralInverted = false; // May need changed!
@@ -72,7 +72,7 @@ public class Constants {
 
 
         // Climber Constants
-        public static final int kClimberCANID = 13; // Change me!
+        public static final int kClimberCANID = 12; // Change me!
         public static final int kClimberExtensionChannel = 1; // Change me!
         public static final int kLockSolenoidChannel = 2; // Change me!
 
