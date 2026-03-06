@@ -7,7 +7,7 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -21,7 +21,7 @@ public class IntakeSubsystem extends SubsystemBase {
   
   // Declare variable to hold a class wide solenoid refrence
   Solenoid extensionSolenoid; // Off is retracted
-  SparkMax rollerMotor = new SparkMax(ActuatorConstants.kRollerCANID, MotorType.kBrushless);
+  SparkFlex rollerMotor = new SparkFlex(ActuatorConstants.kRollerCANID, MotorType.kBrushless);
 
 
   public IntakeSubsystem(PneumaticHub pneumatics) {

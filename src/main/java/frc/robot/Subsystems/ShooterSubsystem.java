@@ -48,9 +48,9 @@ public class ShooterSubsystem extends SubsystemBase {
     
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
-    bonnetMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kBonnetConversionFactor);
+    //bonnetMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kBonnetConversionFactor);
     // Set so we get accurate conversion of RPMs at the flywheel.
-    flywheelMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kFlywheelConversionFactor);
+    //flywheelMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kFlywheelConversionFactor);
 
     // Call the configure method on the motor objects in order to apply the config objects.
     flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

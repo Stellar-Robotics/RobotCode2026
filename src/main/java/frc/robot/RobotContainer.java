@@ -58,7 +58,7 @@ public class RobotContainer {
   // This method will be called only once when the robot starts
   public RobotContainer() {
 
-    // initMechanisms();
+    initMechanisms();
     initSwerve();
 
     if (MiscConstants.kUsePathplanner) {
@@ -79,7 +79,7 @@ public class RobotContainer {
     PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
 
     // Define subsystems
-    climberSubsystem = new ClimberSubsystem(airBender);
+    //climberSubsystem = new ClimberSubsystem(airBender);
     intakeSubsystem = new IntakeSubsystem(airBender);
     hopperSubsystem = new HopperSubsystem();
     shooterSubsystem = new ShooterSubsystem();
@@ -112,14 +112,14 @@ public class RobotContainer {
     ).handleInterrupt(() -> shooterSubsystem.stopShooter());
 
     // Extend/Retract Climber Action
-    Command toggleClimberExtension = climberSubsystem.toggleExtensionCommand();
+    //Command toggleClimberExtension = climberSubsystem.toggleExtensionCommand();
 
     // Endgame Climb Action
-    Command climbEndgame = climberSubsystem.executeClimbSequenceCommand();
+    //Command climbEndgame = climberSubsystem.executeClimbSequenceCommand();
 
     // Teleop Start Actions
     Command teleopInit = new SequentialCommandGroup(
-      climberSubsystem.disengageAutoClimb(),
+      //climberSubsystem.disengageAutoClimb(),
       intakeSubsystem.setExtensionCommand(true)
     );
 
@@ -136,8 +136,8 @@ public class RobotContainer {
     operatorController.leftTrigger(0.5).whileTrue(expelFuel); //Both this (expelFuel) and the shootFuel (Two lines below this) use the left trigger
     operatorController.y().onTrue(toggleIntakeExtension);
     operatorController.leftTrigger(0.5).whileTrue(shootFuel);
-    operatorController.back().onTrue(toggleClimberExtension);
-    operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
+    //operatorController.back().onTrue(toggleClimberExtension);
+    //operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
   }
 
 
