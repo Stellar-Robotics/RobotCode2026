@@ -48,9 +48,9 @@ public class ShooterSubsystem extends SubsystemBase {
     
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
-    //bonnetMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kBonnetConversionFactor);
+    bonnetMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kBonnetConversionFactor);
     // Set so we get accurate conversion of RPMs at the flywheel.
-    //flywheelMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kFlywheelConversionFactor);
+    flywheelMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kFlywheelConversionFactor);
 
     // Call the configure method on the motor objects in order to apply the config objects.
     flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -83,12 +83,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   // Method that returns a command to set the target extension of the bonnet.
-  public Command setBonnetPositionCommand(double bonnetExtensionMillimeters) {
+  public Command setBonnetPositionCommand(double bonnetExtension) {
 
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the bonnet's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionMillimeters, 0, ActuatorConstants.kBonnetMaxExtensionMM); // Adjust me!
+    double clampedBonnetExtension = MathUtil.clamp(bonnetExtension, 0, ActuatorConstants.kBonnetMaxExtensionMM); // Adjust me!
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.

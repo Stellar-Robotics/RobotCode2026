@@ -34,7 +34,7 @@ public class HopperSubsystem extends SubsystemBase {
     .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit)
     .closedLoop.pid(ActuatorConstants.kKickerPID[0], ActuatorConstants.kKickerPID[1], ActuatorConstants.kKickerPID[2]);
 
-    //kickerMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kKickerConversionFactor);
+    kickerMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kKickerConversionFactor);
     
     beltMotor.configure(beltMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     corralMotor.configure(corralMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

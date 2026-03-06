@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.ActuatorConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
-import frc.robot.Subsystems.ClimberSubsystem;
+//import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.HopperSubsystem;
 import frc.robot.Subsystems.IntakeSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
@@ -52,7 +52,7 @@ public class RobotContainer {
   IntakeSubsystem intakeSubsystem;
   HopperSubsystem hopperSubsystem;
   ShooterSubsystem shooterSubsystem;
-  ClimberSubsystem climberSubsystem;
+  //ClimberSubsystem climberSubsystem;
 
 
   // This method will be called only once when the robot starts
@@ -73,7 +73,7 @@ public class RobotContainer {
 
 
   // Dedicated method to initialize the mechanisms and assign button binds
-  private void initMechanisms() { //Claims to be "unused"
+  private void initMechanisms() {
 
     // Shared Pneumatic hub
     PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
@@ -133,7 +133,7 @@ public class RobotContainer {
 
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
-    operatorController.leftTrigger(0.5).whileTrue(expelFuel); //Both this (expelFuel) and the shootFuel (Two lines below this) use the left trigger
+    operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
     operatorController.leftTrigger(0.5).whileTrue(shootFuel);
     //operatorController.back().onTrue(toggleClimberExtension);
