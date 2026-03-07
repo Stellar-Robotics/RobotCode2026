@@ -11,8 +11,9 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ActuatorConstants;
@@ -20,14 +21,14 @@ import frc.robot.Constants.ActuatorConstants;
 public class IntakeSubsystem extends SubsystemBase {
   
   // Declare variable to hold a class wide solenoid refrence
-  Solenoid extensionSolenoid; // Off is retracted
+  DoubleSolenoid extensionSolenoid; // Off is retracted
   SparkFlex rollerMotor = new SparkFlex(ActuatorConstants.kRollerCANID, MotorType.kBrushless);
 
 
   public IntakeSubsystem(PneumaticHub pneumatics) {
 
     // Use given pneumatic hub to define the extension solenoid
-    extensionSolenoid = pneumatics.makeSolenoid(ActuatorConstants.kintakeExtensionChannel);
+    extensionSolenoid = pneumatics.makeDoubleSolenoid(ActuatorConstants.kintakeExtensionChannel, ActuatorConstants.kintakeRetractionChannel);
 
     // Configure roller motor
     SparkMaxConfig rollerMotorConfig = new SparkMaxConfig();
@@ -44,7 +45,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   // Standard and command methods to set the intake's extension
-  private void setExtension(boolean extend) { extensionSolenoid.set( extend ? true : false); }
+  private void setExtension(boolean extend) { extensionSolenoid.set( extend ? Value.kForward : Value.kReverse); }
   public Command setExtensionCommand(boolean extend) { return runOnce(() -> setExtension(extend)); }
 
   // Command to toggle the extension

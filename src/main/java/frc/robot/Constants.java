@@ -45,7 +45,7 @@ public class Constants {
         public static final double kFlywheelMaxRPM = 5000;
         public static final double kBonnetMaxExtensionMM = 0.3; // Change me!
 
-        public static final double[] kFlywheelPID = {0.0002, 0, 0};
+        public static final double[] kFlywheelPID = {0.005, 0, 0};
         public static final double[] kBonnetPID = {0.03, 0, 0}; // Tune me!
 
 
@@ -65,7 +65,8 @@ public class Constants {
 
 
         // Intake Constants
-        public static final int kintakeExtensionChannel = 0; // Change me!
+        public static final int kintakeExtensionChannel = 14; // Change me!
+        public static final int kintakeRetractionChannel = 15; // Change me!
         public static final int kRollerCANID = 11; // Change me!
 
         public static final boolean kRollerInverted = true; // May need changed!
