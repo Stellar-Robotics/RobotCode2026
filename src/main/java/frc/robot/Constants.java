@@ -45,7 +45,7 @@ public class Constants {
         public static final double kFlywheelMaxRPM = 5000;
         public static final double kBonnetMaxExtensionMM = 0.3; // Change me!
 
-        public static final double[] kFlywheelPID = {0.005, 0, 0.001};
+        public static final double[] kFlywheelPID = {0.0002, 0, 0};
         public static final double[] kBonnetPID = {0.03, 0, 0}; // Tune me!
 
 
@@ -55,8 +55,8 @@ public class Constants {
         public static final int kKickerCANID = 10; // Change me!
 
         public static final boolean kBeltInverted = false; // May need changed!
-        public static final boolean kCorralInverted = false; // May need changed!
-        public static final boolean kKickerInverted = false; // May need changed!
+        public static final boolean kCorralInverted = true; // May need changed!
+        public static final boolean kKickerInverted = true; // May need changed!
 
         public static final double kKickerConversionFactor = 1.0; // Change me!
 
@@ -68,7 +68,7 @@ public class Constants {
         public static final int kintakeExtensionChannel = 0; // Change me!
         public static final int kRollerCANID = 11; // Change me!
 
-        public static final boolean kRollerInverted = false; // May need changed!
+        public static final boolean kRollerInverted = true; // May need changed!
 
 
         // Climber Constants

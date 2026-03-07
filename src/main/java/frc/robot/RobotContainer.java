@@ -135,7 +135,7 @@ public class RobotContainer {
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
-    operatorController.leftTrigger(0.5).whileTrue(shootFuel);
+    operatorController.rightTrigger(0.5).whileTrue(shootFuel);
     //operatorController.back().onTrue(toggleClimberExtension);
     //operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
   }

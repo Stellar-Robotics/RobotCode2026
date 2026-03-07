@@ -85,7 +85,7 @@ public class HopperSubsystem extends SubsystemBase {
 
     Command runCommand = runEnd(
       () -> {
-        corralMotor.set(corral ? power : 0);
+        corralMotor.set(corral ? 1 : 0);
         kickerMotor.set(kicker ? power : 0);
         beltMotor.set(belt ? power : 0);
       },
