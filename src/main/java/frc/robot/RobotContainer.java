@@ -149,16 +149,19 @@ public class RobotContainer {
     // Intake bindings
     autoCommandBindings.put("extendIntake", intakeSubsystem.setExtensionCommand(true));
     autoCommandBindings.put("retractIntake", intakeSubsystem.setExtensionCommand(true));
-    autoCommandBindings.put("runIntakeIn", intakeSubsystem.setRollerPowerCommand(0.5));
-    autoCommandBindings.put("runIntakeOut", intakeSubsystem.setRollerPowerCommand(-0.5));
+    autoCommandBindings.put("runIntakeIn", intakeSubsystem.setRollerPowerCommand(0.5)); // Runs continuously
+    autoCommandBindings.put("runIntakeOut", intakeSubsystem.setRollerPowerCommand(-0.5)); // Runs continuously
 
     // Hopper
-    autoCommandBindings.put("runBeltsIn", hopperSubsystem.runBeltCommand(0.5));
-    autoCommandBindings.put("runBeltsOut", hopperSubsystem.runBeltCommand(-0.5));
-    autoCommandBindings.put("runRollersIn", hopperSubsystem.runCorralCommand(0.5));
-    autoCommandBindings.put("runRollersOut", hopperSubsystem.runCorralCommand(-0.5));
-    autoCommandBindings.put("runKickerIn", hopperSubsystem.runKickerCommand(0.5));
-    autoCommandBindings.put("runKickerOut", hopperSubsystem.runKickerCommand(-0.5));
+    autoCommandBindings.put("setBeltsIn", hopperSubsystem.runBeltCommand(0.5));
+    autoCommandBindings.put("setBeltsOut", hopperSubsystem.runBeltCommand(-0.5));
+    autoCommandBindings.put("stopBelts", hopperSubsystem.runBeltCommand(0));
+    autoCommandBindings.put("setRollersIn", hopperSubsystem.runCorralCommand(0.5));
+    autoCommandBindings.put("setRollersOut", hopperSubsystem.runCorralCommand(-0.5));
+    autoCommandBindings.put("stopRollers", hopperSubsystem.runCorralCommand(0));
+    autoCommandBindings.put("setKickerIn", hopperSubsystem.runKickerCommand(0.5));
+    autoCommandBindings.put("setKickerOut", hopperSubsystem.runKickerCommand(-0.5));
+    autoCommandBindings.put("stopKicker", hopperSubsystem.runKickerCommand(0));
 
     // Shooter bindings
     autoCommandBindings.put("setShooter5K", shooterSubsystem.setFlywheelSpeed(5000));
