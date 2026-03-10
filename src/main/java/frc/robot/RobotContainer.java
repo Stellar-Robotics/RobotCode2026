@@ -132,7 +132,7 @@ public class RobotContainer {
       * ------------------------- */
 
     // Mode triggers
-    RobotModeTriggers.teleop().onTrue(teleopInit);
+    if (MiscConstants.kTeleopExtendIntake) { RobotModeTriggers.teleop().onTrue(teleopInit); }
 
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
@@ -142,34 +142,37 @@ public class RobotContainer {
     //operatorController.back().onTrue(toggleClimberExtension);
     //operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
 
-    // Autonomous bindings (Store in a hashmap (key/val pairs))
-    HashMap<String, Command> autoCommandBindings = new HashMap<>();
 
-    // Create key/val pairs of commands we want to map
-    // Intake bindings
-    autoCommandBindings.put("extendIntake", intakeSubsystem.setExtensionCommand(true));
-    autoCommandBindings.put("retractIntake", intakeSubsystem.setExtensionCommand(true));
-    autoCommandBindings.put("runIntakeIn", intakeSubsystem.setRollerPowerCommand(0.5)); // Runs continuously
-    autoCommandBindings.put("runIntakeOut", intakeSubsystem.setRollerPowerCommand(-0.5)); // Runs continuously
+    if (MiscConstants.kUsePathplanner) {
+      // Autonomous bindings (Store in a hashmap (key/val pairs))
+      HashMap<String, Command> autoCommandBindings = new HashMap<>();
 
-    // Hopper
-    autoCommandBindings.put("setBeltsIn", hopperSubsystem.runBeltCommand(0.5));
-    autoCommandBindings.put("setBeltsOut", hopperSubsystem.runBeltCommand(-0.5));
-    autoCommandBindings.put("stopBelts", hopperSubsystem.runBeltCommand(0));
-    autoCommandBindings.put("setRollersIn", hopperSubsystem.runCorralCommand(0.5));
-    autoCommandBindings.put("setRollersOut", hopperSubsystem.runCorralCommand(-0.5));
-    autoCommandBindings.put("stopRollers", hopperSubsystem.runCorralCommand(0));
-    autoCommandBindings.put("setKickerIn", hopperSubsystem.runKickerCommand(0.5));
-    autoCommandBindings.put("setKickerOut", hopperSubsystem.runKickerCommand(-0.5));
-    autoCommandBindings.put("stopKicker", hopperSubsystem.runKickerCommand(0));
+      // Create key/val pairs of commands we want to map
+      // Intake bindings
+      autoCommandBindings.put("extendIntake", intakeSubsystem.setExtensionCommand(true));
+      autoCommandBindings.put("retractIntake", intakeSubsystem.setExtensionCommand(true));
+      autoCommandBindings.put("runIntakeIn", intakeSubsystem.setRollerPowerCommand(0.5)); // Runs continuously
+      autoCommandBindings.put("runIntakeOut", intakeSubsystem.setRollerPowerCommand(-0.5)); // Runs continuously
 
-    // Shooter bindings
-    autoCommandBindings.put("setShooter5K", shooterSubsystem.setFlywheelSpeed(5000));
-    autoCommandBindings.put("setShooter4K", shooterSubsystem.setFlywheelSpeed(4000));
-    autoCommandBindings.put("stopShooter", shooterSubsystem.setFlywheelSpeed(0));
+      // Hopper
+      autoCommandBindings.put("setBeltsIn", hopperSubsystem.runBeltCommand(0.5));
+      autoCommandBindings.put("setBeltsOut", hopperSubsystem.runBeltCommand(-0.5));
+      autoCommandBindings.put("stopBelts", hopperSubsystem.runBeltCommand(0));
+      autoCommandBindings.put("setRollersIn", hopperSubsystem.runCorralCommand(0.5));
+      autoCommandBindings.put("setRollersOut", hopperSubsystem.runCorralCommand(-0.5));
+      autoCommandBindings.put("stopRollers", hopperSubsystem.runCorralCommand(0));
+      autoCommandBindings.put("setKickerIn", hopperSubsystem.runKickerCommand(0.5));
+      autoCommandBindings.put("setKickerOut", hopperSubsystem.runKickerCommand(-0.5));
+      autoCommandBindings.put("stopKicker", hopperSubsystem.runKickerCommand(0));
 
-    // Register bindings in the HashMap
-    NamedCommands.registerCommands(autoCommandBindings);
+      // Shooter bindings
+      autoCommandBindings.put("setShooter5K", shooterSubsystem.setFlywheelSpeed(5000));
+      autoCommandBindings.put("setShooter4K", shooterSubsystem.setFlywheelSpeed(4000));
+      autoCommandBindings.put("stopShooter", shooterSubsystem.setFlywheelSpeed(0));
+
+      // Register bindings in the HashMap
+      NamedCommands.registerCommands(autoCommandBindings);
+    }
   }
 
 
