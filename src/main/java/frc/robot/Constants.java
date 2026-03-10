@@ -45,7 +45,7 @@ public class Constants {
         public static final double kFlywheelMaxRPM = 5000;
         public static final double kBonnetMaxExtensionMM = 0.3; // Change me!
 
-        public static final double[] kFlywheelPID = {0.005, 0, 0};
+        public static final double[] kFlywheelPID = {0.001, 0, 0.04, 0.015};
         public static final double[] kBonnetPID = {0.03, 0, 0}; // Tune me!
 
 
