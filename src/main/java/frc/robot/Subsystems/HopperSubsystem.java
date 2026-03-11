@@ -6,7 +6,6 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -18,7 +17,7 @@ import frc.robot.Constants.ActuatorConstants;
 public class HopperSubsystem extends SubsystemBase {
 
   SparkMax beltMotor = new SparkMax(ActuatorConstants.kBeltCANID, MotorType.kBrushless);
-  SparkFlex corralMotor = new SparkFlex(ActuatorConstants.kCorralCANID, MotorType.kBrushless);
+  SparkMax corralMotor = new SparkMax(ActuatorConstants.kCorralCANID, MotorType.kBrushless);
   SparkMax kickerMotor = new SparkMax(ActuatorConstants.kKickerCANID, MotorType.kBrushless);
 
   public HopperSubsystem() {
