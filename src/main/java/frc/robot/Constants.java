@@ -39,7 +39,7 @@ public class Constants {
         public static final boolean kFlywheelInverted = false; // May need changed!
         public static final boolean kBonnetInverted = false; // May need changed!
 
-        public static final double kBonnetConversionFactor = 1.0; // Change me!
+        public static final double kBonnetConversionFactor = 0.193911189; // Change me!
         public static final double kFlywheelConversionFactor = 1.0; // Change me!
 
         public static final double kFlywheelMaxRPM = 5000;

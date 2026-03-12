@@ -111,7 +111,7 @@ public class RobotContainer {
     Command shootFuel = new SequentialCommandGroup(
       shooterSubsystem.setFlywheelSpeed(4000),
       new WaitCommand(3),
-      hopperSubsystem.runHopperMechs(0.5, true, true, true)
+      hopperSubsystem.runHopperMechs(1, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.stopShooter());
 
     // Extend/Retract Climber Action
@@ -278,6 +278,8 @@ public class RobotContainer {
       ).until(() -> swerveChassis.getOdometryEstimate().getX() >= 7.5);
 
       return driveCommand;
+
+      //return swerveChassis.sysIdDriveMotorCommand().andThen(new WaitCommand(10).andThen(swerveChassis.sysIdAngleMotorCommand()));
     }
   }
 }

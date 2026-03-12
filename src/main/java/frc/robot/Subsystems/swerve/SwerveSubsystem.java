@@ -6,6 +6,7 @@ package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.MiscUtils;
 import frc.robot.Constants.MiscConstants;
 
@@ -25,6 +26,7 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -179,6 +181,45 @@ public class SwerveSubsystem extends SubsystemBase {
 
     ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, swerveDrive.getYaw());
     swerveDrive.setChassisSpeeds(robotRelativeSpeeds);
+  }
+
+
+  /**
+   * Command to characterize the robot drive motors using SysId
+   *
+   * @return SysId Drive Command
+   */
+  public Command sysIdDriveMotorCommand() {
+    return SwerveDriveTest.generateSysIdCommand(
+        SwerveDriveTest.setDriveSysIdRoutine(
+        new Config(),
+        this, 
+        swerveDrive, 
+        12, 
+        true
+      ),
+      3.0,
+      5.0, 
+      3.0
+    );
+  }
+
+  /**
+   * Command to characterize the robot angle motors using SysId
+   *
+   * @return SysId Angle Command
+   */
+  public Command sysIdAngleMotorCommand() {
+    return SwerveDriveTest.generateSysIdCommand(
+      SwerveDriveTest.setAngleSysIdRoutine(
+        new Config(),
+        this, 
+        swerveDrive
+      ),
+      3.0,
+      5.0, 
+      3.0
+    );
   }
 
 
