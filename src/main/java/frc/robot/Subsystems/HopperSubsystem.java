@@ -12,9 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ActuatorConstants;
 
 public class HopperSubsystem extends SubsystemBase {
@@ -85,28 +83,15 @@ public class HopperSubsystem extends SubsystemBase {
 
   public Command runHopperMechs(double power, boolean corral, boolean kicker, boolean belt) {
 
-    // Command runIn = runOnce(() -> {beltMotor.set(1);});
-    // Command runOut = runOnce(() -> {beltMotor.set(-1);});
-
-    // Command alternateCommandIn = new SequentialCommandGroup(
-    //   runIn,
-    //   new WaitCommand(0.3),
-    //   runOut,
-    //   new WaitCommand(0.15)
-    // );
-
-    // Command alternateCommandOut = new SequentialCommandGroup(
-    //   runIn,
-    //   new WaitCommand(0.15),
-    //   runOut,
-    //   new WaitCommand(0.3)
-    // );
+    // Get the sign(+/-) of the power input to control the direction of the belt oscillations.
+    double powerSign = Math.signum(power);
 
     Command runCommand = runEnd(
       () -> {
         corralMotor.set(corral ? power : 0);
         kickerMotor.set(kicker ? power : 0);
-        beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * 6) * 0.75 + 0.25) : 0);
+        // Create a sin wave that will oscilate the belts to keep fuel from jamming.
+        beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * 8) * 0.75 + (0.25 * powerSign)) : 0);
       },
       () -> {
         corralMotor.stopMotor();
@@ -117,54 +102,6 @@ public class HopperSubsystem extends SubsystemBase {
 
     runCommand.setName("RunSelectiveHopperComps");
     return runCommand;
-  }
-
-  public Command runAndAlternate(boolean out) {
-
-    Command runOtherMechsIn = runOnce(() -> {
-        corralMotor.set(1);
-        kickerMotor.set(1);
-    });
-
-    Command runOtherMechsOut = runOnce(() -> {
-        corralMotor.set(-1);
-        kickerMotor.set(-1);
-    });
-
-    Command runIn = runOnce(() -> {beltMotor.set(1);});
-    Command runOut = runOnce(() -> {beltMotor.set(-1);});
-
-    Command alternateInCommand = new SequentialCommandGroup(
-      runIn,
-      new WaitCommand(0.3),
-      runOut,
-      new WaitCommand(0.15)
-    );
-
-    Command alternateOutCommand = new SequentialCommandGroup(
-      runIn,
-      new WaitCommand(0.15),
-      runOut,
-      new WaitCommand(0.3)
-    );
-
-    if (out) {
-      return runOtherMechsOut.andThen(alternateOutCommand).repeatedly().handleInterrupt(
-        () -> {
-          corralMotor.stopMotor();
-          kickerMotor.stopMotor();
-          beltMotor.stopMotor();
-        }
-      );
-    } else {
-      return runOtherMechsIn.andThen(alternateInCommand).repeatedly().handleInterrupt(
-        () -> {
-          corralMotor.stopMotor();
-          kickerMotor.stopMotor();
-          beltMotor.stopMotor();
-        }
-      );
-    }
   }
 
   @Override

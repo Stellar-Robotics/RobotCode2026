@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.ActuatorConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
-//import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.HopperSubsystem;
 import frc.robot.Subsystems.IntakeSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
@@ -55,7 +54,6 @@ public class RobotContainer {
   IntakeSubsystem intakeSubsystem;
   HopperSubsystem hopperSubsystem;
   ShooterSubsystem shooterSubsystem;
-  //ClimberSubsystem climberSubsystem;
 
 
   // This method will be called only once when the robot starts
@@ -82,7 +80,6 @@ public class RobotContainer {
     PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
 
     // Define subsystems
-    //climberSubsystem = new ClimberSubsystem(airBender);
     intakeSubsystem = new IntakeSubsystem(airBender);
     hopperSubsystem = new HopperSubsystem();
     shooterSubsystem = new ShooterSubsystem();
@@ -101,7 +98,7 @@ public class RobotContainer {
     // Expel Fuel Action
     Command expelFuel = new ParallelCommandGroup(
       intakeSubsystem.setRollerPowerCommand(-0.75),
-      hopperSubsystem.runHopperMechs(-0.5, false, true, true)
+      hopperSubsystem.runHopperMechs(-0.5, true, true, true)
     );
 
     // Extend/Retract Intake Action
@@ -112,17 +109,11 @@ public class RobotContainer {
       shooterSubsystem.setFlywheelSpeed(4000),
       new WaitCommand(3),
       hopperSubsystem.runHopperMechs(1, true, true, true)
+      .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
     ).handleInterrupt(() -> shooterSubsystem.stopShooter());
-
-    // Extend/Retract Climber Action
-    //Command toggleClimberExtension = climberSubsystem.toggleExtensionCommand();
-
-    // Endgame Climb Action
-    //Command climbEndgame = climberSubsystem.executeClimbSequenceCommand();
 
     // Teleop Start Actions
     Command teleopInit = new SequentialCommandGroup(
-      //climberSubsystem.disengageAutoClimb(),
       intakeSubsystem.setExtensionCommand(true)
     );
 
