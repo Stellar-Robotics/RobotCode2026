@@ -106,8 +106,8 @@ public class RobotContainer {
 
     // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuel = new SequentialCommandGroup(
-      shooterSubsystem.setBonnetPositionCommand(6),
-      shooterSubsystem.setFlywheelSpeed(4000),
+      shooterSubsystem.setBonnetPositionCommand(0),
+      shooterSubsystem.setFlywheelSpeed(180),
       new WaitCommand(3),
       hopperSubsystem.runHopperMechs(1, true, true, true)
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
