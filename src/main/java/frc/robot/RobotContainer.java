@@ -144,12 +144,12 @@ public class RobotContainer {
 
       // Create key/val pairs of commands we want to map
       // Intake bindings
-      autoCommandBindings.put("extendIntake", intakeSubsystem.setExtensionCommand(true));
-      autoCommandBindings.put("retractIntake", intakeSubsystem.setExtensionCommand(true));
-      autoCommandBindings.put("runIntakeIn", intakeSubsystem.setRollerPowerCommand(0.5)); // Runs continuously
-      autoCommandBindings.put("runIntakeOut", intakeSubsystem.setRollerPowerCommand(-0.5)); // Runs continuously
+      autoCommandBindings.put("extendIntake", intakeSubsystem.setExtensionCommand(true)); // Runs Once
+      autoCommandBindings.put("retractIntake", intakeSubsystem.setExtensionCommand(true)); // Runs Once
+      autoCommandBindings.put("runIntakeIn", intakeSubsystem.setRollerPowerCommand(0.5)); // Runs until inturrupted
+      autoCommandBindings.put("runIntakeOut", intakeSubsystem.setRollerPowerCommand(-0.5)); // Runs until inturrupted
 
-      // Hopper
+      // Hopper (All run until inturrupted)
       autoCommandBindings.put("setBeltsIn", hopperSubsystem.runBeltCommand(0.5));
       autoCommandBindings.put("setBeltsOut", hopperSubsystem.runBeltCommand(-0.5));
       autoCommandBindings.put("stopBelts", hopperSubsystem.runBeltCommand(0));
@@ -159,11 +159,39 @@ public class RobotContainer {
       autoCommandBindings.put("setKickerIn", hopperSubsystem.runKickerCommand(0.5));
       autoCommandBindings.put("setKickerOut", hopperSubsystem.runKickerCommand(-0.5));
       autoCommandBindings.put("stopKicker", hopperSubsystem.runKickerCommand(0));
+      autoCommandBindings.put("feedFuelIn6S", hopperSubsystem.runHopperMechs(1, true, true, true).withTimeout(6));
 
-      // Shooter bindings
+      // Shooter bindings (All run once)
       autoCommandBindings.put("setShooter5K", shooterSubsystem.setFlywheelSpeed(5000));
       autoCommandBindings.put("setShooter4K", shooterSubsystem.setFlywheelSpeed(4000));
+      autoCommandBindings.put("setShooter3K", shooterSubsystem.setFlywheelSpeed(3000));
       autoCommandBindings.put("stopShooter", shooterSubsystem.setFlywheelSpeed(0));
+      autoCommandBindings.put("setBonnet6Deg", shooterSubsystem.setBonnetPositionCommand(6));
+      autoCommandBindings.put("setBonnet0Deg", shooterSubsystem.setBonnetPositionCommand(0));
+      autoCommandBindings.put("shooterPresetClose",
+        new SequentialCommandGroup(
+          shooterSubsystem.setFlywheelSpeed(3000),
+          shooterSubsystem.setBonnetPositionCommand(3)
+        )
+      );
+      autoCommandBindings.put("shooterPresetMid",
+        new SequentialCommandGroup(
+          shooterSubsystem.setFlywheelSpeed(4000),
+          shooterSubsystem.setBonnetPositionCommand(6)
+        )
+      );
+      autoCommandBindings.put("shooterPresetfar",
+        new SequentialCommandGroup(
+          shooterSubsystem.setFlywheelSpeed(4500),
+          shooterSubsystem.setBonnetPositionCommand(8)
+        )
+      );
+      autoCommandBindings.put("shooterPresetStop", 
+        new SequentialCommandGroup(
+          shooterSubsystem.setFlywheelSpeed(0),
+          shooterSubsystem.setBonnetPositionCommand(0)
+        )
+      );
 
       // Register bindings in the HashMap
       NamedCommands.registerCommands(autoCommandBindings);
