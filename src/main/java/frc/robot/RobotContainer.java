@@ -305,7 +305,8 @@ public class RobotContainer {
 
       return driveCommand;
 
-      //return swerveChassis.sysIdDriveMotorCommand().andThen(new WaitCommand(10).andThen(swerveChassis.sysIdAngleMotorCommand()));
+      //return swerveChassis.sysIdDriveMotorLinearCommand();
+      //return swerveChassis.sysIdDriveMotorAngularCommand();
     }
   }
 }
