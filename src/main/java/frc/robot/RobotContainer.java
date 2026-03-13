@@ -96,13 +96,13 @@ public class RobotContainer {
     // Intake Fuel Action
     Command intakeFuel = new ParallelCommandGroup(
       intakeSubsystem.setRollerPowerCommand(1),
-      hopperSubsystem.runHopperMechs(0.25, false, false, true)
+      hopperSubsystem.runHopperMechs(false, false, false, true)
     );
 
     // Expel Fuel Action
     Command expelFuel = new ParallelCommandGroup(
       intakeSubsystem.setRollerPowerCommand(-0.75),
-      hopperSubsystem.runHopperMechs(-0.5, true, true, true)
+      hopperSubsystem.runHopperMechs(true, true, true, true)
     );
 
     // Extend/Retract Intake Action
@@ -113,7 +113,7 @@ public class RobotContainer {
       shooterSubsystem.setBonnetPositionCommand(0),
       shooterSubsystem.setFlywheelSpeed(180),
       new WaitCommand(3),
-      hopperSubsystem.runHopperMechs(1, true, true, true)
+      hopperSubsystem.runHopperMechs(false, true, true, true)
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
     ).handleInterrupt(() -> { 
       shooterSubsystem.stopShooter(); 
@@ -132,14 +132,13 @@ public class RobotContainer {
 
     // Mode triggers
     if (MiscConstants.kTeleopExtendIntake) { RobotModeTriggers.teleop().onTrue(teleopInit); }
+    RobotModeTriggers.test().whileTrue(hopperSubsystem.runHopperMechs(false, true, true, true));
 
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
     operatorController.rightTrigger(0.5).whileTrue(shootFuel);
-    //operatorController.back().onTrue(toggleClimberExtension);
-    //operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
 
 
     if (MiscConstants.kUsePathplanner) {
@@ -163,7 +162,7 @@ public class RobotContainer {
       autoCommandBindings.put("setKickerIn", hopperSubsystem.runKickerCommand(0.5));
       autoCommandBindings.put("setKickerOut", hopperSubsystem.runKickerCommand(-0.5));
       autoCommandBindings.put("stopKicker", hopperSubsystem.runKickerCommand(0));
-      autoCommandBindings.put("feedFuelIn6S", hopperSubsystem.runHopperMechs(1, true, true, true).withTimeout(6));
+      autoCommandBindings.put("feedFuelIn6S", hopperSubsystem.runHopperMechs(false, true, true, true).withTimeout(6));
 
       // Shooter bindings (All run once)
       autoCommandBindings.put("setShooter5K", shooterSubsystem.setFlywheelSpeed(5000));

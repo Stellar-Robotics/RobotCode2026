@@ -4,6 +4,8 @@
 
 package frc.robot.Subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
@@ -11,6 +13,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ActuatorConstants;
@@ -81,17 +84,26 @@ public class HopperSubsystem extends SubsystemBase {
     return runCorralCommand;
   }
 
-  public Command runHopperMechs(double power, boolean corral, boolean kicker, boolean belt) {
+  public Command runHopperMechs(boolean reversed, boolean corral, boolean kicker, boolean belt) {
 
-    // Get the sign(+/-) of the power input to control the direction of the belt oscillations.
-    double powerSign = Math.signum(power);
+    // Get the sign(+/-) of the power input to control the direction of oscillations.
+    double powerSign = Math.signum(reversed ? -1 : 1);
+
+    // Setup and equation for a hybrid wave to oscillate the corral motor
+    double frequency = 4;
+    double const1 = 0.68; // Duty cycle (0 to 1)
+    double  const2 = 0.1; // Smoothing effect (0 to 1)
+    double const3 = Math.sqrt(Math.pow(const2, 2) + Math.pow((1 + const1), 2)) / (1 + const1); // Scaler
+    Supplier<Double> offsetSinWave = () -> Math.cos(Timer.getFPGATimestamp() * frequency) + const1;
+    Supplier<Double> hybridWave = () -> (offsetSinWave.get() * const3 / Math.sqrt(Math.pow(const2, 2) + Math.pow(offsetSinWave.get(), 2))) * 0.75 + 0.25;
 
     Command runCommand = runEnd(
       () -> {
-        corralMotor.set(corral ? power : 0);
-        kickerMotor.set(kicker ? power : 0);
+        corralMotor.set(corral ? (hybridWave.get() * powerSign) : 0);
+        kickerMotor.set(kicker ? 1 : 0);
         // Create a sin wave that will oscilate the belts to keep fuel from jamming.
         beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * 8) * 0.75 + (0.25 * powerSign)) : 0);
+        SmartDashboard.putNumber("HybridSquare", hybridWave.get() * powerSign);
       },
       () -> {
         corralMotor.stopMotor();
