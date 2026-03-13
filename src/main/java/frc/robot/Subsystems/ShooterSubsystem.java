@@ -13,10 +13,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ActuatorConstants;
+import frc.robot.MiscUtils;
+import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -27,6 +31,8 @@ public class ShooterSubsystem extends SubsystemBase {
   // Store refrences to the motors' closed loop controllers.
   SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
   SparkClosedLoopController bonnetCLC = bonnetMotor.getClosedLoopController();
+
+  SwerveSubsystem swerveSubsystem;
   
 
   /** Creates a new Shooter. */
@@ -101,6 +107,41 @@ public class ShooterSubsystem extends SubsystemBase {
     // Set the command name and return the bonnetPositionCommand object
     bonnetPositionCommand.setName("SetBonnetTo" + clampedBonnetExtension + "Deg");
     return bonnetPositionCommand;
+  }
+
+  public Command redDistanceFinder() {          //this finds the distance between the robot and the hub
+    Command redDistanceFinder = runOnce(()->{
+      Translation2d redHubPoint = new Translation2d(
+        ActuatorConstants.redHubPosition[0]
+        ,ActuatorConstants.redHubPosition[2]);
+      Translation2d currentRobotPoint = new Translation2d(
+        swerveSubsystem.getOdometryEstimate().getX()
+        ,swerveSubsystem.getOdometryEstimate().getY());
+      double distance = redHubPoint.getDistance(currentRobotPoint);
+
+      /*in this space I will find the neccassary angle of the climber.
+       * my plan is to use sine however I specifically need the converse of sine.
+       * I haven't figured out a way to do this yet so thats why it isn't done
+      */
+    }
+    );
+    return redDistanceFinder;
+  }
+
+  public Command blueDistanceFinder() {          //this finds the distance between the robot and the hub
+    Command blueDistanceFinder = runOnce(()->{
+      Translation2d blueHubPoint = new Translation2d(
+        ActuatorConstants.blueHubPosition[0]
+        ,ActuatorConstants.blueHubPosition[2]);
+      Translation2d currentRobotPoint = new Translation2d(
+        swerveSubsystem.getOdometryEstimate().getX()
+        ,swerveSubsystem.getOdometryEstimate().getY());
+      double distance = blueHubPoint.getDistance(currentRobotPoint);
+
+      //same as above(lines 121-124)
+    }
+    );
+    return blueDistanceFinder;
   }
 
 
