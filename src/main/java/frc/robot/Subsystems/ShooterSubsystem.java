@@ -14,12 +14,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ActuatorConstants;
-import frc.robot.MiscUtils;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -109,20 +107,20 @@ public class ShooterSubsystem extends SubsystemBase {
     return bonnetPositionCommand;
   }
 
-  public Command redDistanceFinder() {          //this finds the distance between the robot and the hub
+  public Command redDistanceFinder() {
+    //this finds the distance between the robot and the hub and sets the bonnet extension
+    
     Command redDistanceFinder = runOnce(()->{
-      Translation2d redHubPoint = new Translation2d(
+      Translation2d redHubPoint = new Translation2d(         //this makes a point of the red hub
         ActuatorConstants.redHubPosition[0]
         ,ActuatorConstants.redHubPosition[2]);
-      Translation2d currentRobotPoint = new Translation2d(
+      Translation2d currentRobotPoint = new Translation2d(   //this gets the robot position and makes a point of it
         swerveSubsystem.getOdometryEstimate().getX()
         ,swerveSubsystem.getOdometryEstimate().getY());
-      double distance = redHubPoint.getDistance(currentRobotPoint);
+      double distance = redHubPoint.getDistance(currentRobotPoint);   //this finds the distance between the robot and the red hub
 
-      /*in this space I will find the neccassary angle of the climber.
-       * my plan is to use sine however I specifically need the converse of sine.
-       * I haven't figured out a way to do this yet so thats why it isn't done
-      */
+      setBonnetPositionCommand(Math.asin(120.36/distance));
+      // this sets the bonnet extension. It uses the converse of sine to calculate the angle degree of the bonnet extension
     }
     );
     return redDistanceFinder;
@@ -130,15 +128,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command blueDistanceFinder() {          //this finds the distance between the robot and the hub
     Command blueDistanceFinder = runOnce(()->{
-      Translation2d blueHubPoint = new Translation2d(
+      Translation2d blueHubPoint = new Translation2d(   //this makes a point of the blue hub
         ActuatorConstants.blueHubPosition[0]
         ,ActuatorConstants.blueHubPosition[2]);
-      Translation2d currentRobotPoint = new Translation2d(
+      Translation2d currentRobotPoint = new Translation2d(  //this gets the robot position and makes a point of it
         swerveSubsystem.getOdometryEstimate().getX()
         ,swerveSubsystem.getOdometryEstimate().getY());
-      double distance = blueHubPoint.getDistance(currentRobotPoint);
+      double distance = blueHubPoint.getDistance(currentRobotPoint);  //finds the distance of the between the robot and the hub
 
-      //same as above(lines 121-124)
+      setBonnetPositionCommand(Math.asin(120.36/distance));
+      //uses the converse of sine to calculate the necessary degreee measure for the bonnet and sets the bonnet to it.
     }
     );
     return blueDistanceFinder;
