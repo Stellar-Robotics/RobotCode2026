@@ -89,6 +89,10 @@ public class RobotContainer {
      * Command Actions
      * ------------------------- */
 
+    
+
+    //shooterSubsystem.setDefaultCommand(MiscUtils.isRedAlliance() ? shooterSubsystem.redDistanceFinder() : shooterSubsystem.blueDistanceFinder());
+
     // Intake Fuel Action
     Command intakeFuel = new ParallelCommandGroup(
       intakeSubsystem.setRollerPowerCommand(1),
