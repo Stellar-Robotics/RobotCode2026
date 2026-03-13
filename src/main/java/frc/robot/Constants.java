@@ -25,7 +25,7 @@ public class Constants {
     public class ActuatorConstants {
 
         // Shared pneumatic hub CAN
-        public static final int kPneumaticHubCANID = 5; // Change Me!
+        public static final int kPneumaticHubCANID = 5;
 
         // Use these to adjust global current limits across most motors
         public static final int kCommonNeoCurrentLimit = 40;
@@ -33,41 +33,41 @@ public class Constants {
 
 
         // Shooter Constants
-        public static final int kFlywheelCANID = 6; // Change me!
-        public static final int kBonnetCANID = 7; // Change me!
+        public static final int kFlywheelCANID = 6;
+        public static final int kBonnetCANID = 7;
 
-        public static final boolean kFlywheelInverted = false; // May need changed!
-        public static final boolean kBonnetInverted = false; // May need changed!
+        public static final boolean kFlywheelInverted = false;
+        public static final boolean kBonnetInverted = false;
 
-        public static final double kBonnetConversionFactor = 0.193911189; // Change me!
-        public static final double kFlywheelConversionFactor = 1.0; // Change me!
+        public static final double kBonnetConversionFactor = 0.193911189;
+        public static final double kFlywheelConversionFactor = 1.0;
 
         public static final double kFlywheelMaxRPM = 5000;
-        public static final double kBonnetMaxExtensionMM = 0.3; // Change me!
+        public static final double kBonnetMaxExtensionDegrees = 21;
 
         public static final double[] kFlywheelPID = {0.001, 0, 0.04, 0.015};
-        public static final double[] kBonnetPID = {0.03, 0, 0}; // Tune me!
+        public static final double[] kBonnetPID = {0.1, 0, 0};
 
 
         // Hopper Constants
-        public static final int kBeltCANID = 8; // Change me!
-        public static final int kCorralCANID = 9; // Change me!
-        public static final int kKickerCANID = 10; // Change me!
+        public static final int kBeltCANID = 8;
+        public static final int kCorralCANID = 9;
+        public static final int kKickerCANID = 10;
 
-        public static final boolean kBeltInverted = false; // May need changed!
-        public static final boolean kCorralInverted = true; // May need changed!
-        public static final boolean kKickerInverted = true; // May need changed!
+        public static final boolean kBeltInverted = false;
+        public static final boolean kCorralInverted = true;
+        public static final boolean kKickerInverted = true;
 
-        public static final double kKickerConversionFactor = 1.0; // Change me!
+        public static final double kKickerConversionFactor = 1.0; // May need changed
 
         public static final int kKickerMotorMaxRPM = 500; // Change Me!
         public static final double[] kKickerPID = {0.005, 0, 0}; // Tune me!
 
 
         // Intake Constants
-        public static final int kintakeExtensionChannel = 14; // Change me!
-        public static final int kintakeRetractionChannel = 15; // Change me!
-        public static final int kRollerCANID = 11; // Change me!
+        public static final int kintakeExtensionChannel = 14;
+        public static final int kintakeRetractionChannel = 15;
+        public static final int kRollerCANID = 11;
 
         public static final boolean kRollerInverted = true; // May need changed!
 

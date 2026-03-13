@@ -44,7 +44,7 @@ public class ShooterSubsystem extends SubsystemBase {
       .feedForward.kV(ActuatorConstants.kFlywheelPID[3]);
     bonnetMotorConfig
       .inverted(ActuatorConstants.kBonnetInverted)
-      .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit)
+      .smartCurrentLimit(ActuatorConstants.kCommonNeo550CurrentLimit)
       .closedLoop.pid(ActuatorConstants.kBonnetPID[0], ActuatorConstants.kBonnetPID[1], ActuatorConstants.kBonnetPID[2]);
     
     // (NOTE: Methods Below Require These To Be Set Correctly)
@@ -84,12 +84,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   // Method that returns a command to set the target extension of the bonnet.
-  public Command setBonnetPositionCommand(double bonnetExtension) {
+  public Command setBonnetPositionCommand(double bonnetExtensionDegrees) {
 
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the bonnet's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedBonnetExtension = MathUtil.clamp(bonnetExtension, 0, ActuatorConstants.kBonnetMaxExtensionMM); // Adjust me!
+    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionDegrees, 0, ActuatorConstants.kBonnetMaxExtensionDegrees);
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.
@@ -99,7 +99,7 @@ public class ShooterSubsystem extends SubsystemBase {
     });
 
     // Set the command name and return the bonnetPositionCommand object
-    bonnetPositionCommand.setName("SetBonnetTo" + clampedBonnetExtension + "MM");
+    bonnetPositionCommand.setName("SetBonnetTo" + clampedBonnetExtension + "Deg");
     return bonnetPositionCommand;
   }
 

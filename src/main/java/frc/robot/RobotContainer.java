@@ -91,7 +91,7 @@ public class RobotContainer {
 
     // Intake Fuel Action
     Command intakeFuel = new ParallelCommandGroup(
-      intakeSubsystem.setRollerPowerCommand(0.75),
+      intakeSubsystem.setRollerPowerCommand(1),
       hopperSubsystem.runHopperMechs(0.25, false, false, true)
     );
 
@@ -106,11 +106,15 @@ public class RobotContainer {
 
     // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuel = new SequentialCommandGroup(
+      shooterSubsystem.setBonnetPositionCommand(6),
       shooterSubsystem.setFlywheelSpeed(4000),
       new WaitCommand(3),
       hopperSubsystem.runHopperMechs(1, true, true, true)
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
-    ).handleInterrupt(() -> shooterSubsystem.stopShooter());
+    ).handleInterrupt(() -> { 
+      shooterSubsystem.stopShooter(); 
+      shooterSubsystem.setBonnetPositionCommand(0); 
+    });
 
     // Teleop Start Actions
     Command teleopInit = new SequentialCommandGroup(
