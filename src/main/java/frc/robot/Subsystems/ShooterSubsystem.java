@@ -131,6 +131,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return redDistanceFinder;
   }
 
+
   public Command blueDistanceFinder() { // this finds the distance between the robot and the hub
     Command blueDistanceFinder = runOnce(() -> {
       Translation2d blueHubPoint = new Translation2d( // this makes a point of the blue hub

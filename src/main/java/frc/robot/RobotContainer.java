@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -89,9 +90,8 @@ public class RobotContainer {
      * Command Actions
      * ------------------------- */
 
-    
-
-    shooterSubsystem.setDefaultCommand(MiscUtils.isRedAlliance().getAsBoolean() ? shooterSubsystem.redDistanceFinder() : shooterSubsystem.blueDistanceFinder());
+    Command autoAim = MiscUtils.isRedAlliance().getAsBoolean() ? shooterSubsystem.redDistanceFinder() : shooterSubsystem.blueDistanceFinder();
+    autoAim.repeatedly().finallyDo(() -> CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0)));
 
     // Intake Fuel Action
     Command intakeFuel = new ParallelCommandGroup(
@@ -138,7 +138,8 @@ public class RobotContainer {
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
     operatorController.rightTrigger(0.5).whileTrue(shootFuel);
-    //operatorController.back().onTrue(toggleClimberExtension);
+    operatorController.a().whileTrue(autoAim);
+
     //operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
 
 
