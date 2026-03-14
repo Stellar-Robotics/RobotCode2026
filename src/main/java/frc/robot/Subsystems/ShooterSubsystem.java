@@ -31,10 +31,10 @@ public class ShooterSubsystem extends SubsystemBase {
   SparkClosedLoopController bonnetCLC = bonnetMotor.getClosedLoopController();
 
   SwerveSubsystem swerveSubsystem;
-  
-
   /** Creates a new Shooter. */
-  public ShooterSubsystem() {
+  public ShooterSubsystem(SwerveSubsystem swerveObject) {
+
+    swerveSubsystem = swerveObject;
 
     // Create configuration objects for the motor controllers.
     SparkMaxConfig flywheelMotorConfig = new SparkMaxConfig();
@@ -42,38 +42,43 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Set configuration options by calling methods on the configuration objects.
     flywheelMotorConfig
-      .inverted(ActuatorConstants.kFlywheelInverted)
-      .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit)
-      .closedLoop.pid(ActuatorConstants.kFlywheelPID[0], ActuatorConstants.kFlywheelPID[1], ActuatorConstants.kFlywheelPID[2])
-      .feedForward.kV(ActuatorConstants.kFlywheelPID[3]);
+        .inverted(ActuatorConstants.kFlywheelInverted)
+        .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit).closedLoop.pid(ActuatorConstants.kFlywheelPID[0],
+            ActuatorConstants.kFlywheelPID[1], ActuatorConstants.kFlywheelPID[2]).feedForward
+        .kV(ActuatorConstants.kFlywheelPID[3]);
     bonnetMotorConfig
-      .inverted(ActuatorConstants.kBonnetInverted)
-      .smartCurrentLimit(ActuatorConstants.kCommonNeo550CurrentLimit)
-      .closedLoop.pid(ActuatorConstants.kBonnetPID[0], ActuatorConstants.kBonnetPID[1], ActuatorConstants.kBonnetPID[2]);
-    
+        .inverted(ActuatorConstants.kBonnetInverted)
+        .smartCurrentLimit(ActuatorConstants.kCommonNeo550CurrentLimit).closedLoop
+        .pid(ActuatorConstants.kBonnetPID[0], ActuatorConstants.kBonnetPID[1], ActuatorConstants.kBonnetPID[2]);
+
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
     bonnetMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kBonnetConversionFactor);
     // Set so we get accurate conversion of RPMs at the flywheel.
     flywheelMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kFlywheelConversionFactor);
 
-    // Call the configure method on the motor objects in order to apply the config objects.
+    // Call the configure method on the motor objects in order to apply the config
+    // objects.
     flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     bonnetMotor.configure(bonnetMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
-
   // Method that stops the flywheel motor
-  public void stopShooter() { flywheelMotor.stopMotor(); }
+  public void stopShooter() {
+    flywheelMotor.stopMotor();
+  }
 
-  // Create methods that return command objects so we can have the CommmandScheduler run them.
+  // Create methods that return command objects so we can have the
+  // CommmandScheduler run them.
 
-  // Method that returns a command to set the target velocity of the flywheel shaft.
+  // Method that returns a command to set the target velocity of the flywheel
+  // shaft.
   public Command setFlywheelSpeed(double flywheelSpeedRPMs) {
 
     // Clamp our specified speed to a safe range
-    double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM, ActuatorConstants.kFlywheelMaxRPM);
+    double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
+        ActuatorConstants.kFlywheelMaxRPM);
 
     // Create a command with an anonymous method that sets the closed
     // loop controller to the velocity (RPMs) specified in the parameter.
@@ -86,14 +91,14 @@ public class ShooterSubsystem extends SubsystemBase {
     return flywheelCommand;
   }
 
-
   // Method that returns a command to set the target extension of the bonnet.
   public Command setBonnetPositionCommand(double bonnetExtensionDegrees) {
 
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the bonnet's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
-    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionDegrees, 0, ActuatorConstants.kBonnetMaxExtensionDegrees);
+    double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionDegrees, 0,
+        ActuatorConstants.kBonnetMaxExtensionDegrees);
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.
@@ -108,41 +113,39 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command redDistanceFinder() {
-    //this finds the distance between the robot and the hub and sets the bonnet extension
-    
-    Command redDistanceFinder = runOnce(()->{
-      Translation2d redHubPoint = new Translation2d(         //this makes a point of the red hub
-        ActuatorConstants.redHubPosition[0]
-        ,ActuatorConstants.redHubPosition[2]);
-      Translation2d currentRobotPoint = new Translation2d(   //this gets the robot position and makes a point of it
-        swerveSubsystem.getOdometryEstimate().getX()
-        ,swerveSubsystem.getOdometryEstimate().getY());
-      double distance = redHubPoint.getDistance(currentRobotPoint);   //this finds the distance between the robot and the red hub
+    // this finds the distance between the robot and the hub and sets the bonnet
+    // extension
 
-      setBonnetPositionCommand(Math.asin(120.36/distance));
-      // this sets the bonnet extension. It uses the converse of sine to calculate the angle degree of the bonnet extension
-    }
-    );
+    Command redDistanceFinder = runOnce(() -> {
+      Translation2d redHubPoint = new Translation2d( // this makes a point of the red hub
+          ActuatorConstants.redHubPosition[0], ActuatorConstants.redHubPosition[1]);
+      Translation2d currentRobotPoint = new Translation2d( // this gets the robot position and makes a point of it
+          swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
+      double distance = redHubPoint.getDistance(currentRobotPoint); // this finds the distance between the robot and the
+                                                                    // red hub
+
+      setBonnetPositionCommand(Math.asin(120.36 / distance));
+      // this sets the bonnet extension. It uses the converse of sine to calculate the
+      // angle degree of the bonnet extension
+    });
     return redDistanceFinder;
   }
 
-  public Command blueDistanceFinder() {          //this finds the distance between the robot and the hub
-    Command blueDistanceFinder = runOnce(()->{
-      Translation2d blueHubPoint = new Translation2d(   //this makes a point of the blue hub
-        ActuatorConstants.blueHubPosition[0]
-        ,ActuatorConstants.blueHubPosition[2]);
-      Translation2d currentRobotPoint = new Translation2d(  //this gets the robot position and makes a point of it
-        swerveSubsystem.getOdometryEstimate().getX()
-        ,swerveSubsystem.getOdometryEstimate().getY());
-      double distance = blueHubPoint.getDistance(currentRobotPoint);  //finds the distance of the between the robot and the hub
+  public Command blueDistanceFinder() { // this finds the distance between the robot and the hub
+    Command blueDistanceFinder = runOnce(() -> {
+      Translation2d blueHubPoint = new Translation2d( // this makes a point of the blue hub
+          ActuatorConstants.blueHubPosition[0], ActuatorConstants.blueHubPosition[1]);
+      Translation2d currentRobotPoint = new Translation2d( // this gets the robot position and makes a point of it
+          swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
+      double distance = blueHubPoint.getDistance(currentRobotPoint); // finds the distance of the between the robot and
+                                                                     // the hub
 
-      setBonnetPositionCommand(Math.asin(120.36/distance));
-      //uses the converse of sine to calculate the necessary degreee measure for the bonnet and sets the bonnet to it.
-    }
-    );
+      setBonnetPositionCommand(Math.asin(120.36 / distance));
+      // uses the converse of sine to calculate the necessary degreee measure for the
+      // bonnet and sets the bonnet to it.
+    });
     return blueDistanceFinder;
   }
-
 
   @Override
   public void periodic() {

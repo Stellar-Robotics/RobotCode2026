@@ -72,7 +72,7 @@ public class Constants {
         public static final int kintakeRetractionChannel = 15;
         public static final int kRollerCANID = 11;
 
-        public static final boolean kRollerInverted = true; // May need changed!
+        public static final boolean kRollerInverted = false; // May need changed!
 
 
         // Climber Constants

@@ -59,8 +59,8 @@ public class RobotContainer {
   // This method will be called only once when the robot starts
   public RobotContainer() {
 
-    initMechanisms();
     initSwerve();
+    initMechanisms();
 
     if (MiscConstants.kUsePathplanner) {
       // Init AutoBuilder
@@ -82,7 +82,7 @@ public class RobotContainer {
     // Define subsystems
     intakeSubsystem = new IntakeSubsystem(airBender);
     hopperSubsystem = new HopperSubsystem();
-    shooterSubsystem = new ShooterSubsystem();
+    shooterSubsystem = new ShooterSubsystem(swerveChassis);
 
     
     /* -------------------------
