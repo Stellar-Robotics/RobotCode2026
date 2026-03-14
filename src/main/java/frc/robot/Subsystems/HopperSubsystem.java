@@ -100,7 +100,7 @@ public class HopperSubsystem extends SubsystemBase {
     Command runCommand = runEnd(
       () -> {
         corralMotor.set(corral ? (hybridWave.get() * powerSign) : 0);
-        kickerMotor.set(kicker ? 1 : 0);
+        kickerMotor.set(kicker ? powerSign : 0);
         // Create a sin wave that will oscilate the belts to keep fuel from jamming.
         beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * frequency) * 0.75 + (0.25 * powerSign)) : 0);
         SmartDashboard.putNumber("HybridSquare", hybridWave.get() * powerSign);
