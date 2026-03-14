@@ -90,9 +90,9 @@ public class HopperSubsystem extends SubsystemBase {
     double powerSign = Math.signum(reversed ? -1 : 1);
 
     // Setup and equation for a hybrid wave to oscillate the corral motor
-    double frequency = 4;
-    double const1 = 0.68; // Duty cycle (0 to 1)
-    double  const2 = 0.1; // Smoothing effect (0 to 1)
+    double frequency = 3;
+    double const1 = 0.85; // Duty cycle (0 to 1)
+    double  const2 = 0.05; // Smoothing effect (0 to 1)
     double const3 = Math.sqrt(Math.pow(const2, 2) + Math.pow((1 + const1), 2)) / (1 + const1); // Scaler
     Supplier<Double> offsetSinWave = () -> Math.sin(Timer.getFPGATimestamp() * frequency) + const1;
     Supplier<Double> hybridWave = () -> (offsetSinWave.get() * const3 / Math.sqrt(Math.pow(const2, 2) + Math.pow(offsetSinWave.get(), 2))) * 0.75 + 0.25;
@@ -102,7 +102,8 @@ public class HopperSubsystem extends SubsystemBase {
         corralMotor.set(corral ? (hybridWave.get() * powerSign) : 0);
         kickerMotor.set(kicker ? powerSign : 0);
         // Create a sin wave that will oscilate the belts to keep fuel from jamming.
-        beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * frequency) * 0.75 + (0.25 * powerSign)) : 0);
+        //beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * frequency) * 0.75 + (0.25 * powerSign)) : 0);
+        beltMotor.set(belt ? (hybridWave.get() * powerSign) : 0);
         SmartDashboard.putNumber("HybridSquare", hybridWave.get() * powerSign);
       },
       () -> {

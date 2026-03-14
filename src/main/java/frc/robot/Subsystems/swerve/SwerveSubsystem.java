@@ -44,6 +44,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Vision vision;
 
   private PIDController absoluteAnglePID = new PIDController(0.015, 0, 0);
+  private double lastVelocity;
 
 
   // SwerveSubsystem constructor
@@ -253,6 +254,11 @@ public class SwerveSubsystem extends SubsystemBase {
       vision.periodic();
     }
     SmartDashboard.putNumber("robotTravel", getOdometryEstimate().getX());
+
+    if (swerveDrive.getRobotVelocity().vxMetersPerSecond >= lastVelocity) {
+      SmartDashboard.putNumber("MaxVelocity", swerveDrive.getRobotVelocity().vxMetersPerSecond);
+      lastVelocity = swerveDrive.getRobotVelocity().vxMetersPerSecond;
+    }
   }
 
   /* -------------------------

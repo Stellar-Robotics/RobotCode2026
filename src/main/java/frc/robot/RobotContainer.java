@@ -306,8 +306,6 @@ public class RobotContainer {
       ).until(() -> swerveChassis.getOdometryEstimate().getX() >= 7.5);
 
       return driveCommand;
-
-      //return swerveChassis.sysIdDriveMotorCommand().andThen(new WaitCommand(10).andThen(swerveChassis.sysIdAngleMotorCommand()));
     }
   }
 }
