@@ -4,6 +4,8 @@
 
 package frc.robot.Subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -14,9 +16,11 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.MiscUtils;
 import frc.robot.Constants.ActuatorConstants;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
@@ -112,40 +116,42 @@ public class ShooterSubsystem extends SubsystemBase {
     return bonnetPositionCommand;
   }
 
-  public Command redDistanceFinder() {
-    // this finds the distance between the robot and the hub and sets the bonnet
-    // extension
+  public Command aimByDistance(boolean redHub) {
 
-    Command redDistanceFinder = runOnce(() -> {
-      Translation2d redHubPoint = new Translation2d( // this makes a point of the red hub
+    Translation2d targetHub;
+    
+    if (redHub) {
+      targetHub = new Translation2d( // this makes a point of the red hub
           ActuatorConstants.redHubPosition[0], ActuatorConstants.redHubPosition[1]);
-      Translation2d currentRobotPoint = new Translation2d( // this gets the robot position and makes a point of it
-          swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
-      double distance = redHubPoint.getDistance(currentRobotPoint); // this finds the distance between the robot and the
-                                                                    // red hub
+    } else {
+      targetHub = new Translation2d( // this makes a point of the blue hub
+        ActuatorConstants.blueHubPosition[0], ActuatorConstants.blueHubPosition[1]);
+    }
 
-      setBonnetPositionCommand(Math.asin(120.36 / distance));
-      // this sets the bonnet extension. It uses the converse of sine to calculate the
-      // angle degree of the bonnet extension
-    });
-    return redDistanceFinder;
-  }
+    Supplier<Translation2d> currentRobotPoint = () -> new Translation2d( // this gets the robot position and makes a point of it
+      swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
 
+    Supplier<Double> distance = () -> targetHub.getDistance(currentRobotPoint.get()); // finds the distance of the between the robot and hub
+    
+    // return setBonnetPositionCommand(Math.acos(120.36 / distance.get())).handleInterrupt(
+    //   () -> bonnetCLC.setSetpoint( 0, ControlType.kPosition)
+    // );
 
-  public Command blueDistanceFinder() { // this finds the distance between the robot and the hub
-    Command blueDistanceFinder = runOnce(() -> {
-      Translation2d blueHubPoint = new Translation2d( // this makes a point of the blue hub
-          ActuatorConstants.blueHubPosition[0], ActuatorConstants.blueHubPosition[1]);
-      Translation2d currentRobotPoint = new Translation2d( // this gets the robot position and makes a point of it
-          swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
-      double distance = blueHubPoint.getDistance(currentRobotPoint); // finds the distance of the between the robot and
-                                                                     // the hub
+    return runEnd(
+      () -> {
+        bonnetCLC.setSetpoint(MiscUtils.clamp(
+          0, 
+          ActuatorConstants.kBonnetMaxExtensionDegrees, 
+          90 -Units.radiansToDegrees(Math.atan(Units.inchesToMeters(132.36) / distance.get()))), 
+          ControlType.kPosition
+        );
 
-      setBonnetPositionCommand(Math.asin(120.36 / distance));
-      // uses the converse of sine to calculate the necessary degreee measure for the
-      // bonnet and sets the bonnet to it.
-    });
-    return blueDistanceFinder;
+        SmartDashboard.putNumber("BonnetSetPoint", 90 -Units.radiansToDegrees(Math.atan(Units.inchesToMeters(132.36) / distance.get())));
+      }, 
+      () -> {
+        bonnetCLC.setSetpoint(0, ControlType.kPosition);
+      }
+    );
   }
 
   @Override

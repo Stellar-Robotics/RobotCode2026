@@ -90,8 +90,7 @@ public class RobotContainer {
      * Command Actions
      * ------------------------- */
 
-    Command autoAim = MiscUtils.isRedAlliance().getAsBoolean() ? shooterSubsystem.redDistanceFinder() : shooterSubsystem.blueDistanceFinder();
-    autoAim.repeatedly().finallyDo(() -> CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0)));
+    Command autoAim = shooterSubsystem.aimByDistance(MiscUtils.isRedAlliance().getAsBoolean());
 
     // Intake Fuel Action
     Command intakeFuel = new ParallelCommandGroup(
@@ -109,7 +108,7 @@ public class RobotContainer {
     Command toggleIntakeExtension = intakeSubsystem.toggleExtensionCommand();
 
     // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
-    Command shootFuel = new SequentialCommandGroup(
+    Command shootFuelClose = new SequentialCommandGroup(
       shooterSubsystem.setBonnetPositionCommand(0),
       shooterSubsystem.setFlywheelSpeed(180),
       new WaitCommand(3),
@@ -117,7 +116,31 @@ public class RobotContainer {
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
     ).handleInterrupt(() -> { 
       shooterSubsystem.stopShooter(); 
-      shooterSubsystem.setBonnetPositionCommand(0); 
+      CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
+    });
+
+    // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
+    Command shootFuelMid = new SequentialCommandGroup(
+      shooterSubsystem.setBonnetPositionCommand(5),
+      shooterSubsystem.setFlywheelSpeed(215),
+      new WaitCommand(3),
+      hopperSubsystem.runHopperMechs(false, true, true, true)
+      .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
+    ).handleInterrupt(() -> { 
+      shooterSubsystem.stopShooter(); 
+      CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
+    });
+
+    // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
+    Command shootFuelFar = new SequentialCommandGroup(
+      shooterSubsystem.setBonnetPositionCommand(10),
+      shooterSubsystem.setFlywheelSpeed(250),
+      new WaitCommand(3),
+      hopperSubsystem.runHopperMechs(false, true, true, true)
+      .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
+    ).handleInterrupt(() -> { 
+      shooterSubsystem.stopShooter(); 
+      CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
     });
 
     // Teleop Start Actions
@@ -137,10 +160,11 @@ public class RobotContainer {
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
-    operatorController.rightTrigger(0.5).whileTrue(shootFuel);
+    operatorController.povUp().whileTrue(shootFuelFar);
+    operatorController.povLeft().or(operatorController.povRight()).whileTrue(shootFuelMid);
+    operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.a().whileTrue(autoAim);
-
-    //operatorController.start().and(operatorController.x()).onTrue(climbEndgame);
+    stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
 
 
     if (MiscConstants.kUsePathplanner) {
