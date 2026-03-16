@@ -110,7 +110,7 @@ public class RobotContainer {
     // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
       shooterSubsystem.setBonnetPositionCommand(0),
-      shooterSubsystem.setFlywheelSpeed(180),
+      shooterSubsystem.setFlywheelSpeedCommand(180),
       new WaitCommand(3),
       hopperSubsystem.runHopperMechs(false, true, true, true)
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
@@ -122,7 +122,7 @@ public class RobotContainer {
     // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuelMid = new SequentialCommandGroup(
       shooterSubsystem.setBonnetPositionCommand(5),
-      shooterSubsystem.setFlywheelSpeed(215),
+      shooterSubsystem.setFlywheelSpeedCommand(215),
       new WaitCommand(3),
       hopperSubsystem.runHopperMechs(false, true, true, true)
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
@@ -134,7 +134,7 @@ public class RobotContainer {
     // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuelFar = new SequentialCommandGroup(
       shooterSubsystem.setBonnetPositionCommand(10),
-      shooterSubsystem.setFlywheelSpeed(250),
+      shooterSubsystem.setFlywheelSpeedCommand(250),
       new WaitCommand(3),
       hopperSubsystem.runHopperMechs(false, true, true, true)
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
@@ -191,33 +191,33 @@ public class RobotContainer {
       autoCommandBindings.put("feedFuelIn6S", hopperSubsystem.runHopperMechs(false, true, true, true).withTimeout(6));
 
       // Shooter bindings (All run once)
-      autoCommandBindings.put("setShooter5K", shooterSubsystem.setFlywheelSpeed(5000));
-      autoCommandBindings.put("setShooter4K", shooterSubsystem.setFlywheelSpeed(4000));
-      autoCommandBindings.put("setShooter3K", shooterSubsystem.setFlywheelSpeed(3000));
-      autoCommandBindings.put("stopShooter", shooterSubsystem.setFlywheelSpeed(0));
+      autoCommandBindings.put("setShooter5K", shooterSubsystem.setFlywheelSpeedCommand(5000));
+      autoCommandBindings.put("setShooter4K", shooterSubsystem.setFlywheelSpeedCommand(4000));
+      autoCommandBindings.put("setShooter3K", shooterSubsystem.setFlywheelSpeedCommand(3000));
+      autoCommandBindings.put("stopShooter", shooterSubsystem.setFlywheelSpeedCommand(0));
       autoCommandBindings.put("setBonnet6Deg", shooterSubsystem.setBonnetPositionCommand(6));
       autoCommandBindings.put("setBonnet0Deg", shooterSubsystem.setBonnetPositionCommand(0));
       autoCommandBindings.put("shooterPresetClose",
         new SequentialCommandGroup(
-          shooterSubsystem.setFlywheelSpeed(3000),
+          shooterSubsystem.setFlywheelSpeedCommand(3000),
           shooterSubsystem.setBonnetPositionCommand(3)
         )
       );
       autoCommandBindings.put("shooterPresetMid",
         new SequentialCommandGroup(
-          shooterSubsystem.setFlywheelSpeed(4000),
+          shooterSubsystem.setFlywheelSpeedCommand(4000),
           shooterSubsystem.setBonnetPositionCommand(6)
         )
       );
       autoCommandBindings.put("shooterPresetfar",
         new SequentialCommandGroup(
-          shooterSubsystem.setFlywheelSpeed(4500),
+          shooterSubsystem.setFlywheelSpeedCommand(4500),
           shooterSubsystem.setBonnetPositionCommand(8)
         )
       );
       autoCommandBindings.put("shooterPresetStop", 
         new SequentialCommandGroup(
-          shooterSubsystem.setFlywheelSpeed(0),
+          shooterSubsystem.setFlywheelSpeedCommand(0),
           shooterSubsystem.setBonnetPositionCommand(0)
         )
       );

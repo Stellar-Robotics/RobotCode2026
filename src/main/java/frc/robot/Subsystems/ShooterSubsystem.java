@@ -17,10 +17,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.MiscUtils;
 import frc.robot.Constants.ActuatorConstants;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
@@ -73,46 +71,51 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelMotor.stopMotor();
   }
 
-  // Create methods that return command objects so we can have the
-  // CommmandScheduler run them.
-
-  // Method that returns a command to set the target velocity of the flywheel
-  // shaft.
-  public Command setFlywheelSpeed(double flywheelSpeedRPMs) {
+  public void setFlywheelSpeed(double flywheelSpeedRPMs) {
 
     // Clamp our specified speed to a safe range
     double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
         ActuatorConstants.kFlywheelMaxRPM);
 
-    // Create a command with an anonymous method that sets the closed
-    // loop controller to the velocity (RPMs) specified in the parameter.
-    Command flywheelCommand = runOnce(() -> {
+    // sets the closed loop controller to the velocity (RPMs) specified in the parameter.
       flywheelCLC.setSetpoint(clampedRPM, ControlType.kVelocity);
-    });
+  }
+
+  // Method that returns a command to set the target velocity of the flywheel
+  // shaft.
+  public Command setFlywheelSpeedCommand(double flywheelSpeedRPMs) {
+
+    // Packages the setFlywheelSpeed method into a command
+    Command flywheelCommand = runOnce(() -> setFlywheelSpeed(flywheelSpeedRPMs));
 
     // Set the command name and return the flywheelCommand object.
-    flywheelCommand.setName("SetFlywheelTo" + clampedRPM + "RPM");
+    flywheelCommand.setName("SetFlywheelTo" + MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
+      ActuatorConstants.kFlywheelMaxRPM) + "RPM");
     return flywheelCommand;
   }
 
-  // Method that returns a command to set the target extension of the bonnet.
-  public Command setBonnetPositionCommand(double bonnetExtensionDegrees) {
+  public void setBonnetPosition(double bonnetExtensionDegrees) {
 
     // Run our parameter through a clamp algorithm to make sure
     // we can't accidentally extend past the bonnet's mechanical limits.
     // We'll then store it in a new variable called clampedPositionRotations.
     double clampedBonnetExtension = MathUtil.clamp(bonnetExtensionDegrees, 0,
-        ActuatorConstants.kBonnetMaxExtensionDegrees);
+      ActuatorConstants.kBonnetMaxExtensionDegrees);
+
+    // Pass in our clamped value as the arguement.
+    bonnetCLC.setSetpoint(clampedBonnetExtension, ControlType.kPosition);
+  }
+
+  // Method that returns a command to set the target extension of the bonnet.
+  public Command setBonnetPositionCommand(double bonnetExtensionDegrees) {
 
     // Create a command with an anonymous method that sets the target
     // position using the closed loop controller.
-    Command bonnetPositionCommand = runOnce(() -> {
-      // Pass in our clamped value as the arguement.
-      bonnetCLC.setSetpoint(clampedBonnetExtension, ControlType.kPosition);
-    });
+    Command bonnetPositionCommand = runOnce(() -> setBonnetPosition(bonnetExtensionDegrees));
 
     // Set the command name and return the bonnetPositionCommand object
-    bonnetPositionCommand.setName("SetBonnetTo" + clampedBonnetExtension + "Deg");
+    bonnetPositionCommand.setName("SetBonnetTo" + MathUtil.clamp(bonnetExtensionDegrees, 0,
+      ActuatorConstants.kBonnetMaxExtensionDegrees) + "Deg");
     return bonnetPositionCommand;
   }
 
@@ -132,25 +135,10 @@ public class ShooterSubsystem extends SubsystemBase {
       swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
 
     Supplier<Double> distance = () -> targetHub.getDistance(currentRobotPoint.get()); // finds the distance of the between the robot and hub
-    
-    // return setBonnetPositionCommand(Math.acos(120.36 / distance.get())).handleInterrupt(
-    //   () -> bonnetCLC.setSetpoint( 0, ControlType.kPosition)
-    // );
 
     return runEnd(
-      () -> {
-        bonnetCLC.setSetpoint(MiscUtils.clamp(
-          0, 
-          ActuatorConstants.kBonnetMaxExtensionDegrees, 
-          90 -Units.radiansToDegrees(Math.atan(Units.inchesToMeters(132.36) / distance.get()))), 
-          ControlType.kPosition
-        );
-
-        SmartDashboard.putNumber("BonnetSetPoint", 90 -Units.radiansToDegrees(Math.atan(Units.inchesToMeters(132.36) / distance.get())));
-      }, 
-      () -> {
-        bonnetCLC.setSetpoint(0, ControlType.kPosition);
-      }
+      () -> setBonnetPosition(90 -Units.radiansToDegrees(Math.atan(Units.inchesToMeters(132.36) / distance.get()))),
+      () -> setBonnetPosition(0)
     );
   }
 
