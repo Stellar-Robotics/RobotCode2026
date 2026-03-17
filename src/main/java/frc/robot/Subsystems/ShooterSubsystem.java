@@ -171,40 +171,24 @@ public class ShooterSubsystem extends SubsystemBase {
     return distance;
   }
 
-  public void aiming() {
+  public void autoAim() {
 
     Supplier<Double> distance = distance(); // finds the distance of the between the robot and hub
 
-    // Determine the preset to use based off the distance.
-    // Use the setSpeed method to have the shooter mechanism go to the selected preseet.
-
-    // if (distance.get() > 3 || distance.get() < 5) {
-    //   setShooterProfile();
-    // }
-
-    // else if (distance.get() > 3 || distance.get() < 5) {
-    //   setShooterProfile();
-    // }
-
-    // else if (distance.get() > 3 || distance.get() < 5) {
-    //   setShooterProfile();
-    // }
-
-    // else if (distance.get() > 3 || distance.get() < 5) {
-    //   setShooterProfile();
-    // }
-
-    // else if (distance.get() > 3 || distance.get() < 5) {
-    //   setShooterProfile();
-    // }
-
-    // else {
-
-    // }
-
-
-
+    for (double[] preset : ActuatorConstants.shooterPresets) {
+      if (distance().get() >= preset[0] && distance.get() <= preset[1]) {
+        setShooterProfile(preset[3], preset[2]);
+        break;
+      } else {
+        setShooterProfile(0, 0);
+        break;
+      }
+    }
   }
+
+  public Command autoAimInstantCommand() { return runOnce(() -> autoAim()); }
+  public Command autoAimRunCommand() { return runEnd(() -> autoAim(), () -> setShooterProfile(0, 0)); }
+
 
   
 

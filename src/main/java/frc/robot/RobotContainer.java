@@ -146,6 +146,15 @@ public class RobotContainer {
       CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
     });
 
+    Command shootFuelDynamic = new ParallelCommandGroup(
+      shooterSubsystem.autoAimRunCommand(),
+      new SequentialCommandGroup(
+        new WaitCommand(3),
+        hopperSubsystem.runHopperMechs(false, true, true, true)
+        .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))
+      )
+    );
+
     // Teleop Start Actions
     Command teleopInit = new SequentialCommandGroup(
       intakeSubsystem.setExtensionCommand(true)
@@ -167,6 +176,7 @@ public class RobotContainer {
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(shootFuelMid);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.a().whileTrue(autoAim);
+    operatorController.rightTrigger(0.5).whileTrue(shootFuelDynamic);
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
 
 
