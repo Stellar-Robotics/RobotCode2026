@@ -69,33 +69,22 @@ public class ShooterSubsystem extends SubsystemBase {
 
   }
 
-  // Method that stops the flywheel motor
-  public void stopShooter() {
-    flywheelMotor.stopMotor();
-  }
 
   public void setFlywheelSpeed(double flywheelSpeedRPMs) {
 
     // Clamp our specified speed to a safe range
     double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
-        ActuatorConstants.kFlywheelMaxRPM);
+      ActuatorConstants.kFlywheelMaxRPM);
 
     // sets the closed loop controller to the velocity (RPMs) specified in the parameter.
-      flywheelCLC.setSetpoint(clampedRPM, ControlType.kVelocity);
+    flywheelCLC.setSetpoint(clampedRPM, ControlType.kVelocity);
   }
 
-  // Method that returns a command to set the target velocity of the flywheel
-  // shaft.
   public Command setFlywheelSpeedCommand(double flywheelSpeedRPMs) {
 
-    // Packages the setFlywheelSpeed method into a command
-    Command flywheelCommand = runOnce(() -> setFlywheelSpeed(flywheelSpeedRPMs));
-
-    // Set the command name and return the flywheelCommand object.
-    flywheelCommand.setName("SetFlywheelTo" + MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
-      ActuatorConstants.kFlywheelMaxRPM) + "RPM");
-    return flywheelCommand;
+    return runOnce(() -> setFlywheelSpeed(flywheelSpeedRPMs));
   }
+
 
   public void setBonnetPosition(double bonnetExtensionDegrees) {
 
@@ -112,17 +101,11 @@ public class ShooterSubsystem extends SubsystemBase {
   // Method that returns a command to set the target extension of the bonnet.
   public Command setBonnetPositionCommand(double bonnetExtensionDegrees) {
 
-    // Create a command with an anonymous method that sets the target
-    // position using the closed loop controller.
-    Command bonnetPositionCommand = runOnce(() -> setBonnetPosition(bonnetExtensionDegrees));
-
-    // Set the command name and return the bonnetPositionCommand object
-    bonnetPositionCommand.setName("SetBonnetTo" + MathUtil.clamp(bonnetExtensionDegrees, 0,
-      ActuatorConstants.kBonnetMaxExtensionDegrees) + "Deg");
-    return bonnetPositionCommand;
+    return runOnce(() -> setBonnetPosition(bonnetExtensionDegrees));
   }
 
-  public Command aimByDistance() {
+
+  public Command aimByDistanceRunCommand() { // I need a different equation!
 
     Supplier<Double> distance = getDistanceToHub();
     return runEnd(
@@ -133,16 +116,19 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   public void setShooterProfile(double speedRPM, double bonnetDegrees) {
+
     setFlywheelSpeed(speedRPM);
     setBonnetPosition(bonnetDegrees);
   }
 
   public Command setShooterProfileCommand(double speedRPM, double bonnetDegrees) {
+
     return runOnce(() -> setShooterProfile(speedRPM, bonnetDegrees));
   }
 
 
   public Supplier<Double> getDistanceToHub() {
+
     boolean redHub = MiscUtils.isRedAlliance().getAsBoolean();
     Translation2d targetHub;
       
@@ -162,12 +148,11 @@ public class ShooterSubsystem extends SubsystemBase {
     return distance;
   }
 
+
   public void autoAim() {
 
-    Supplier<Double> distance = getDistanceToHub(); // finds the distance of the between the robot and hub
-
     for (double[] preset : ActuatorConstants.shooterPresets) {
-      if (getDistanceToHub().get() >= preset[0] && distance.get() <= preset[1]) {
+      if (getDistanceToHub().get() >= preset[0] && getDistanceToHub().get() <= preset[1]) {
         setShooterProfile(preset[3], preset[2]);
         break;
       } else {
@@ -181,12 +166,9 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command autoAimRunCommand() { return runEnd(() -> autoAim(), () -> setShooterProfile(0, 0)); }
 
 
-  
-
-  
-
   @Override
   public void periodic() {
+
     SmartDashboard.putNumber("DistanceFromHub", getDistanceToHub().get());
   }
 }

@@ -25,6 +25,7 @@ public class HopperSubsystem extends SubsystemBase {
   SparkMax kickerMotor = new SparkMax(ActuatorConstants.kKickerCANID, MotorType.kBrushless);
 
   public HopperSubsystem() {
+
     SparkMaxConfig beltMotorConfig = new SparkMaxConfig();
     SparkMaxConfig corralMotorConfig = new SparkMaxConfig();
     SparkMaxConfig kickerMotorConfig = new SparkMaxConfig();
@@ -44,51 +45,14 @@ public class HopperSubsystem extends SubsystemBase {
     kickerMotor.configure(kickerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public Command runBeltCommand(double beltMotorSpeed) {
-     Command runBeltCommand = runEnd(
-        () -> {
-          beltMotor.set(beltMotorSpeed);
-        },
-        () -> {
-          beltMotor.stopMotor();
-        }
-      );
-    runBeltCommand.setName("RunBelt");
-    return runBeltCommand;
-  }
-
-  public Command runKickerCommand(double kickerMotorSpeed) {
-     Command runKickerCommand = runEnd(
-        () -> {
-          kickerMotor.set(kickerMotorSpeed);
-        },
-        () -> {
-          kickerMotor.stopMotor();
-        }
-      );
-    runKickerCommand.setName("RunKicker");
-    return runKickerCommand;
-  }
-
-  public Command runCorralCommand(double corralMotorSpeed) {
-     Command runCorralCommand = runEnd(
-        () -> {
-          corralMotor.set(corralMotorSpeed);
-        },
-        () -> {
-          corralMotor.stopMotor();
-        }
-      );
-
-    runCorralCommand.setName("RunCorral");
-    return runCorralCommand;
-  }
 
   public void stopAll() {
+
     corralMotor.stopMotor();
     beltMotor.stopMotor();
     kickerMotor.stopMotor();
   }
+
 
   public void runHopperMechs(boolean reversed, boolean corral, boolean kicker, boolean belt) {
 
@@ -122,6 +86,7 @@ public class HopperSubsystem extends SubsystemBase {
     return runOnce(() -> runHopperMechs(reversed, corral, kicker, belt));
   }
 
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

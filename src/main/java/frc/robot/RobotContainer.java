@@ -43,7 +43,7 @@ public class RobotContainer {
   SendableChooser<Command> autoSelector;
   
   // Create a class-wide accessable operator controller object
-  CommandXboxController operatorController = new CommandXboxController(1);
+  CommandXboxController operatorController = new CommandXboxController(MiscConstants.kOperatorPort);
 
   // We will only use one of these, so we'll only declare them for now
   CommandStellarHID stellarDriveController;
@@ -51,7 +51,6 @@ public class RobotContainer {
 
   // Declare subsystems, but do not define them yet
   SwerveSubsystem swerveChassis;
-
   IntakeSubsystem intakeSubsystem;
   HopperSubsystem hopperSubsystem;
   ShooterSubsystem shooterSubsystem;
@@ -153,6 +152,7 @@ public class RobotContainer {
       RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
     }
 
+
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
@@ -165,6 +165,7 @@ public class RobotContainer {
 
 
     if (MiscConstants.kUsePathplanner) {
+      
       // Autonomous bindings (Store in a hashmap (key/val pairs))
       HashMap<String, Command> autoCommandBindings = new HashMap<>();
 
@@ -203,7 +204,7 @@ public class RobotContainer {
     if (useCustomController) { // Create Stellar controller and setup the swerve to use it
 
       // Define custom controller object
-      stellarDriveController = new CommandStellarHID(0);
+      stellarDriveController = new CommandStellarHID(MiscConstants.kDriverPort);
 
       // Shorten our deadband constant
       double deadband = MiscConstants.kDriverDeadband;

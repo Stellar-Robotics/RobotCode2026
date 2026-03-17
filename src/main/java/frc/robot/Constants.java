@@ -101,9 +101,14 @@ public class Constants {
     public class VisionConstants {
 
         // Pose estimator arguments
-        public static final String kCameraName = "stellarvision";
+        public static final String kCamera1Name = "stellarvision";
+        public static final String kCamera2Name = "stellarvision2";
         public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
-        public static final Transform3d kRobotToCam = new Transform3d(
+        public static final Transform3d kRobotToCam1 = new Transform3d(
+            new Translation3d(Units.inchesToMeters(-7), Units.inchesToMeters(11.3), 0), 
+            new Rotation3d(0, Units.degreesToRadians(292), 0)
+        );
+        public static final Transform3d kRobotToCam2 = new Transform3d(
             new Translation3d(Units.inchesToMeters(-7), Units.inchesToMeters(11.3), 0), 
             new Rotation3d(0, Units.degreesToRadians(292), 0)
         );
@@ -124,6 +129,10 @@ public class Constants {
 
         // Extend intake on enable
         public static final boolean kTeleopExtendIntake = false;
+
+        // Controller Ports
+        public static final int kDriverPort = 0;
+        public static final int kOperatorPort = 1;
 
         // Hub positions
         public static final Pose2d kRedHubPosition = new Pose2d(

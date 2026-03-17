@@ -38,24 +38,33 @@ public class IntakeSubsystem extends SubsystemBase {
     rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
+
   // Standard and command methods to run the intake roller
   private void setRollerPower(double powerPercentage) { rollerMotor.set(powerPercentage); }
+
   public Command setRollerPowerRunCommand(double powerPercentage) {
+
     return runEnd(() -> setRollerPower(powerPercentage), () -> { setRollerPower(0); });
   }
+
   public Command setRollerPowerInstantCommand(double powerPercentage) {
+
     return runOnce(() -> setRollerPower(powerPercentage));
   }
 
+
   // Standard and command methods to set the intake's extension
   private void setExtension(boolean extend) { extensionSolenoid.set( extend ? Value.kForward : Value.kReverse); }
+
   public Command setExtensionCommand(boolean extend) { return runOnce(() -> setExtension(extend)); }
 
-  // Command to toggle the extension
+
+  // Standard and Command methods to toggle the extension
+  public void toggleExtension() { extensionSolenoid.toggle(); }
+
   public Command toggleExtensionCommand() { return runOnce(() -> extensionSolenoid.toggle()); }
 
 
   @Override
-  public void periodic() {
-  }
+  public void periodic() {}
 }
