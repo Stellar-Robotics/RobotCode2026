@@ -40,8 +40,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // Standard and command methods to run the intake roller
   private void setRollerPower(double powerPercentage) { rollerMotor.set(powerPercentage); }
-  public Command setRollerPowerCommand(double powerPercentage) {
+  public Command setRollerPowerRunCommand(double powerPercentage) {
     return runEnd(() -> setRollerPower(powerPercentage), () -> { setRollerPower(0); });
+  }
+  public Command setRollerPowerInstantCommand(double powerPercentage) {
+    return runOnce(() -> setRollerPower(powerPercentage));
   }
 
   // Standard and command methods to set the intake's extension

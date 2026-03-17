@@ -84,7 +84,13 @@ public class HopperSubsystem extends SubsystemBase {
     return runCorralCommand;
   }
 
-  public Command runHopperMechs(boolean reversed, boolean corral, boolean kicker, boolean belt) {
+  public void stopAll() {
+    corralMotor.stopMotor();
+    beltMotor.stopMotor();
+    kickerMotor.stopMotor();
+  }
+
+  public void runHopperMechs(boolean reversed, boolean corral, boolean kicker, boolean belt) {
 
     // Get the sign(+/-) of the power input to control the direction of oscillations.
     double powerSign = Math.signum(reversed ? -1 : 1);
@@ -97,24 +103,23 @@ public class HopperSubsystem extends SubsystemBase {
     Supplier<Double> offsetSinWave = () -> Math.sin(Timer.getFPGATimestamp() * frequency) + const1;
     Supplier<Double> hybridWave = () -> (offsetSinWave.get() * const3 / Math.sqrt(Math.pow(const2, 2) + Math.pow(offsetSinWave.get(), 2))) * 0.75 + 0.25;
 
-    Command runCommand = runEnd(
-      () -> {
-        corralMotor.set(corral ? (hybridWave.get() * powerSign) : 0);
-        kickerMotor.set(kicker ? powerSign : 0);
-        // Create a sin wave that will oscilate the belts to keep fuel from jamming.
-        //beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * frequency) * 0.75 + (0.25 * powerSign)) : 0);
-        beltMotor.set(belt ? (hybridWave.get() * powerSign) : 0);
-        SmartDashboard.putNumber("HybridSquare", hybridWave.get() * powerSign);
-      },
-      () -> {
-        corralMotor.stopMotor();
-        kickerMotor.stopMotor();
-        beltMotor.stopMotor();
-      }
-    );
+    corralMotor.set(corral ? (hybridWave.get() * powerSign) : 0);
+    kickerMotor.set(kicker ? powerSign : 0);
+    // Create a sin wave that will oscilate the belts to keep fuel from jamming.
+    //beltMotor.set(belt ? (Math.sin(Timer.getFPGATimestamp() * frequency) * 0.75 + (0.25 * powerSign)) : 0);
+    beltMotor.set(belt ? (hybridWave.get() * powerSign) : 0);
+    SmartDashboard.putNumber("HybridSquare", hybridWave.get() * powerSign);
+  }
 
-    runCommand.setName("RunSelectiveHopperComps");
-    return runCommand;
+  public Command runHopperMechsRunCommand(boolean reversed, boolean corral, boolean kicker, boolean belt) {
+    return runEnd(
+      () -> runHopperMechs(reversed, corral, kicker, belt),
+      () -> stopAll()
+    );
+  }
+
+  public Command runHopperMechsInstantCommand(boolean reversed, boolean corral, boolean kicker, boolean belt) {
+    return runOnce(() -> runHopperMechs(reversed, corral, kicker, belt));
   }
 
   @Override

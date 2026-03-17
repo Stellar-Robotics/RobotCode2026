@@ -150,6 +150,10 @@ public class ShooterSubsystem extends SubsystemBase {
     setBonnetPosition(bonnetDegrees);
   }
 
+  public Command setShooterProfileCommand(double speedRPM, double bonnetDegrees) {
+    return runOnce(() -> setShooterProfile(speedRPM, bonnetDegrees));
+  }
+
 
   public Supplier<Double> distance() {
     boolean redHub = MiscUtils.isRedAlliance().getAsBoolean();
