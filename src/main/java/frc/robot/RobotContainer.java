@@ -71,6 +71,9 @@ public class RobotContainer {
       autoSelector = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Select Auto", autoSelector);
     }
+
+    SmartDashboard.putNumber("FlywheelSpeed", 180);
+    SmartDashboard.putNumber("AngleB", 0);
   }
 
 
@@ -109,8 +112,8 @@ public class RobotContainer {
 
     // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
-      shooterSubsystem.setBonnetPositionCommand(0),
-      shooterSubsystem.setFlywheelSpeedCommand(180),
+      shooterSubsystem.setBonnetPositionCommand(SmartDashboard.getNumber("AngleB", 0)),
+      shooterSubsystem.setFlywheelSpeedCommand(SmartDashboard.getNumber("FlywheelSpeed", 180)),
       new WaitCommand(3),
       hopperSubsystem.runHopperMechs(false, true, true, true)
       .alongWith(intakeSubsystem.setRollerPowerCommand(0.75))

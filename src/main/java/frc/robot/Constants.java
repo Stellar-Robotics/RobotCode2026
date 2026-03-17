@@ -51,6 +51,15 @@ public class Constants {
         public static final double[] redHubPosition = {Units.inchesToMeters(464.5), Units.inchesToMeters(161.7)};
         public static final double[] blueHubPosition = {Units.inchesToMeters(186.5), Units.inchesToMeters(161.7)};
 
+        public static final double[][] shooterPresets  = {
+            // [min,max,angle,speed]
+            {1.72, 2.308, 0, 180}, 
+            {2.309, 2.6, 5, 180}, 
+            {2.61, 2.83, 4, 205}, 
+            {2.84, 3.4, 5, 215}
+            
+        };
+
 
         // Hopper Constants
         public static final int kBeltCANID = 8;
@@ -119,13 +128,13 @@ public class Constants {
 
         // Hub positions
         public static final Pose2d kRedHubPosition = new Pose2d(
-            Units.inchesToMeters(464.5), 
-            Units.inchesToMeters(161.7), 
+            11.925, 
+            4.04, 
             new Rotation2d()
         );
         public static final Pose2d kBlueHubPosition = new Pose2d(
-            Units.inchesToMeters(186.5), 
-            Units.inchesToMeters(161.7), 
+            4.625, 
+            4.04, 
             new Rotation2d()
         );
     }

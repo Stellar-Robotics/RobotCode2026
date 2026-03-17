@@ -17,8 +17,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.MiscUtils;
 import frc.robot.Constants.ActuatorConstants;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
@@ -142,8 +144,74 @@ public class ShooterSubsystem extends SubsystemBase {
     );
   }
 
+
+  public void setShooterProfile(double speedRPM, double bonnetDegrees) {
+    setFlywheelSpeed(speedRPM);
+    setBonnetPosition(bonnetDegrees);
+  }
+
+
+  public Supplier<Double> distance() {
+    boolean redHub = MiscUtils.isRedAlliance().getAsBoolean();
+    Translation2d targetHub;
+      
+    if (redHub) {
+      targetHub = new Translation2d( // this makes a point of the red hub
+          ActuatorConstants.redHubPosition[0], ActuatorConstants.redHubPosition[1]);
+    } else {
+      targetHub = new Translation2d( // this makes a point of the blue hub
+        ActuatorConstants.blueHubPosition[0], ActuatorConstants.blueHubPosition[1]);
+    }
+
+    Supplier<Translation2d> currentRobotPoint = () -> new Translation2d( // this gets the robot position and makes a point of it
+      swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
+
+    Supplier<Double> distance = () -> targetHub.getDistance(currentRobotPoint.get()); // finds the distance of the between the robot and hub
+
+    return distance;
+  }
+
+  public void aiming() {
+
+    Supplier<Double> distance = distance(); // finds the distance of the between the robot and hub
+
+    // Determine the preset to use based off the distance.
+    // Use the setSpeed method to have the shooter mechanism go to the selected preseet.
+
+    // if (distance.get() > 3 || distance.get() < 5) {
+    //   setShooterProfile();
+    // }
+
+    // else if (distance.get() > 3 || distance.get() < 5) {
+    //   setShooterProfile();
+    // }
+
+    // else if (distance.get() > 3 || distance.get() < 5) {
+    //   setShooterProfile();
+    // }
+
+    // else if (distance.get() > 3 || distance.get() < 5) {
+    //   setShooterProfile();
+    // }
+
+    // else if (distance.get() > 3 || distance.get() < 5) {
+    //   setShooterProfile();
+    // }
+
+    // else {
+
+    // }
+
+
+
+  }
+
+  
+
+  
+
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("DistanceFromHub", distance().get());
   }
 }
