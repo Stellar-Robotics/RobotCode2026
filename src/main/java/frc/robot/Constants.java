@@ -48,8 +48,7 @@ public class Constants {
         public static final double[] kFlywheelPID = {0.0005, 0, 0.04, 0.015};
         public static final double[] kBonnetPID = {0.1, 0, 0};
 
-        public static final double[] redHubPosition = {Units.inchesToMeters(464.5), Units.inchesToMeters(161.7)};
-        public static final double[] blueHubPosition = {Units.inchesToMeters(186.5), Units.inchesToMeters(161.7)};
+        public static final double kFlywheelSpinUpTime = 1.5;
 
         public static final double[][] shooterPresets  = {
             // [min,max,angle,speed]
@@ -124,7 +123,7 @@ public class Constants {
         public static final boolean kUsePathplanner = true;
 
         // Extend intake on enable
-        public static final boolean kTeleopExtendIntake = true;
+        public static final boolean kTeleopExtendIntake = false;
 
         // Hub positions
         public static final Pose2d kRedHubPosition = new Pose2d(

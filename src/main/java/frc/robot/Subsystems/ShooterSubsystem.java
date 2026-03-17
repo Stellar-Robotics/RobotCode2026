@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.MiscUtils;
 import frc.robot.Constants.ActuatorConstants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -121,23 +122,9 @@ public class ShooterSubsystem extends SubsystemBase {
     return bonnetPositionCommand;
   }
 
-  public Command aimByDistance(boolean redHub) {
+  public Command aimByDistance() {
 
-    Translation2d targetHub;
-    
-    if (redHub) {
-      targetHub = new Translation2d( // this makes a point of the red hub
-          ActuatorConstants.redHubPosition[0], ActuatorConstants.redHubPosition[1]);
-    } else {
-      targetHub = new Translation2d( // this makes a point of the blue hub
-        ActuatorConstants.blueHubPosition[0], ActuatorConstants.blueHubPosition[1]);
-    }
-
-    Supplier<Translation2d> currentRobotPoint = () -> new Translation2d( // this gets the robot position and makes a point of it
-      swerveSubsystem.getOdometryEstimate().getX(), swerveSubsystem.getOdometryEstimate().getY());
-
-    Supplier<Double> distance = () -> targetHub.getDistance(currentRobotPoint.get()); // finds the distance of the between the robot and hub
-
+    Supplier<Double> distance = getDistanceToHub();
     return runEnd(
       () -> setBonnetPosition(90 -Units.radiansToDegrees(Math.atan(Units.inchesToMeters(132.36) / distance.get()))),
       () -> setBonnetPosition(0)
@@ -155,16 +142,16 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
 
-  public Supplier<Double> distance() {
+  public Supplier<Double> getDistanceToHub() {
     boolean redHub = MiscUtils.isRedAlliance().getAsBoolean();
     Translation2d targetHub;
       
     if (redHub) {
       targetHub = new Translation2d( // this makes a point of the red hub
-          ActuatorConstants.redHubPosition[0], ActuatorConstants.redHubPosition[1]);
+        MiscConstants.kRedHubPosition.getX(), MiscConstants.kRedHubPosition.getY());
     } else {
       targetHub = new Translation2d( // this makes a point of the blue hub
-        ActuatorConstants.blueHubPosition[0], ActuatorConstants.blueHubPosition[1]);
+        MiscConstants.kBlueHubPosition.getX(), MiscConstants.kBlueHubPosition.getY());
     }
 
     Supplier<Translation2d> currentRobotPoint = () -> new Translation2d( // this gets the robot position and makes a point of it
@@ -177,10 +164,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void autoAim() {
 
-    Supplier<Double> distance = distance(); // finds the distance of the between the robot and hub
+    Supplier<Double> distance = getDistanceToHub(); // finds the distance of the between the robot and hub
 
     for (double[] preset : ActuatorConstants.shooterPresets) {
-      if (distance().get() >= preset[0] && distance.get() <= preset[1]) {
+      if (getDistanceToHub().get() >= preset[0] && distance.get() <= preset[1]) {
         setShooterProfile(preset[3], preset[2]);
         break;
       } else {
@@ -200,6 +187,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("DistanceFromHub", distance().get());
+    SmartDashboard.putNumber("DistanceFromHub", getDistanceToHub().get());
   }
 }

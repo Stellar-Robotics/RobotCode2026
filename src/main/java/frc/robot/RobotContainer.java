@@ -10,6 +10,7 @@ import org.photonvision.PhotonUtils;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -18,7 +19,6 @@ import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -71,9 +71,6 @@ public class RobotContainer {
       autoSelector = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Select Auto", autoSelector);
     }
-
-    SmartDashboard.putNumber("FlywheelSpeed", 180);
-    SmartDashboard.putNumber("AngleB", 0);
   }
 
 
@@ -93,8 +90,6 @@ public class RobotContainer {
      * Command Actions
      * ------------------------- */
 
-    Command autoAim = shooterSubsystem.aimByDistance(MiscUtils.isRedAlliance().getAsBoolean());
-
     // Intake Fuel Action
     Command intakeFuel = new ParallelCommandGroup(
       intakeSubsystem.setRollerPowerRunCommand(1),
@@ -110,54 +105,42 @@ public class RobotContainer {
     // Extend/Retract Intake Action
     Command toggleIntakeExtension = intakeSubsystem.toggleExtensionCommand();
 
-    // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
+    // Shooter Action (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
+    // Command shootFuelClose = new SequentialCommandGroup(
+    //   shooterSubsystem.setBonnetPositionCommand(0),
+    //   shooterSubsystem.setFlywheelSpeedCommand(180),
+    //   new WaitCommand(1.5),
+    //   hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
+    // ).handleInterrupt(() -> { 
+    //   shooterSubsystem.stopShooter(); 
+    //   CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
+    // });
+
+    // Shooter Actions (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
-      shooterSubsystem.setBonnetPositionCommand(SmartDashboard.getNumber("AngleB", 0)),
-      shooterSubsystem.setFlywheelSpeedCommand(SmartDashboard.getNumber("FlywheelSpeed", 180)),
-      new WaitCommand(3),
+      shooterSubsystem.setShooterProfileCommand(180, 0),
+      new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-      .alongWith(intakeSubsystem.setRollerPowerRunCommand(0.75))
-    ).handleInterrupt(() -> { 
-      shooterSubsystem.stopShooter(); 
-      CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
-    });
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
-    // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuelMid = new SequentialCommandGroup(
-      shooterSubsystem.setBonnetPositionCommand(5),
-      shooterSubsystem.setFlywheelSpeedCommand(215),
-      new WaitCommand(3),
+      shooterSubsystem.setShooterProfileCommand(215, 5),
+      new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-      .alongWith(intakeSubsystem.setRollerPowerRunCommand(0.75))
-    ).handleInterrupt(() -> { 
-      shooterSubsystem.stopShooter(); 
-      CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
-    });
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
-    // Shooter Action (Spins up the shooter then feeds the fuel after a 3 seconds wait)
     Command shootFuelFar = new SequentialCommandGroup(
-      shooterSubsystem.setBonnetPositionCommand(10),
-      shooterSubsystem.setFlywheelSpeedCommand(250),
-      new WaitCommand(3),
+      shooterSubsystem.setShooterProfileCommand(250, 8),
+      new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-      .alongWith(intakeSubsystem.setRollerPowerRunCommand(0.75))
-    ).handleInterrupt(() -> { 
-      shooterSubsystem.stopShooter(); 
-      CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
-    });
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
     Command shootFuelDynamic = new ParallelCommandGroup(
       shooterSubsystem.autoAimRunCommand(),
       new SequentialCommandGroup(
-        new WaitCommand(3),
+        new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
         hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-        .alongWith(intakeSubsystem.setRollerPowerRunCommand(0.75))
       )
-    );
-
-    // Teleop Start Actions
-    Command teleopInit = new SequentialCommandGroup(
-      intakeSubsystem.setExtensionCommand(true)
     );
 
 
@@ -165,8 +148,10 @@ public class RobotContainer {
       * Bind Commands to Triggers
       * ------------------------- */
 
-    // Mode triggers
-    if (MiscConstants.kTeleopExtendIntake) { RobotModeTriggers.teleop().onTrue(teleopInit); }
+    // Teleop Start Actions
+    if (MiscConstants.kTeleopExtendIntake) {
+      RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
+    }
 
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
@@ -175,7 +160,6 @@ public class RobotContainer {
     operatorController.povUp().whileTrue(shootFuelFar);
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(shootFuelMid);
     operatorController.povDown().whileTrue(shootFuelClose);
-    operatorController.a().whileTrue(autoAim);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelDynamic);
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
 
@@ -184,7 +168,7 @@ public class RobotContainer {
       // Autonomous bindings (Store in a hashmap (key/val pairs))
       HashMap<String, Command> autoCommandBindings = new HashMap<>();
 
-      // Create key/val pairs of commands we want to map
+      // Create key/val pairs of commands we want to map (All should be instant commands)
       // Intake bindings
       autoCommandBindings.put("extendIntake", intakeSubsystem.setExtensionCommand(true));
       autoCommandBindings.put("retractIntake", intakeSubsystem.setExtensionCommand(false));
@@ -198,13 +182,14 @@ public class RobotContainer {
       autoCommandBindings.put("setHopperStop", hopperSubsystem.runOnce(() -> hopperSubsystem.stopAll()));
 
       // Shooter bindings
-      autoCommandBindings.put("shooterPresetClose", shooterSubsystem.setShooterProfileCommand(180, 0));
-      autoCommandBindings.put("shooterPresetMid", shooterSubsystem.setShooterProfileCommand(180, 5));
-      autoCommandBindings.put("shooterPresetfar", shooterSubsystem.setShooterProfileCommand(205, 4));
+      autoCommandBindings.put("shooterPresetClose", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[0][3], ActuatorConstants.shooterPresets[0][2]));
+      autoCommandBindings.put("shooterPresetMid", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[1][3], ActuatorConstants.shooterPresets[1][2]));
+      autoCommandBindings.put("shooterPresetfar", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[2][3], ActuatorConstants.shooterPresets[2][2]));
       autoCommandBindings.put("shooterPresetStop", shooterSubsystem.setShooterProfileCommand(0, 0));
 
       // Register bindings in the HashMap
       NamedCommands.registerCommands(autoCommandBindings);
+      autoCommandBindings.forEach((key, val) -> new EventTrigger(key).onTrue(val));
     }
   }
 
