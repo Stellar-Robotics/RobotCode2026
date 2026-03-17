@@ -11,8 +11,10 @@ import org.photonvision.PhotonUtils;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PneumaticHub;
@@ -165,6 +167,18 @@ public class RobotContainer {
 
 
     if (MiscConstants.kUsePathplanner) {
+
+      // Path Finding Setup
+      Pose2d shootPoseBlueLeft = new Pose2d(3, 5, Rotation2d.fromDegrees(-37.45));
+      Pose2d shootPoseBlueRight = new Pose2d(3, 3.000, Rotation2d.fromDegrees(180));
+      Pose2d shootPoseBlueCenter = new Pose2d(2.683, 4.05, Rotation2d.fromDegrees(0));
+      Pose2d shootPoseRedLeft = new Pose2d(13.417, 3.138, Rotation2d.fromDegrees(147));
+      Pose2d shootPoseRedRight = new Pose2d(13.417, 5.022, Rotation2d.fromDegrees(-144));
+      Pose2d shootPoseRedCenter = new Pose2d(14, 4.05, Rotation2d.fromDegrees(180));
+      PathConstraints commonPathConstraints = new PathConstraints(
+        2, 2.0,
+        Units.degreesToRadians(250), Units.degreesToRadians(480)
+      );
       
       // Autonomous bindings (Store in a hashmap (key/val pairs))
       HashMap<String, Command> autoCommandBindings = new HashMap<>();
@@ -187,6 +201,14 @@ public class RobotContainer {
       autoCommandBindings.put("shooterPresetMid", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[1][3], ActuatorConstants.shooterPresets[1][2]));
       autoCommandBindings.put("shooterPresetfar", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[2][3], ActuatorConstants.shooterPresets[2][2]));
       autoCommandBindings.put("shooterPresetStop", shooterSubsystem.setShooterProfileCommand(0, 0));
+
+      // Path Finding
+      autoCommandBindings.put("shootPoseLeft", AutoBuilder.pathfindToPose(
+        MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedLeft : shootPoseBlueLeft, commonPathConstraints));
+      autoCommandBindings.put("shootPoseCenter", AutoBuilder.pathfindToPose(
+        MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedCenter : shootPoseBlueCenter, commonPathConstraints));
+      autoCommandBindings.put("shootPoseRight", AutoBuilder.pathfindToPose(
+        MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedRight : shootPoseBlueRight, commonPathConstraints));
 
       // Register bindings in the HashMap
       NamedCommands.registerCommands(autoCommandBindings);
