@@ -4,11 +4,11 @@
   "holonomicMode": true,
   "pathFolders": [
     "Escape",
-    "ShootOnly"
+    "ShootFromStart"
   ],
   "autoFolders": [
     "Escape",
-    "ShootOnly"
+    "ShootPreloadedOnly"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

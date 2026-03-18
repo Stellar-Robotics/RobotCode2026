@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetClose"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CenterStartToCenterShoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 6.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "outOfTheWayRight"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "ShootPreloadedOnly",
+  "choreoAuto": false
+}

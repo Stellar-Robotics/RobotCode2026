@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftStartToLeftShoot"
+            "pathName": "RightStartToRightShoot"
           }
         },
         {
@@ -49,13 +49,13 @@
         {
           "type": "named",
           "data": {
-            "name": "outOfTheWayLeft"
+            "name": "outOfTheWayRight"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "ShootOnly",
+  "folder": "ShootPreloadedOnly",
   "choreoAuto": false
 }
