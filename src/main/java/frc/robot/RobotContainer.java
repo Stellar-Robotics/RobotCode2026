@@ -179,6 +179,7 @@ public class RobotContainer {
       Pose2d shootPoseRedRight = new Pose2d(13.417, 5.022, Rotation2d.fromDegrees(-144));
       Pose2d shootPoseRedCenter = new Pose2d(14, 4.05, Rotation2d.fromDegrees(180));
 
+
       Pose2d outOfTheWayBlueLeft = new Pose2d(0.769, 7.306, Rotation2d.fromDegrees(0));
       Pose2d outOfTheWayBlueRight = new Pose2d(0.588, 2.594, Rotation2d.fromDegrees(0));
 
@@ -224,6 +225,7 @@ public class RobotContainer {
         MiscUtils.isRedAlliance().getAsBoolean() ? outOfTheWayRedLeft : outOfTheWayBlueLeft, commonPathConstraints));
       autoCommandBindings.put("outOfTheWayRight", AutoBuilder.pathfindToPose(
         MiscUtils.isRedAlliance().getAsBoolean() ? outOfTheWayRedRight : outOfTheWayBlueRight, commonPathConstraints));
+
 
       // Register bindings in the HashMap
       NamedCommands.registerCommands(autoCommandBindings);
