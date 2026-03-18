@@ -37,7 +37,7 @@ import edu.wpi.first.math.util.Units;
 public class SwerveSubsystem extends SubsystemBase {
 
   // Enable/Disable vision/odometry updates
-  boolean visionUpdates = false;
+  boolean visionUpdates = true;
 
   // Class accessable objects
   private SwerveDrive swerveDrive;

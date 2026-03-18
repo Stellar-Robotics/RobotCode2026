@@ -41,6 +41,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.VisionConstants;
 
 /** Double vision poes estimation class. */
@@ -87,6 +88,7 @@ public class Vision {
                 est -> {
                     // Change our trust in the measurement based on the tags we can see
                     var estStdDevs = getEstimationStdDevs(sideCam);
+                    SmartDashboard.putBoolean("VisionEst", true);
 
                     estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
                 });

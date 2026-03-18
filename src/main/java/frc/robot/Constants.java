@@ -105,8 +105,8 @@ public class Constants {
         public static final String kCamera2Name = "stellarvision2";
         public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
         public static final Transform3d kRobotToCam1 = new Transform3d(
-            new Translation3d(Units.inchesToMeters(-7), Units.inchesToMeters(11.3), 0), 
-            new Rotation3d(0, Units.degreesToRadians(292), 0)
+            new Translation3d(Units.inchesToMeters(11.75), Units.inchesToMeters(12), Units.inchesToMeters(9.456789)), 
+            new Rotation3d(0, Units.degreesToRadians(329.432), Units.degreesToRadians(360 - 29.2345))
         );
         public static final Transform3d kRobotToCam2 = new Transform3d(
             new Translation3d(Units.inchesToMeters(-7), Units.inchesToMeters(11.3), 0), 
@@ -128,7 +128,7 @@ public class Constants {
         public static final boolean kUsePathplanner = true;
 
         // Extend intake on enable
-        public static final boolean kTeleopExtendIntake = false;
+        public static final boolean kTeleopExtendIntake = true;
 
         // Controller Ports
         public static final int kDriverPort = 0;
