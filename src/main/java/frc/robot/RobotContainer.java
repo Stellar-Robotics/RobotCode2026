@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -214,6 +215,7 @@ public class RobotContainer {
       autoCommandBindings.put("shooterPresetStop", shooterSubsystem.setShooterProfileCommand(0, 0));
 
       // Path Finding
+      // Shooting Poses
       autoCommandBindings.put("shootPoseLeft", AutoBuilder.pathfindToPose(
         MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedLeft : shootPoseBlueLeft, commonPathConstraints));
       autoCommandBindings.put("shootPoseCenter", AutoBuilder.pathfindToPose(
@@ -221,10 +223,21 @@ public class RobotContainer {
       autoCommandBindings.put("shootPoseRight", AutoBuilder.pathfindToPose(
         MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedRight : shootPoseBlueRight, commonPathConstraints));
 
+      // Sideline Poses
       autoCommandBindings.put("outOfTheWayLeft", AutoBuilder.pathfindToPose(
         MiscUtils.isRedAlliance().getAsBoolean() ? outOfTheWayRedLeft : outOfTheWayBlueLeft, commonPathConstraints));
       autoCommandBindings.put("outOfTheWayRight", AutoBuilder.pathfindToPose(
         MiscUtils.isRedAlliance().getAsBoolean() ? outOfTheWayRedRight : outOfTheWayBlueRight, commonPathConstraints));
+
+      // To Path then follow
+      try {
+        autoCommandBindings.put("sweepLeftFromTrench", AutoBuilder.pathfindThenFollowPath(
+          PathPlannerPath.fromPathFile("SweepLeftFromTrench"), commonPathConstraints));
+        autoCommandBindings.put("sweepRightFromTrench", AutoBuilder.pathfindThenFollowPath(
+          PathPlannerPath.fromPathFile("SweepRightFromTrench"), commonPathConstraints));
+      } catch (Exception e) {
+        System.out.println("Could not load path from file for pathfinding! Some pathfinding autos may not work!");
+      }
 
 
       // Register bindings in the HashMap
