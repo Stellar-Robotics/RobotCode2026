@@ -37,13 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "setHopperFeed"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.5
+            "name": "setHopperFeed3S"
           }
         },
         {
@@ -53,15 +47,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.5
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "setHopperStop"
+            "name": "setHopperFeed3S"
           }
         },
         {

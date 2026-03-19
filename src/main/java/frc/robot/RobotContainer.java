@@ -148,6 +148,10 @@ public class RobotContainer {
       )
     );
 
+    Command runEverythingBack = new SequentialCommandGroup(
+      hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
+    );
+
 
     /* -------------------------
       * Bind Commands to Triggers
@@ -167,6 +171,7 @@ public class RobotContainer {
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(shootFuelMid);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelDynamic);
+    operatorController.b().whileTrue(runEverythingBack);
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
 
 
@@ -201,6 +206,8 @@ public class RobotContainer {
 
       // Hopper Bindings
       autoCommandBindings.put("setHopperFeed", hopperSubsystem.runHopperMechsInstantCommand(false, true, true, true));
+      autoCommandBindings.put("setHopperFeed3S", hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
+        .withTimeout(3));
       autoCommandBindings.put("setHopperExpel", hopperSubsystem.runHopperMechsInstantCommand(true, true, true, true));
       autoCommandBindings.put("setHopperStop", hopperSubsystem.runOnce(() -> hopperSubsystem.stopAll()));
 

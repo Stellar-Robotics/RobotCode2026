@@ -25,19 +25,19 @@
         {
           "type": "named",
           "data": {
-            "name": "setHopperFeed"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 6.0
+            "name": "setHopperFeed3S"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "setHopperStop"
+            "name": "retractIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed3S"
           }
         },
         {

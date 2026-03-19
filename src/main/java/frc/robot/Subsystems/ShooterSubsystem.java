@@ -125,6 +125,7 @@ public class ShooterSubsystem extends SubsystemBase {
     setFlywheelSpeed(speedRPM);
     if (speedRPM <= 20) {
       flywheelMotor.stopMotor();
+      setBonnetPosition(bonnetDegrees);
     } else {
       setBonnetPosition(bonnetDegrees);
     }
