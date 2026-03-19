@@ -134,7 +134,12 @@ public class MiscUtils {
 
     public static BooleanSupplier trenchSaftey(SwerveSubsystem swerveSubsystem) {
     return () -> {
-      if(swerveSubsystem.getOdometryEstimate().getX() < 5.398 && swerveSubsystem.getOdometryEstimate().getX() > 3.832) {
+      if(
+        // isRedAlliance() 
+        // ? swerveSubsystem.getOdometryEstimate().getX() < 5.398 && swerveSubsystem.getOdometryEstimate().getX() > 3.832 
+        // : isRedAlliance() 
+        // ? swerveSubsystem.getOdometryEstimate().getX() < 12.656 && swerveSubsystem.getOdometryEstimate().getX() > 11.246
+        swerveSubsystem.getOdometryEstimate().getX() < 12.656 && swerveSubsystem.getOdometryEstimate().getX() > 11.246) {
         return true;
       }
       else {
