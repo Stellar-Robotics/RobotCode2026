@@ -17,9 +17,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "setIntakeIn"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "SweepRightFromTrench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
           }
         },
         {
