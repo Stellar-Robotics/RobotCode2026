@@ -105,12 +105,12 @@ public class Constants {
         public static final String kCamera2Name = "stellarvision2";
         public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
         public static final Transform3d kRobotToCam1 = new Transform3d(
-            new Translation3d(Units.inchesToMeters(11.75), Units.inchesToMeters(12), Units.inchesToMeters(9.456789)), 
-            new Rotation3d(0, Units.degreesToRadians(329.432), Units.degreesToRadians(360 - 29.2345))
+            new Translation3d(Units.inchesToMeters(11.75-0.75), Units.inchesToMeters(12-0.68), Units.inchesToMeters(9.5)), 
+            new Rotation3d(0, Units.degreesToRadians(360-67.5), Units.degreesToRadians(360 - 25))
         );
         public static final Transform3d kRobotToCam2 = new Transform3d(
-            new Translation3d(Units.inchesToMeters(-7), Units.inchesToMeters(11.3), 0), 
-            new Rotation3d(0, Units.degreesToRadians(292), 0)
+            new Translation3d(Units.inchesToMeters(11.75), Units.inchesToMeters(-12), 9.562), 
+            new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(360-90))
         );
 
         // Standard Deviation Constraints
