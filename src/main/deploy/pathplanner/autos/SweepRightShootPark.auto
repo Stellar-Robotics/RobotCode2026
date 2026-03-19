@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "extendIntake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SweepRightFromTrench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetClose"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootPoseLeft"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "outOfTheWayLeft"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Sweep",
+  "choreoAuto": false
+}
