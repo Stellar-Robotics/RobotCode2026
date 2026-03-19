@@ -4,7 +4,6 @@
 
 package frc.robot.Subsystems;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.revrobotics.PersistMode;
@@ -119,6 +118,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   public void setShooterProfile(double speedRPM, double bonnetDegrees) {
+    if(MiscUtils.trenchSaftey(swerveSubsystem).getAsBoolean() == true) {
+      return;
+    }
 
     setFlywheelSpeed(speedRPM);
     if (speedRPM <= 20) {
@@ -169,16 +171,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  public BooleanSupplier trenchSaftey() {
-    return () -> {
-      if(swerveSubsystem.getOdometryEstimate().getX() < 5.398 && swerveSubsystem.getOdometryEstimate().getX() > 3.832) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    };
-  }
+  
 
 
   public Command autoAimInstantCommand() { return runOnce(() -> autoAim()); }

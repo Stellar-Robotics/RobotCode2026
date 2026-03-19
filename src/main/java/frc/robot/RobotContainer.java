@@ -166,10 +166,6 @@ public class RobotContainer {
     operatorController.povUp().whileTrue(shootFuelFar);
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(shootFuelMid);
     operatorController.povDown().whileTrue(shootFuelClose);
-    operatorController.rightTrigger(0.5).whileTrue(
-      shooterSubsystem.trenchSaftey().getAsBoolean() 
-      ? shooterSubsystem.setShooterProfileCommand(0, 0)
-        .andThen(intakeSubsystem.setExtensionCommand(false)) : shootFuelDynamic);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelDynamic);
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
 

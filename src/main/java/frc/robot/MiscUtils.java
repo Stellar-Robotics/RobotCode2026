@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
 public class MiscUtils {
 
@@ -129,4 +130,15 @@ public class MiscUtils {
         Pose2d averagePose = new Pose2d(averageTranslation, averageRotation);
         return averagePose;
     }
+
+    public static BooleanSupplier trenchSaftey(SwerveSubsystem swerveSubsystem) {
+    return () -> {
+      if(swerveSubsystem.getOdometryEstimate().getX() < 5.398 && swerveSubsystem.getOdometryEstimate().getX() > 3.832) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    };
+  }
 }
