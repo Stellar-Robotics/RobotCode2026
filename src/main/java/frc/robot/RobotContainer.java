@@ -175,19 +175,13 @@ public class RobotContainer {
     if (MiscConstants.kUsePathplanner) {
 
       // Path Finding Setup
-      Pose2d shootPoseBlueLeft = new Pose2d(3, 5, Rotation2d.fromDegrees(-37.45));
-      Pose2d shootPoseBlueRight = new Pose2d(3, 3.000, Rotation2d.fromDegrees(180));
-      Pose2d shootPoseBlueCenter = new Pose2d(2.683, 4.05, Rotation2d.fromDegrees(0));
-      Pose2d shootPoseRedLeft = new Pose2d(13.417, 3.138, Rotation2d.fromDegrees(147));
-      Pose2d shootPoseRedRight = new Pose2d(13.417, 5.022, Rotation2d.fromDegrees(-144));
-      Pose2d shootPoseRedCenter = new Pose2d(14, 4.05, Rotation2d.fromDegrees(180));
+      Pose2d shootPoseLeft = new Pose2d(3, 5, Rotation2d.fromDegrees(-37.45));
+      Pose2d shootPoseRight = new Pose2d(3, 3.000, Rotation2d.fromDegrees(30));
+      Pose2d shootPoseCenter = new Pose2d(2.683, 4.05, Rotation2d.fromDegrees(0));
 
 
-      Pose2d outOfTheWayBlueLeft = new Pose2d(0.769, 7.306, Rotation2d.fromDegrees(0));
-      Pose2d outOfTheWayBlueRight = new Pose2d(0.588, 2.594, Rotation2d.fromDegrees(0));
-
-      Pose2d outOfTheWayRedLeft = new Pose2d(15.984, 0.610, Rotation2d.fromDegrees(180));
-      Pose2d outOfTheWayRedRight = new Pose2d(15.996, 5.485, Rotation2d.fromDegrees(180));
+      Pose2d outOfTheWayLeft = new Pose2d(0.8, 7.306, Rotation2d.fromDegrees(0));
+      Pose2d outOfTheWayRight = new Pose2d(0.8, 2.594, Rotation2d.fromDegrees(0));
 
       PathConstraints commonPathConstraints = new PathConstraints(
         2, 2.0,
@@ -218,18 +212,13 @@ public class RobotContainer {
 
       // Path Finding
       // Shooting Poses
-      autoCommandBindings.put("shootPoseLeft", AutoBuilder.pathfindToPose(
-        MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedLeft : shootPoseBlueLeft, commonPathConstraints));
-      autoCommandBindings.put("shootPoseCenter", AutoBuilder.pathfindToPose(
-        MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedCenter : shootPoseBlueCenter, commonPathConstraints));
-      autoCommandBindings.put("shootPoseRight", AutoBuilder.pathfindToPose(
-        MiscUtils.isRedAlliance().getAsBoolean() ? shootPoseRedRight : shootPoseBlueRight, commonPathConstraints));
+      autoCommandBindings.put("shootPoseLeft", AutoBuilder.pathfindToPoseFlipped(shootPoseLeft, commonPathConstraints));
+      autoCommandBindings.put("shootPoseCenter", AutoBuilder.pathfindToPoseFlipped(shootPoseCenter, commonPathConstraints));
+      autoCommandBindings.put("shootPoseRight", AutoBuilder.pathfindToPoseFlipped(shootPoseRight, commonPathConstraints));
 
       // Sideline Poses
-      autoCommandBindings.put("outOfTheWayLeft", AutoBuilder.pathfindToPose(
-        MiscUtils.isRedAlliance().getAsBoolean() ? outOfTheWayRedLeft : outOfTheWayBlueLeft, commonPathConstraints));
-      autoCommandBindings.put("outOfTheWayRight", AutoBuilder.pathfindToPose(
-        MiscUtils.isRedAlliance().getAsBoolean() ? outOfTheWayRedRight : outOfTheWayBlueRight, commonPathConstraints));
+      autoCommandBindings.put("outOfTheWayLeft", AutoBuilder.pathfindToPoseFlipped(outOfTheWayLeft, commonPathConstraints));
+      autoCommandBindings.put("outOfTheWayRight", AutoBuilder.pathfindToPoseFlipped(outOfTheWayRight, commonPathConstraints));
 
       // To Path then follow
       try {

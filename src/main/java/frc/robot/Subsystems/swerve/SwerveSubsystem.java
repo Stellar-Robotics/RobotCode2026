@@ -257,6 +257,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
       swerveDrive.updateOdometry();
       vision.periodic();
+      SmartDashboard.putBoolean("isRedAlliance", MiscUtils.isRedAlliance().getAsBoolean());
     }
     SmartDashboard.putNumber("robotTravel", getOdometryEstimate().getX());
 

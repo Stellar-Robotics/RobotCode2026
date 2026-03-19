@@ -81,6 +81,7 @@ public class MiscUtils {
         return () -> {
             var alliance = DriverStation.getAlliance();
             if (alliance.isPresent()) {
+                SmartDashboard.putBoolean("isRedAlliance", alliance.get() == DriverStation.Alliance.Red);
                 return alliance.get() == DriverStation.Alliance.Red;
             }
             return false;
