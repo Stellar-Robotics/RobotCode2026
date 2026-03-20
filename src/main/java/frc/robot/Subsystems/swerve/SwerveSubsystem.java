@@ -76,7 +76,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Set some conditions for the swerve systems
     swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
-    swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+    swerveDrive.setCosineCompensator(true);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     swerveDrive.setAngularVelocityCompensation(true, true, 0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
     swerveDrive.resetOdometry(new Pose2d(
       3.574, 
@@ -304,8 +304,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
       // Apply a deadband to translational inputs
       double[] filteredTranslation = MiscUtils.circularDeadband(radiusX.get(), radiusY.get(), deadband);
-      double velocityX = filteredTranslation[0];
-      double velocityY = filteredTranslation[1];
+      double velocityX = Math.copySign(Math.pow(filteredTranslation[0], 2), filteredTranslation[0]);
+      double velocityY = Math.copySign(Math.pow(filteredTranslation[1], 2), filteredTranslation[1]);
 
       // Obtain current and desired angles (Map continuous robot angle to a wrapping standard range)
       double robotAngle = MathUtil.inputModulus(swerveDrive.getYaw().getDegrees(), -180, 180);
