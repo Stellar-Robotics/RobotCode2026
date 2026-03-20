@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 import org.photonvision.PhotonUtils;
 
@@ -270,11 +271,11 @@ public class RobotContainer {
       swerveChassis.setDefaultCommand(driveCommand);
 
       // Obtain angle diff to hub and create orbit drive command, then bind it to right center
-      Pose2d targetHub = MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;
+      Supplier<Pose2d> targetHub = () -> MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;
       Command driveAndOrbitCommand = swerveChassis.driveFieldOrientedWithOrbit(
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
-        () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub),
+        () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub.get()),
         deadband
       );
       stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
