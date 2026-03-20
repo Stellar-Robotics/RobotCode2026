@@ -234,6 +234,8 @@ public class RobotContainer {
           PathPlannerPath.fromPathFile("SweepLeftFromTrench"), commonPathConstraints));
         autoCommandBindings.put("sweepRightFromTrench", AutoBuilder.pathfindThenFollowPath(
           PathPlannerPath.fromPathFile("SweepRightFromTrench"), commonPathConstraints));
+        autoCommandBindings.put("depotApproach", AutoBuilder.pathfindThenFollowPath(
+          PathPlannerPath.fromPathFile("DepotApproach"), commonPathConstraints));
       } catch (Exception e) {
         System.out.println("Could not load path from file for pathfinding! Some pathfinding autos may not work!");
       }

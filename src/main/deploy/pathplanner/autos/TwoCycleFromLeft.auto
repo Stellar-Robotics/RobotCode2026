@@ -1,0 +1,121 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetClose"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftStartToLeftShoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "retractIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extendIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setIntakeIn"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "depotApproach"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DepotDeparture"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootPoseLeft"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "retractIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "outOfTheWayLeft"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "TwoCycle",
+  "choreoAuto": false
+}
