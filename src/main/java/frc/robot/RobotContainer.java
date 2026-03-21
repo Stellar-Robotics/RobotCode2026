@@ -174,6 +174,7 @@ public class RobotContainer {
     operatorController.rightTrigger(0.5).whileTrue(shootFuelDynamic);
     operatorController.b().whileTrue(runEverythingBack);
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
+    stellarDriveController.rightTop().onTrue(intakeSubsystem.setExtensionCommand(true));
 
 
 
