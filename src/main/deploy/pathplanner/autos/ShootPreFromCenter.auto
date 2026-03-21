@@ -43,6 +43,12 @@
         {
           "type": "named",
           "data": {
+            "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "shooterPresetStop"
           }
         },
