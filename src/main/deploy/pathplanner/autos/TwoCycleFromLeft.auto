@@ -65,6 +65,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "DepotApproach"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "stopIntake"
