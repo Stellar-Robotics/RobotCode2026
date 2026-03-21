@@ -104,7 +104,7 @@ public class RobotContainer {
 
     // Expel Fuel Action
     Command expelFuel = new ParallelCommandGroup(
-      intakeSubsystem.setRollerPowerRunCommand(-0.75),
+      intakeSubsystem.setRollerPowerRunCommand(-1),
       hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
     );
 
