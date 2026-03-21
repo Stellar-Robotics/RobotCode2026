@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftStartToLeftShoot"
+            "pathName": "CenterStartToCenterShoot"
           }
         },
         {
@@ -71,6 +71,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "stopIntake"
@@ -83,15 +89,15 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "shootPoseLeft"
-          }
-        },
-        {
           "type": "wait",
           "data": {
             "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootPoseLeft"
           }
         },
         {
