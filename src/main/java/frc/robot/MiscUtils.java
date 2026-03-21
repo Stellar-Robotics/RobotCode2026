@@ -132,19 +132,5 @@ public class MiscUtils {
         return averagePose;
     }
 
-    public static BooleanSupplier trenchSaftey(SwerveSubsystem swerveSubsystem) {
-    return () -> {
-      if(
-        // isRedAlliance() 
-        // ? swerveSubsystem.getOdometryEstimate().getX() < 5.398 && swerveSubsystem.getOdometryEstimate().getX() > 3.832 
-        // : isRedAlliance() 
-        // ? swerveSubsystem.getOdometryEstimate().getX() < 12.656 && swerveSubsystem.getOdometryEstimate().getX() > 11.246
-        swerveSubsystem.getOdometryEstimate().getX() < 12.656 && swerveSubsystem.getOdometryEstimate().getX() > 11.246) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    };
-  }
+
 }

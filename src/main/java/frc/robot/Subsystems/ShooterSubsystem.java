@@ -118,10 +118,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   public void setShooterProfile(double speedRPM, double bonnetDegrees) {
-    if(MiscUtils.trenchSaftey(swerveSubsystem).getAsBoolean() == true) {
-      return;
-    }
-
     setFlywheelSpeed(speedRPM);
     if (speedRPM <= 20) {
       flywheelMotor.stopMotor();
