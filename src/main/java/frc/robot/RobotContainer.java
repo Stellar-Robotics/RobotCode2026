@@ -189,6 +189,9 @@ public class RobotContainer {
       Pose2d outOfTheWayLeft = new Pose2d(0.8, 7.306, Rotation2d.fromDegrees(0));
       Pose2d outOfTheWayRight = new Pose2d(0.8, 2.594, Rotation2d.fromDegrees(0));
 
+      Pose2d outOfTheWayCenter = new Pose2d(0.714, 4.960, Rotation2d.fromDegrees(0));
+      Pose2d extraPoint = new Pose2d(1.723, 4.960, Rotation2d.fromDegrees(0));
+
       Pose2d outerDepot = new Pose2d(0.892, 5.964, Rotation2d.fromDegrees(0));
 
       PathConstraints commonPathConstraints = new PathConstraints(
@@ -229,7 +232,8 @@ public class RobotContainer {
       // Sideline Poses
       autoCommandBindings.put("outOfTheWayLeft", AutoBuilder.pathfindToPoseFlipped(outOfTheWayLeft, commonPathConstraints));
       autoCommandBindings.put("outOfTheWayRight", AutoBuilder.pathfindToPoseFlipped(outOfTheWayRight, commonPathConstraints));
-      
+      autoCommandBindings.put("outOfTheWayCenter", AutoBuilder.pathfindToPoseFlipped(outOfTheWayCenter, commonPathConstraints));
+      autoCommandBindings.put("extraPoint", AutoBuilder.pathfindToPoseFlipped(extraPoint, commonPathConstraints));
       autoCommandBindings.put("outerDepot", AutoBuilder.pathfindToPoseFlipped(outerDepot, commonPathConstraints));
 
       // To Path then follow
