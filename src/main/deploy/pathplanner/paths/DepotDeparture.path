@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.8920309081524642,
-        "y": 5.963862285501693
+        "x": 0.7655777460770319,
+        "y": 5.283580599144082
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.495255800444505,
-        "y": 5.9646580768453665
+        "x": 1.3688026383690726,
+        "y": 5.284376390487755
       },
       "isLocked": false,
       "linkedName": "InnerDepot"
     },
     {
       "anchor": {
-        "x": 2.169488862136315,
-        "y": 5.960153008822738
+        "x": 1.852,
+        "y": 4.96
       },
       "prevControl": {
-        "x": 1.7137897780845912,
-        "y": 5.956831475619612
+        "x": 1.3963009159482762,
+        "y": 4.956678466796874
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Depot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -45.0
   },
   "useDefaultConstraints": true
 }
