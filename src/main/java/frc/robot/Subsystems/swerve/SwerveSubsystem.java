@@ -21,6 +21,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -76,8 +77,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Set some conditions for the swerve systems
     swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
-    swerveDrive.setCosineCompensator(true);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
-    swerveDrive.setAngularVelocityCompensation(true, true, 0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
+    swerveDrive.setCosineCompensator(!RobotBase.isSimulation()); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+    swerveDrive.setAngularVelocityCompensation(true, false, 0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
     swerveDrive.resetOdometry(new Pose2d(
       3.574, 
       4.032, 
