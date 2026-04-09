@@ -59,6 +59,9 @@ public class Constants {
             
         };
 
+        
+
+        
 
         // Hopper Constants
         public static final int kBeltCANID = 8;
@@ -145,5 +148,9 @@ public class Constants {
             4.04, 
             new Rotation2d()
         );
+
+        public static final double shootingHeight = 20;   //may need to tune this
+
+        public static final double hubHeight = 6;
     }
 }

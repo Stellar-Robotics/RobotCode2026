@@ -109,9 +109,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command aimByDistanceRunCommand() { // I need a different equation!
 
-    Supplier<Double> distance = getDistanceToHub();
     return runEnd(
-      () -> setBonnetPosition(90 -Units.radiansToDegrees(Math.atan(Units.inchesToMeters(132.36) / distance.get()))),
+      () -> setBonnetPosition(angleFinder().get()),
       () -> setBonnetPosition(0)
     );
   }
@@ -152,6 +151,26 @@ public class ShooterSubsystem extends SubsystemBase {
     Supplier<Double> distance = () -> targetHub.getDistance(currentRobotPoint.get()); // finds the distance of the between the robot and hub
 
     return distance;
+  }
+
+  public Supplier<Double> angleFinder() {
+    Supplier<Double> distance = getDistanceToHub();
+
+    Supplier<Double> shootingVertex = () -> MiscConstants.shootingHeight / distance.get();
+
+    Supplier<Double> xAxisInterception = () -> shootingVertex.get() * distance.get() + MiscConstants.hubHeight / Math.pow(distance.get(), 2);
+
+    Supplier<Double> additionalPointX = () -> distance.get() - 0.1;
+
+    Supplier<Double> additionalPointY = () -> (
+      -xAxisInterception.get() * Math.pow(additionalPointX.get(), 2) + 
+      shootingVertex.get() * additionalPointX.get() + 
+      MiscConstants.hubHeight);
+
+    Supplier<Double> slope = () -> additionalPointY.get() - distance.get() / additionalPointX.get();
+
+    return () -> 90 -Units.radiansToDegrees(Math.atan(slope.get()));
+
   }
 
 
