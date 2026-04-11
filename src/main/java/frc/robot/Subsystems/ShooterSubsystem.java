@@ -4,6 +4,8 @@
 
 package frc.robot.Subsystems;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.revrobotics.PersistMode;
@@ -153,7 +155,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return distance;
   }
 
-  public double[] vertex() {
+  public Supplier<List<Double>> vertex() {
     Supplier<Double> distance = getDistanceToHub();
 
     Supplier<Double> shootingVertex = () -> 3 * MiscConstants.shootingHeight / distance.get();
@@ -167,13 +169,15 @@ public class ShooterSubsystem extends SubsystemBase {
       shootingVertex.get() * additionalPointX.get() + 
       MiscConstants.hubHeight);
 
-    double[] vertex = {additionalPointX.get(), additionalPointY.get()};
+    //Supplier<Double[]> vertex = () -> {additionalPointX.get(), additionalPointY.get()};
+
+    Supplier<List<Double>> vertex = () -> Arrays.asList(additionalPointX.get(), additionalPointY.get());
 
     return vertex;
   }
 
   public Supplier<Double> angleFinder() {
-    double[] vertex = vertex();
+    double[] vertex = {vertex().get().get(0), vertex().get().get(1)};
 
     Supplier<Double> distance = getDistanceToHub();
 
@@ -185,7 +189,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public double speedFinder() {
-    double[] vertex = vertex();
+    double[] vertex = {vertex().get().get(0), vertex().get().get(1)};
 
     double velocity = Math.sqrt(Units.feetToMeters(vertex[1]) * 2 * 9.8);
 
