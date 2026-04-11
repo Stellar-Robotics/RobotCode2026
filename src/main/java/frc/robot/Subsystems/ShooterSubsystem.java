@@ -156,7 +156,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public double[] vertex() {
     Supplier<Double> distance = getDistanceToHub();
 
-    Supplier<Double> shootingVertex = () -> MiscConstants.shootingHeight / distance.get();
+    Supplier<Double> shootingVertex = () -> 3 * MiscConstants.shootingHeight / distance.get();
 
     Supplier<Double> xAxisInterception = () -> shootingVertex.get() * distance.get() + MiscConstants.hubHeight / Math.pow(distance.get(), 2);
 
@@ -179,7 +179,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     Supplier<Double> slope = () -> vertex[1] - distance.get() / vertex[0];
 
-    return () -> 90 -Units.radiansToDegrees(Math.atan(slope.get()));
+
+    return () -> 90 - Math.atan(slope.get());
 
   }
 
@@ -188,7 +189,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     double velocity = Math.sqrt(Units.feetToMeters(vertex[1]) * 2 * 9.8);
 
-    double speed  = velocity * 60;
+    double speed  = velocity * MiscConstants.speedMultiplier;
 
     return speed;
   }
@@ -221,5 +222,6 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
 
     SmartDashboard.putNumber("DistanceFromHub", getDistanceToHub().get());
+    SmartDashboard.putNumber("bonnetAngle", angleFinder().get());
   }
 }

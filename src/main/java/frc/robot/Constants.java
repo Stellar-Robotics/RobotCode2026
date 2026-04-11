@@ -149,8 +149,13 @@ public class Constants {
             new Rotation2d()
         );
 
-        public static final double shootingHeight = 20;   //may need to tune this
+        public static final double shootingHeight = 6;   
+        //controls target max height. this is not to scale so you should use the desmos. it is the "B" slider
 
         public static final double hubHeight = 6;
+        //this is the hub height in feet
+
+        public static final double speedMultiplier = 60;
+        //this is the multiplier that the speed is calculated with
     }
 }
