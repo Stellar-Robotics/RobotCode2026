@@ -153,7 +153,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return distance;
   }
 
-  public Supplier<Double> angleFinder() {
+  public double[] vertex() {
     Supplier<Double> distance = getDistanceToHub();
 
     Supplier<Double> shootingVertex = () -> MiscConstants.shootingHeight / distance.get();
@@ -167,25 +167,48 @@ public class ShooterSubsystem extends SubsystemBase {
       shootingVertex.get() * additionalPointX.get() + 
       MiscConstants.hubHeight);
 
-    Supplier<Double> slope = () -> additionalPointY.get() - distance.get() / additionalPointX.get();
+    double[] vertex = {additionalPointX.get(), additionalPointY.get()};
+
+    return vertex;
+  }
+
+  public Supplier<Double> angleFinder() {
+    double[] vertex = vertex();
+
+    Supplier<Double> distance = getDistanceToHub();
+
+    Supplier<Double> slope = () -> vertex[1] - distance.get() / vertex[0];
 
     return () -> 90 -Units.radiansToDegrees(Math.atan(slope.get()));
 
   }
 
+  public double speedFinder() {
+    double[] vertex = vertex();
+
+    double velocity = Math.sqrt(Units.feetToMeters(vertex[1]) * 2 * 9.8);
+
+    double speed  = velocity * 60;
+
+    return speed;
+  }
+
 
   public void autoAim() {
 
-    for (double[] preset : ActuatorConstants.shooterPresets) {
-      if (getDistanceToHub().get() >= preset[0] && getDistanceToHub().get() <= preset[1]) {
-        setShooterProfile(preset[3], preset[2]);
-        break;
-      } else {
-        setShooterProfile(0, 0);
-        break;
-      }
-    }
+    setShooterProfile(speedFinder(), angleFinder().get());
+
+    // for (double[] preset : ActuatorConstants.shooterPresets) {
+    //   if (getDistanceToHub().get() >= preset[0] && getDistanceToHub().get() <= preset[1]) {
+    //     setShooterProfile(preset[3], preset[2]);
+    //     break;
+    //   } else {
+    //     setShooterProfile(0, 0);
+    //     break;
+    //   }
+    // }
   }
+
 
   
 
