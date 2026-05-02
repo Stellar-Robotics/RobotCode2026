@@ -11,9 +11,11 @@ import java.util.function.Supplier;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
@@ -32,22 +34,27 @@ public class ShooterSubsystem extends SubsystemBase {
   // Create motor (motor controller) objects.
   SparkMax flywheelMotor = new SparkMax(ActuatorConstants.kFlywheelCANID, MotorType.kBrushless);
   SparkMax bonnetMotor = new SparkMax(ActuatorConstants.kBonnetCANID, MotorType.kBrushless);
+  SparkFlex leftVortexMotor = new SparkFlex(ActuatorConstants.leftVortexCANID, MotorType.kBrushless);
+  SparkFlex rightVortexMotor = new SparkFlex(ActuatorConstants.rightVortexCANID, MotorType.kBrushless);
 
 
 
   // Store refrences to the motors' closed loop controllers.
   SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
   SparkClosedLoopController bonnetCLC = bonnetMotor.getClosedLoopController();
+  SparkClosedLoopController leftVortexCLC = leftVortexMotor.getClosedLoopController();
+  SparkClosedLoopController rightVortexCLC = rightVortexMotor.getClosedLoopController();
 
   SwerveSubsystem swerveSubsystem;
   /** Creates a new Shooter. */
   public ShooterSubsystem(SwerveSubsystem swerveObject) {
-
     swerveSubsystem = swerveObject;
 
     // Create configuration objects for the motor controllers.
     SparkMaxConfig flywheelMotorConfig = new SparkMaxConfig();
     SparkMaxConfig bonnetMotorConfig = new SparkMaxConfig();
+    SparkFlexConfig leftVortexMotorConfig = new SparkFlexConfig();
+    SparkFlexConfig rightVortexMotorConfig = new SparkFlexConfig();
 
     // Set configuration options by calling methods on the configuration objects.
     flywheelMotorConfig
@@ -60,6 +67,16 @@ public class ShooterSubsystem extends SubsystemBase {
         .smartCurrentLimit(ActuatorConstants.kCommonNeo550CurrentLimit).closedLoop
         .pid(ActuatorConstants.kBonnetPID[0], ActuatorConstants.kBonnetPID[1], ActuatorConstants.kBonnetPID[2]);
 
+    rightVortexMotorConfig
+      .inverted(false)
+      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit);
+
+    leftVortexMotorConfig
+      .follow(ActuatorConstants.rightVortexCANID, true)
+      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit);
+
+    
+
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
     bonnetMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kBonnetConversionFactor);
@@ -70,23 +87,31 @@ public class ShooterSubsystem extends SubsystemBase {
     // objects.
     flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     bonnetMotor.configure(bonnetMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    leftVortexMotor.configure(leftVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rightVortexMotor.configure(rightVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
 
-  public void setFlywheelSpeed(double flywheelSpeedRPMs) {
+  public void setVortexMotorSpeed(double flywheelSpeedRPMs) { //left vortex follows right
 
     // Clamp our specified speed to a safe range
-    double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
-      ActuatorConstants.kFlywheelMaxRPM);
+
+    // double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
+    //   ActuatorConstants.kFlywheelMaxRPM);
+
+    double vortexClampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM, ActuatorConstants.kFlywheelMaxRPM);
+
 
     // sets the closed loop controller to the velocity (RPMs) specified in the parameter.
-    flywheelCLC.setSetpoint(clampedRPM, ControlType.kVelocity);
+    
+    //flywheelCLC.setSetpoint(clampedRPM, ControlType.kVelocity);
+    rightVortexCLC.setSetpoint(vortexClampedRPM, ControlType.kVelocity);
   }
 
-  public Command setFlywheelSpeedCommand(double flywheelSpeedRPMs) {
+  public Command setVortexMotorSpeedCommand(double flywheelSpeedRPMs) {
 
-    return runOnce(() -> setFlywheelSpeed(flywheelSpeedRPMs));
+    return runOnce(() -> setVortexMotorSpeed(flywheelSpeedRPMs));
   }
 
 
@@ -119,9 +144,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   public void setShooterProfile(double speedRPM, double bonnetDegrees) {
-    setFlywheelSpeed(speedRPM);
+    setVortexMotorSpeed(speedRPM);
     if (speedRPM <= 20) {
-      flywheelMotor.stopMotor();
+      rightVortexMotor.stopMotor();
       setBonnetPosition(bonnetDegrees);
     } else {
       setBonnetPosition(bonnetDegrees);

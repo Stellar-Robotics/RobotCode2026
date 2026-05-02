@@ -30,11 +30,14 @@ public class Constants {
         // Use these to adjust global current limits across most motors
         public static final int kCommonNeoCurrentLimit = 40;
         public static final int kCommonNeo550CurrentLimit = 30;
+        public static final int kvortexCurrentLimit = 40;  //change this
 
 
         // Shooter Constants
         public static final int kFlywheelCANID = 6;
         public static final int kBonnetCANID = 7;
+        public static final int leftVortexCANID = 0; //change this
+        public static final int rightVortexCANID = 0; //change this
 
         public static final boolean kFlywheelInverted = false;
         public static final boolean kBonnetInverted = false;
