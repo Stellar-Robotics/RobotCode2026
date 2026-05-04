@@ -1,0 +1,85 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "UnderTheTrenchStartLeft"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extendIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setIntakeIn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "intakeCenterLeft"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "UnderTheTrenchEndLeft"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetClose"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "retractIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootPoseLeftRotated"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "outOfTheWayLeft"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
