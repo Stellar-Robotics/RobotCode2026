@@ -178,7 +178,6 @@ public class RobotContainer {
 
 
 
-
     if (MiscConstants.kUsePathplanner) {
 
       // Path Finding Setup

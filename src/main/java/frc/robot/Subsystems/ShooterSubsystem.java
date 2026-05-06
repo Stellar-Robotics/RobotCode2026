@@ -32,7 +32,7 @@ import frc.robot.Subsystems.swerve.SwerveSubsystem;
 public class ShooterSubsystem extends SubsystemBase {
 
   // Create motor (motor controller) objects.
-  SparkMax flywheelMotor = new SparkMax(ActuatorConstants.kFlywheelCANID, MotorType.kBrushless);
+  //SparkMax flywheelMotor = new SparkMax(ActuatorConstants.kFlywheelCANID, MotorType.kBrushless);
   SparkMax bonnetMotor = new SparkMax(ActuatorConstants.kBonnetCANID, MotorType.kBrushless);
   SparkFlex leftVortexMotor = new SparkFlex(ActuatorConstants.leftVortexCANID, MotorType.kBrushless);
   SparkFlex rightVortexMotor = new SparkFlex(ActuatorConstants.rightVortexCANID, MotorType.kBrushless);
@@ -40,7 +40,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   // Store refrences to the motors' closed loop controllers.
-  SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
+  //SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
   SparkClosedLoopController bonnetCLC = bonnetMotor.getClosedLoopController();
   SparkClosedLoopController leftVortexCLC = leftVortexMotor.getClosedLoopController();
   SparkClosedLoopController rightVortexCLC = rightVortexMotor.getClosedLoopController();
@@ -72,6 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
       .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit);
 
     leftVortexMotorConfig
+      .inverted(false)
       .follow(ActuatorConstants.rightVortexCANID, true)
       .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit);
 
@@ -85,7 +86,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Call the configure method on the motor objects in order to apply the config
     // objects.
-    flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     bonnetMotor.configure(bonnetMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     leftVortexMotor.configure(leftVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightVortexMotor.configure(rightVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
