@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -135,11 +136,11 @@ public class RobotContainer {
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
-    Command shootFuelFar = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(6000, 10),
-      new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
-      hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
+    // Command shootFuelFar = new SequentialCommandGroup(
+    //   shooterSubsystem.setShooterProfileCommand(6000, 10),
+    //   new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
+    //   hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
+    // ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
     Command shootFuelDynamic = new ParallelCommandGroup(
       shooterSubsystem.autoAimRunCommand(),
@@ -160,7 +161,9 @@ public class RobotContainer {
 
     // Teleop Start Actions
     if (MiscConstants.kTeleopExtendIntake) {
-      RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
+      if (DriverStation.isFMSAttached()) {
+        RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
+      }
     }
 
 

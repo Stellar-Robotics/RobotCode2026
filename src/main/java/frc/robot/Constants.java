@@ -72,7 +72,7 @@ public class Constants {
         public static final int kKickerCANID = 10;
 
         public static final boolean kBeltInverted = false;
-        public static final boolean kCorralInverted = true;
+        public static final boolean kCorralInverted = false;
         public static final boolean kKickerInverted = true;
 
         public static final double kKickerConversionFactor = 1.0; // May need changed
