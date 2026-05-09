@@ -69,7 +69,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     rightVortexMotorConfig
       .inverted(false)
-      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit);
+      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
+      .closedLoop.pid(ActuatorConstants.kFlywheelPID[0],
+            ActuatorConstants.kFlywheelPID[1], ActuatorConstants.kFlywheelPID[2]).feedForward
+        .kV(ActuatorConstants.kFlywheelPID[3]);
 
     leftVortexMotorConfig
       .inverted(false)
@@ -91,6 +94,10 @@ public class ShooterSubsystem extends SubsystemBase {
     leftVortexMotor.configure(leftVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightVortexMotor.configure(rightVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+  }
+
+  public Command test() {
+    return runEnd(() -> rightVortexCLC.setSetpoint(2000, ControlType.kVelocity), () -> rightVortexMotor.set(0));
   }
 
 
@@ -227,17 +234,17 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void autoAim() {
 
-    setShooterProfile(speedFinder(), angleFinder().get());
+    //setShooterProfile(speedFinder(), angleFinder().get());
 
-    // for (double[] preset : ActuatorConstants.shooterPresets) {
-    //   if (getDistanceToHub().get() >= preset[0] && getDistanceToHub().get() <= preset[1]) {
-    //     setShooterProfile(preset[3], preset[2]);
-    //     break;
-    //   } else {
-    //     setShooterProfile(0, 0);
-    //     break;
-    //   }
-    // }
+    for (double[] preset : ActuatorConstants.shooterPresets) {
+      if (getDistanceToHub().get() >= preset[0] && getDistanceToHub().get() <= preset[1]) {
+        setShooterProfile(preset[3], preset[2]);
+        break;
+      } else {
+        setShooterProfile(0, 0);
+        break;
+      }
+    }
   }
 
 
@@ -245,7 +252,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
   public Command autoAimInstantCommand() { return runOnce(() -> autoAim()); }
-  public Command autoAimRunCommand() { return runEnd(() -> autoAim(), () -> setShooterProfile(0, 0)); }
+  public Command autoAimRunCommand() { return runEnd(() -> autoAim(), () -> setShooterProfile(speedFinder(), angleFinder().get())); }
 
 
   @Override

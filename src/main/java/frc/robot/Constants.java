@@ -46,19 +46,19 @@ public class Constants {
         public static final double kFlywheelConversionFactor = 1.0;
 
         public static final double kFlywheelMaxRPM = 5000;
-        public static final double kBonnetMaxExtensionDegrees = 21;
+        public static final double kBonnetMaxExtensionDegrees = 15;
 
-        public static final double[] kFlywheelPID = {0.0005, 0, 0.04, 0.015};
+        public static final double[] kFlywheelPID = {0.0006, 0.000001, 0.015, 0.001};
         public static final double[] kBonnetPID = {0.1, 0, 0};
 
         public static final double kFlywheelSpinUpTime = 1.5;
 
         public static final double[][] shooterPresets  = {
             // [min,max,angle,speed]
-            {1.72, 2.308, 0, 180}, 
-            {2.309, 2.6, 5, 180}, 
-            {2.61, 2.83, 4, 205}, 
-            {2.84, /*3.4*/ 20, 5, 215}
+            {1.72, 2.308, 0, 1000}, 
+            {2.309, 2.6, 5, 1000}, 
+            {2.61, 2.83, 4, 1250}, 
+            {2.84, /*3.4*/ 20, 5, 1400}
             
         };
 

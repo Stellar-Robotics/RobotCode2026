@@ -124,19 +124,19 @@ public class RobotContainer {
 
     // Shooter Actions (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(180, 0),
+      shooterSubsystem.setShooterProfileCommand(4150, 0),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
-    Command shootFuelMid = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(215, 5),
+    Command transportFuel = new SequentialCommandGroup(
+      shooterSubsystem.setShooterProfileCommand(4500, 10),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
     Command shootFuelFar = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(250, 8),
+      shooterSubsystem.setShooterProfileCommand(6000, 10),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
@@ -168,11 +168,12 @@ public class RobotContainer {
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
-    operatorController.povUp().whileTrue(shootFuelFar);
-    operatorController.povLeft().or(operatorController.povRight()).whileTrue(shootFuelMid);
+    //operatorController.povUp().whileTrue(shootFuelFar);
+    operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelDynamic);
     operatorController.b().whileTrue(runEverythingBack);
+    operatorController.a().whileTrue(shooterSubsystem.test());
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
     stellarDriveController.rightTop().onTrue(intakeSubsystem.setExtensionCommand(true));
 
