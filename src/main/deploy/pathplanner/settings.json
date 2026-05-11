@@ -3,8 +3,9 @@
   "robotLength": 0.889,
   "holonomicMode": true,
   "pathFolders": [
-    "Escape",
     "Depot",
+    "Escape",
+    "UnderTheTrench",
     "ShootFromStart",
     "Sweep"
   ],
