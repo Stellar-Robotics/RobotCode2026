@@ -36,28 +36,28 @@
         "y": 0.7020481927710842
       },
       "prevControl": {
-        "x": 3.9644819277108434,
-        "y": 0.6528734939759034
+        "x": 3.9617850406896205,
+        "y": 0.6197526495705179
       },
       "nextControl": {
-        "x": 2.347180722891567,
-        "y": 0.7512228915662649
+        "x": 2.907124515735286,
+        "y": 0.7274435245378014
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.628,
-        "y": 4.067
+        "x": 3.0192668625404098,
+        "y": 2.8473037193561423
       },
       "prevControl": {
-        "x": 2.4094457831325307,
-        "y": 2.501605421686747
+        "x": 2.8007126456729403,
+        "y": 1.281909141042889
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "shootingpoint"
+      "linkedName": "RightShootingPoint"
     }
   ],
   "rotationTargets": [
@@ -66,11 +66,7 @@
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 3,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 3,
+      "waypointRelativePos": 2.0853491556366928,
       "rotationDegrees": 0.0
     }
   ],
@@ -87,7 +83,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -1.6211459136534407
+    "rotation": 39.463200842711224
   },
   "reversed": false,
   "folder": "UnderTheTrench",

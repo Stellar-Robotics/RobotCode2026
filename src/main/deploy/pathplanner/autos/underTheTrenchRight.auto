@@ -5,45 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "shooterPresetClose"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "LeftStartToLeftShoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "setHopperFeed3S"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "retractIntake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "setHopperFeed3S"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shooterPresetStop"
+            "pathName": "UnderTheTrenchStartRight"
           }
         },
         {
@@ -55,25 +19,19 @@
         {
           "type": "named",
           "data": {
-            "name": "setIntakeIn"
+            "name": "shootPoseRightRotated"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "depotApproach"
+            "name": "setIntakeIn"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DepotApproach"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "pathName": "intakeCenterRight"
           }
         },
         {
@@ -85,19 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DepotDeparture"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shootPoseLeft"
+            "pathName": "UnderTheTrenchEndRight"
           }
         },
         {
@@ -139,13 +85,19 @@
         {
           "type": "named",
           "data": {
-            "name": "outOfTheWayLeft"
+            "name": "shootPoseLeftRotated"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "outOfTheWayRight"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "TwoCycle",
+  "folder": null,
   "choreoAuto": false
 }
