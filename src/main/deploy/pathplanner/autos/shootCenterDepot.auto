@@ -97,6 +97,18 @@
         {
           "type": "named",
           "data": {
+            "name": "shooterPresetClose"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "setHopperFeed3S"
           }
         },
@@ -110,6 +122,12 @@
           "type": "named",
           "data": {
             "name": "setHopperFeed3S"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetStop"
           }
         },
         {

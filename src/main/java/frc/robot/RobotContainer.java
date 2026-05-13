@@ -161,9 +161,7 @@ public class RobotContainer {
 
     // Teleop Start Actions
     if (MiscConstants.kTeleopExtendIntake) {
-      if (DriverStation.isFMSAttached()) {
         RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
-      }
     }
 
 
@@ -174,7 +172,7 @@ public class RobotContainer {
     //operatorController.povUp().whileTrue(shootFuelFar);
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
-    operatorController.rightTrigger(0.5).whileTrue(shootFuelDynamic);
+    operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.b().whileTrue(runEverythingBack);
     operatorController.a().whileTrue(shooterSubsystem.test());
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
@@ -223,7 +221,7 @@ public class RobotContainer {
       autoCommandBindings.put("setHopperStop", hopperSubsystem.runOnce(() -> hopperSubsystem.stopAll()));
 
       // Shooter bindings
-      autoCommandBindings.put("shooterPresetClose", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[0][3], ActuatorConstants.shooterPresets[0][2]));
+      autoCommandBindings.put("shooterPresetClose", shooterSubsystem.setShooterProfileCommand(4150, 0));
       autoCommandBindings.put("shooterPresetMid", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[1][3], ActuatorConstants.shooterPresets[1][2]));
       autoCommandBindings.put("shooterPresetfar", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[2][3], ActuatorConstants.shooterPresets[2][2]));
       autoCommandBindings.put("shooterPresetStop", shooterSubsystem.setShooterProfileCommand(0, 0));
