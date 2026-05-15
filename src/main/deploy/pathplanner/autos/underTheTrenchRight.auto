@@ -41,21 +41,15 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "UnderTheTrenchEndRight"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "shooterPresetClose"
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 1.5
+            "pathName": "UnderTheTrenchEndRight"
           }
         },
         {
@@ -85,7 +79,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootPoseLeftRotated"
+            "name": "shootPoseRightRotated"
           }
         },
         {

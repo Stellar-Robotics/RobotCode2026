@@ -35,21 +35,15 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "UnderTheTrenchEndLeft"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "shooterPresetClose"
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 1.5
+            "pathName": "UnderTheTrenchEndLeft"
           }
         },
         {
