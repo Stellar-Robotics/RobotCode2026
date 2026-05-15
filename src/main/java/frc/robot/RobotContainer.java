@@ -195,6 +195,7 @@ public class RobotContainer {
       Pose2d extraPoint = new Pose2d(1.723, 4.960, Rotation2d.fromDegrees(0));
       Pose2d shootPoseLeftRotated = new Pose2d(3, 5, Rotation2d.fromDegrees(0));
       Pose2d shootPoseRightRotated = new Pose2d(3, 3.000, Rotation2d.fromDegrees(0));
+      Pose2d depotApproachPoint = new Pose2d(1.865, 5.077, Rotation2d.fromDegrees(-20.000));
 
       Pose2d outerDepot = new Pose2d(0.892, 5.964, Rotation2d.fromDegrees(0));
 
@@ -241,6 +242,7 @@ public class RobotContainer {
       autoCommandBindings.put("outerDepot", AutoBuilder.pathfindToPoseFlipped(outerDepot, commonPathConstraints));
       autoCommandBindings.put("shootPoseLeftRotated", AutoBuilder.pathfindToPoseFlipped(shootPoseLeftRotated, commonPathConstraints));
       autoCommandBindings.put("shootPoseRightRotated", AutoBuilder.pathfindToPoseFlipped(shootPoseRightRotated, commonPathConstraints));
+      autoCommandBindings.put("depotApproachpoint", AutoBuilder.pathfindToPoseFlipped(depotApproachPoint, commonPathConstraints));
       
       // To Path then follow
       try {
