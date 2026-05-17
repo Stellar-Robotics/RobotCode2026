@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -125,16 +124,16 @@ public class RobotContainer {
 
     // Shooter Actions (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(4150, 0),
+      shooterSubsystem.setShooterProfileCommand(3800, 0),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(2000, 0));
 
     Command transportFuel = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(4500, 10),
+      shooterSubsystem.setShooterProfileCommand(3800, 10),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(2000, 0));
 
     // Command shootFuelFar = new SequentialCommandGroup(
     //   shooterSubsystem.setShooterProfileCommand(6000, 10),
@@ -142,13 +141,13 @@ public class RobotContainer {
     //   hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     // ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
-    Command shootFuelDynamic = new ParallelCommandGroup(
-      shooterSubsystem.autoAimRunCommand(),
-      new SequentialCommandGroup(
-        new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
-        hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-      )
-    );
+    // Command shootFuelDynamic = new ParallelCommandGroup(
+    //   shooterSubsystem.autoAimRunCommand(),
+    //   new SequentialCommandGroup(
+    //     new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
+    //     hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
+    //   )
+    // );
 
     Command runEverythingBack = new SequentialCommandGroup(
       hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
@@ -164,7 +163,7 @@ public class RobotContainer {
         RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
     }
 
-
+    RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
@@ -175,6 +174,7 @@ public class RobotContainer {
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.b().whileTrue(runEverythingBack);
     operatorController.a().whileTrue(shooterSubsystem.test());
+    operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
     stellarDriveController.rightTop().onTrue(intakeSubsystem.setExtensionCommand(true));
 
@@ -223,7 +223,7 @@ public class RobotContainer {
       autoCommandBindings.put("setHopperStop", hopperSubsystem.runOnce(() -> hopperSubsystem.stopAll()));
 
       // Shooter bindings
-      autoCommandBindings.put("shooterPresetClose", shooterSubsystem.setShooterProfileCommand(4150, 0));
+      autoCommandBindings.put("shooterPresetClose", shooterSubsystem.setShooterProfileCommand(3800, 0));
       autoCommandBindings.put("shooterPresetMid", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[1][3], ActuatorConstants.shooterPresets[1][2]));
       autoCommandBindings.put("shooterPresetfar", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[2][3], ActuatorConstants.shooterPresets[2][2]));
       autoCommandBindings.put("shooterPresetStop", shooterSubsystem.setShooterProfileCommand(0, 0));
