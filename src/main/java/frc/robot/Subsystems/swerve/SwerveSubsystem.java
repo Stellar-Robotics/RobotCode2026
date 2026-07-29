@@ -5,13 +5,14 @@
 package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.MiscUtils;
 import frc.robot.Constants.MiscConstants;
 
 import java.io.File;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -414,31 +415,81 @@ public class SwerveSubsystem extends SubsystemBase {
     );
   }
 
-  public Command safegaurd(Supplier<Double> radiusX, Supplier<Double> radiusY, Supplier<Rotation2d> yaw, double deadband, double xRestrictions, double yRestrictions){
-    Pose2d center = new Pose2d(xRestrictions/2, yRestrictions/2, Rotation2d.fromDegrees(0));
-    
-    Command safegaurd = run(() -> {
-      if(getOdometryEstimate().getX() <= xRestrictions 
-      && getOdometryEstimate().getY() <= yRestrictions 
-      && getOdometryEstimate().getX() >= 0 
-      && getOdometryEstimate().getY() >= 0) {
-        driveFieldOrientedWithAbsoluteYaw(radiusX, radiusY, yaw, deadband); 
-      }
-      else {
-        PathConstraints constraints = new PathConstraints(
-          swerveDrive.getMaximumChassisVelocity(),
-          2.0,
-          swerveDrive.getMaximumChassisAngularVelocity(),
-          Units.degreesToRadians(270));
+  // public Command safegaurd(Supplier<Double> radiusX, Supplier<Double> radiusY, Supplier<Rotation2d> yaw, double deadband, double xRestrictions, double yRestrictions){
+  //   Pose2d center = new Pose2d(xRestrictions/2, yRestrictions/2, Rotation2d.fromDegrees(0));
 
-        AutoBuilder.pathfindToPose(
-          center,
-          constraints,
-          edu.wpi.first.units.Units.MetersPerSecond.of(0)
-        );
-      }
-    }
+  //   PathConstraints constraints = new PathConstraints(
+  //     swerveDrive.getMaximumChassisVelocity(),
+  //     2.0,
+  //     swerveDrive.getMaximumChassisAngularVelocity(),
+  //     Units.degreesToRadians(270));
+    
+  //   Command safegaurd = run(() -> {
+
+  //     if(getOdometryEstimate().getX() <= xRestrictions 
+  //     && getOdometryEstimate().getY() <= yRestrictions 
+  //     && getOdometryEstimate().getX() >= 0 
+  //     && getOdometryEstimate().getY() >= 0) {
+  //       driveFieldOrientedWithAbsoluteYaw(radiusX, radiusY, yaw, deadband); 
+  //     }
+  //     else {
+  //       AutoBuilder.pathfindToPose(
+  //         center,
+  //         constraints,
+  //         edu.wpi.first.units.Units.MetersPerSecond.of(0)
+  //       );
+  //     }
+  //   }
+  //   );
+
+  //   return safegaurd.withName("SafeDriveCMD");
+  // }
+
+  public void enableLogicalBarrier() {
+
+    double[] boxDims = { // Obtain box dimensions from Dashboard
+      SmartDashboard.getNumber("LengthRestrictionMeters", 5), // X - Downfield
+      SmartDashboard.getNumber("WidthRestrictionMeters", 5) // Y - Left of downfield
+    };
+
+    Pose2d boxCenter = new Pose2d(
+      (boxDims[0] / 2), 
+      (boxDims[1] / 2), 
+      Rotation2d.fromDegrees(0)
     );
-    return safegaurd.withName("SafeDriveCMD");
+
+    PathConstraints pathConsts = new PathConstraints( // About half of the speed in auto
+      swerveDrive.getMaximumChassisVelocity(),
+      2.0,
+      swerveDrive.getMaximumChassisAngularVelocity(),
+      Units.degreesToRadians(270));
+
+    BooleanSupplier violConditions = () -> { // Returns true if in violation
+      double odomEstX = getOdometryEstimate().getX();
+      double odomEstY = getOdometryEstimate().getY();
+
+      if (
+        odomEstX <= SmartDashboard.getNumber("LengthRestrictionMeters", 0) &&
+        odomEstY <= SmartDashboard.getNumber("WidthRestrictionMeters", 0) &&
+        odomEstX >= 0 &&
+        odomEstY >= 0
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    };
+
+    // Create a trigger which uses the violation conditions as the criteria.
+    // Then bind it to a path following command. This will override the default
+    // drive command if triggered.
+    new Trigger(violConditions)
+      .onTrue(
+        AutoBuilder.pathfindToPose(
+          boxCenter,
+          pathConsts,
+          edu.wpi.first.units.Units.MetersPerSecond.of(0)
+        ).withName("RobotRepositionOverride")
+      );
   }
 }

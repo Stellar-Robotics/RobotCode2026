@@ -76,6 +76,14 @@ public class RobotContainer {
       // Build list of pathplanner autos and publish them as a selector
       autoSelector = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Select Auto", autoSelector);
+
+      // Logical barrier to keep the robot in a defined space from where it started
+      SmartDashboard.putBoolean("EnableBoundingBox", true);
+      SmartDashboard.putNumber("WidthRestrictionMeters", 9);
+      SmartDashboard.putNumber("LengthRestrictionMeters", 9);
+      if (SmartDashboard.getBoolean("EnableBoundingBox", true)) {
+        swerveChassis.enableLogicalBarrier();
+      }
     }
   }
 
@@ -289,16 +297,17 @@ public class RobotContainer {
         deadband
       );
 
-      Command saferDriveCommand = swerveChassis.safegaurd(
-        () -> -stellarDriveController.getLeftX(),
-        () -> -stellarDriveController.getLeftY(), 
-        () -> stellarDriveController.getRightRotary(), 
-        deadband, 
-        2.7432,
-        2.4384
-         );
+
+      // Command saferDriveCommand = swerveChassis.safegaurd(
+      //   () -> -stellarDriveController.getLeftX(),
+      //   () -> -stellarDriveController.getLeftY(), 
+      //   () -> stellarDriveController.getRightRotary(), 
+      //   deadband, 
+      //   2.7432,
+      //   2.4384
+      //    );
         
-      swerveChassis.setDefaultCommand(driveCommand);  //normally saferDriveCommand
+      swerveChassis.setDefaultCommand(driveCommand.withName("MainDriveCMD"));
 
       // Obtain angle diff to hub and create orbit drive command, then bind it to right center
       Supplier<Pose2d> targetHub = () -> MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;
