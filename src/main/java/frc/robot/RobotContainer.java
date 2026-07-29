@@ -135,6 +135,8 @@ public class RobotContainer {
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(2000, 0));
 
+    
+
     // Command shootFuelFar = new SequentialCommandGroup(
     //   shooterSubsystem.setShooterProfileCommand(6000, 10),
     //   new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
@@ -280,13 +282,23 @@ public class RobotContainer {
       
 
       // Create and set the default drive command
-      Command driveCommand = swerveChassis.driveFieldOrientedWithAbsoluteYaw(
+      Command driveCommand = swerveChassis.driveFieldOrientedWithAbsoluteYawCommand(
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
         () -> stellarDriveController.getRightRotary(), 
         deadband
       );
-      swerveChassis.setDefaultCommand(driveCommand);
+
+      Command saferDriveCommand = swerveChassis.safegaurd(
+        () -> -stellarDriveController.getLeftX(),
+        () -> -stellarDriveController.getLeftY(), 
+        () -> stellarDriveController.getRightRotary(), 
+        deadband, 
+        2.7432,
+        2.4384
+         );
+        
+      swerveChassis.setDefaultCommand(driveCommand);  //normally saferDriveCommand
 
       // Obtain angle diff to hub and create orbit drive command, then bind it to right center
       Supplier<Pose2d> targetHub = () -> MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;
