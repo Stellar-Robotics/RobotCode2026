@@ -12,8 +12,11 @@ import frc.robot.MiscUtils;
 import frc.robot.Constants.MiscConstants;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -34,6 +37,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 
@@ -252,6 +256,56 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
 
+  // Configures a trigger to keep the robot within a specified barrier
+  public void enableLogicalBarrier() {
+
+    double[] boxDims = { // Obtain box dimensions from Dashboard
+      SmartDashboard.getNumber("LengthRestrictionMeters", 5), // X - Downfield
+      SmartDashboard.getNumber("WidthRestrictionMeters", 5) // Y - Left of downfield
+    };
+
+    Pose2d boxCenter = new Pose2d(
+      (boxDims[0] / 2), 
+      (boxDims[1] / 2), 
+      Rotation2d.fromDegrees(0)
+    );
+
+    PathConstraints pathConsts = new PathConstraints( // About half of the speed in auto
+      swerveDrive.getMaximumChassisVelocity(),
+      2.0,
+      swerveDrive.getMaximumChassisAngularVelocity(),
+      Units.degreesToRadians(270));
+
+    BooleanSupplier violConditions = () -> { // Returns true if in violation
+      double odomEstX = getOdometryEstimate().getX();
+      double odomEstY = getOdometryEstimate().getY();
+
+      if (
+        odomEstX <= SmartDashboard.getNumber("LengthRestrictionMeters", 0) &&
+        odomEstY <= SmartDashboard.getNumber("WidthRestrictionMeters", 0) &&
+        odomEstX >= 0 &&
+        odomEstY >= 0
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    };
+
+    // Create a trigger which uses the violation conditions as the criteria.
+    // Then bind it to a path following command. This will override the default
+    // drive command if triggered.
+    new Trigger(violConditions)
+      .onTrue(
+        AutoBuilder.pathfindToPose(
+          boxCenter,
+          pathConsts,
+          edu.wpi.first.units.Units.MetersPerSecond.of(0)
+        ).withName("RobotRepositionOverride")
+      );
+  }
+
+
   @Override
   public void periodic() {
 
@@ -415,6 +469,7 @@ public class SwerveSubsystem extends SubsystemBase {
     );
   }
 
+
   // public Command safegaurd(Supplier<Double> radiusX, Supplier<Double> radiusY, Supplier<Rotation2d> yaw, double deadband, double xRestrictions, double yRestrictions){
   //   Pose2d center = new Pose2d(xRestrictions/2, yRestrictions/2, Rotation2d.fromDegrees(0));
 
@@ -445,51 +500,38 @@ public class SwerveSubsystem extends SubsystemBase {
   //   return safegaurd.withName("SafeDriveCMD");
   // }
 
-  public void enableLogicalBarrier() {
 
-    double[] boxDims = { // Obtain box dimensions from Dashboard
-      SmartDashboard.getNumber("LengthRestrictionMeters", 5), // X - Downfield
-      SmartDashboard.getNumber("WidthRestrictionMeters", 5) // Y - Left of downfield
-    };
+  // Robot dog mode - your loyal mechanical companion!
+  //   - or bodyguard, depending on how you view it.
+  public Command followMe(double distanceMeters, int tagID) {
 
-    Pose2d boxCenter = new Pose2d(
-      (boxDims[0] / 2), 
-      (boxDims[1] / 2), 
-      Rotation2d.fromDegrees(0)
-    );
+    // Setup PID Controllers and configure turning PID
+    @SuppressWarnings("resource")
+    PIDController xPID = new PIDController(0.001, 0, 0); // Tune me
+    @SuppressWarnings("resource")
+    PIDController rotPID = new PIDController(0.0001, 0, 0); // Tune me
+    rotPID.enableContinuousInput(-Math.PI, Math.PI);
 
-    PathConstraints pathConsts = new PathConstraints( // About half of the speed in auto
-      swerveDrive.getMaximumChassisVelocity(),
-      2.0,
-      swerveDrive.getMaximumChassisAngularVelocity(),
-      Units.degreesToRadians(270));
+    Command followCMD = run(() -> {
+      // Get tag data and null check it
+      Optional<PhotonTrackedTarget> tagData;
+      if ((tagData = vision.getTag(false, tagID)) == null) { return; };
+      if (tagData.isEmpty()) { return; }
 
-    BooleanSupplier violConditions = () -> { // Returns true if in violation
-      double odomEstX = getOdometryEstimate().getX();
-      double odomEstY = getOdometryEstimate().getY();
+      // Get position information
+      Transform3d camToTgt = tagData.get().getBestCameraToTarget();
+      // Calculate PID for distance
+      double xVel = xPID.calculate(camToTgt.getX(), distanceMeters /* Assuming meters, but could be different */);
+      // Calculate PID for yaw
+      double rotVel = rotPID.calculate(camToTgt.getY(), 0 /* Assuming 0 is the center */);
 
-      if (
-        odomEstX <= SmartDashboard.getNumber("LengthRestrictionMeters", 0) &&
-        odomEstY <= SmartDashboard.getNumber("WidthRestrictionMeters", 0) &&
-        odomEstX >= 0 &&
-        odomEstY >= 0
-      ) {
-        return false;
-      } else {
-        return true;
-      }
-    };
+      // Create a chassis speeds object from PID calc
+      ChassisSpeeds targetSpeeds = new ChassisSpeeds(xVel, 0, rotVel);
 
-    // Create a trigger which uses the violation conditions as the criteria.
-    // Then bind it to a path following command. This will override the default
-    // drive command if triggered.
-    new Trigger(violConditions)
-      .onTrue(
-        AutoBuilder.pathfindToPose(
-          boxCenter,
-          pathConsts,
-          edu.wpi.first.units.Units.MetersPerSecond.of(0)
-        ).withName("RobotRepositionOverride")
-      );
+      // Apply chassis speeds to robot
+      driveRobotRelative(targetSpeeds);
+    });
+
+    return followCMD;
   }
 }

@@ -34,6 +34,7 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.Matrix;
@@ -93,6 +94,19 @@ public class Vision {
                     estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
                 });
         }
+    }
+
+
+    public Optional<PhotonTrackedTarget> getTag(boolean sideCam, int tagID) {
+        PhotonCamera cam = sideCam ? this.sideCam : forwardCam;
+        List<PhotonPipelineResult> pipeline = cam.getAllUnreadResults();
+        if (pipeline.isEmpty()) { return null; }
+        Optional<PhotonTrackedTarget> target = pipeline.get(0).targets
+            .stream()
+            .filter((tag) -> { return tag.fiducialId == tagID ? true : false; })
+            .findFirst();
+
+        return target;
     }
 
 

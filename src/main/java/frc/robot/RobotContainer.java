@@ -329,6 +329,9 @@ public class RobotContainer {
           swerveChassis.zeroGyro();
         }, swerveChassis)
       );
+
+      // Bind experimental follow me mode to a spare button
+      stellarDriveController.leftTop().whileTrue(swerveChassis.followMe(3, 5));
     } else { // Setup Xbox controller and setup the swerve to use it
 
       // Define xbox controller object
