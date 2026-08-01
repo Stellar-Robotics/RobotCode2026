@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.ActuatorConstants;
@@ -79,8 +80,8 @@ public class RobotContainer {
 
       // Logical barrier to keep the robot in a defined space from where it started
       SmartDashboard.putBoolean("EnableBoundingBox", true);
-      SmartDashboard.putNumber("WidthRestrictionMeters", 9);
-      SmartDashboard.putNumber("LengthRestrictionMeters", 9);
+      SmartDashboard.putNumber("WidthRestrictionMeters", 2.5);
+      SmartDashboard.putNumber("LengthRestrictionMeters", 2.5);
       if (SmartDashboard.getBoolean("EnableBoundingBox", true)) {
         swerveChassis.enableLogicalBarrier();
       }
@@ -169,9 +170,9 @@ public class RobotContainer {
       * ------------------------- */
 
     // Teleop Start Actions
-    if (MiscConstants.kTeleopExtendIntake) {
-        RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
-    }
+    // if (MiscConstants.kTeleopExtendIntake) {
+    //     RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
+    // }
 
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     // Controller triggers
@@ -295,7 +296,9 @@ public class RobotContainer {
         () -> -stellarDriveController.getLeftX(), 
         () -> stellarDriveController.getRightRotary(), 
         deadband
-      );
+      ).handleInterrupt(() -> {
+        swerveChassis.lock();
+      });
 
 
       // Command saferDriveCommand = swerveChassis.safegaurd(
@@ -307,7 +310,8 @@ public class RobotContainer {
       //   2.4384
       //    );
         
-      swerveChassis.setDefaultCommand(driveCommand.withName("MainDriveCMD"));
+      //swerveChassis.setDefaultCommand(driveCommand.withName("MainDriveCMD"));
+      swerveChassis.setDefaultCommand(driveCommand.withName("DefaultDriveCommand"));
 
       // Obtain angle diff to hub and create orbit drive command, then bind it to right center
       Supplier<Pose2d> targetHub = () -> MiscUtils.isRedAlliance().getAsBoolean() ? MiscConstants.kRedHubPosition : MiscConstants.kBlueHubPosition;

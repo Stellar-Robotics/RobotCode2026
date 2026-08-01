@@ -5,13 +5,19 @@
 package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.MiscUtils;
 import frc.robot.Constants.MiscConstants;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -35,10 +41,15 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -61,8 +72,8 @@ public class SwerveSubsystem extends SubsystemBase {
     double maxSpeed = Units.feetToMeters(25);
 
     absoluteAnglePID.enableContinuousInput(-180, 180);
-    SmartDashboard.putNumber("TranslationSpeed", 4.8);
-    SmartDashboard.putNumber("RotationSpeed", 4.0);
+    SmartDashboard.putNumber("TranslationSpeed", 1);
+    SmartDashboard.putNumber("RotationSpeed", 4);
 
     // Set desired level of debugging verbosity for the swerve system
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -86,10 +97,15 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.setCosineCompensator(!RobotBase.isSimulation()); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     swerveDrive.setAngularVelocityCompensation(true, false, 0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
     swerveDrive.resetOdometry(new Pose2d(
-      3.574, 
-      4.032, 
+      0, 
+      0, 
       Rotation2d.fromDegrees(0))
     );
+    // swerveDrive.resetOdometry(new Pose2d(
+    //   3.574, 
+    //   4.032, 
+    //   Rotation2d.fromDegrees(0))
+    // );
 
     // Initialize vision system
     if (visionUpdates) {
@@ -260,8 +276,8 @@ public class SwerveSubsystem extends SubsystemBase {
   public void enableLogicalBarrier() {
 
     double[] boxDims = { // Obtain box dimensions from Dashboard
-      SmartDashboard.getNumber("LengthRestrictionMeters", 5), // X - Downfield
-      SmartDashboard.getNumber("WidthRestrictionMeters", 5) // Y - Left of downfield
+      SmartDashboard.getNumber("LengthRestrictionMeters", 2.5), // X - Downfield
+      SmartDashboard.getNumber("WidthRestrictionMeters", 2.5) // Y - Left of downfield
     };
 
     Pose2d boxCenter = new Pose2d(
@@ -281,8 +297,8 @@ public class SwerveSubsystem extends SubsystemBase {
       double odomEstY = getOdometryEstimate().getY();
 
       if (
-        odomEstX <= SmartDashboard.getNumber("LengthRestrictionMeters", 0) &&
-        odomEstY <= SmartDashboard.getNumber("WidthRestrictionMeters", 0) &&
+        odomEstX <= SmartDashboard.getNumber("LengthRestrictionMeters", 2.5) &&
+        odomEstY <= SmartDashboard.getNumber("WidthRestrictionMeters", 2.5) &&
         odomEstX >= 0 &&
         odomEstY >= 0
       ) {
@@ -296,13 +312,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // Then bind it to a path following command. This will override the default
     // drive command if triggered.
     new Trigger(violConditions)
-      .onTrue(
-        AutoBuilder.pathfindToPose(
-          boxCenter,
-          pathConsts,
-          edu.wpi.first.units.Units.MetersPerSecond.of(0)
-        ).withName("RobotRepositionOverride")
-      );
+      .onTrue(run(() -> {}).withName("RobotRepositionOverride"));
   }
 
 
@@ -468,37 +478,6 @@ public class SwerveSubsystem extends SubsystemBase {
       edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
     );
   }
-
-
-  // public Command safegaurd(Supplier<Double> radiusX, Supplier<Double> radiusY, Supplier<Rotation2d> yaw, double deadband, double xRestrictions, double yRestrictions){
-  //   Pose2d center = new Pose2d(xRestrictions/2, yRestrictions/2, Rotation2d.fromDegrees(0));
-
-  //   PathConstraints constraints = new PathConstraints(
-  //     swerveDrive.getMaximumChassisVelocity(),
-  //     2.0,
-  //     swerveDrive.getMaximumChassisAngularVelocity(),
-  //     Units.degreesToRadians(270));
-    
-  //   Command safegaurd = run(() -> {
-
-  //     if(getOdometryEstimate().getX() <= xRestrictions 
-  //     && getOdometryEstimate().getY() <= yRestrictions 
-  //     && getOdometryEstimate().getX() >= 0 
-  //     && getOdometryEstimate().getY() >= 0) {
-  //       driveFieldOrientedWithAbsoluteYaw(radiusX, radiusY, yaw, deadband); 
-  //     }
-  //     else {
-  //       AutoBuilder.pathfindToPose(
-  //         center,
-  //         constraints,
-  //         edu.wpi.first.units.Units.MetersPerSecond.of(0)
-  //       );
-  //     }
-  //   }
-  //   );
-
-  //   return safegaurd.withName("SafeDriveCMD");
-  // }
 
 
   // Robot dog mode - your loyal mechanical companion!
