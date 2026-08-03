@@ -5,6 +5,7 @@
 package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -61,7 +62,7 @@ public class SwerveSubsystem extends SubsystemBase {
     double maxSpeed = Units.feetToMeters(25);
 
     absoluteAnglePID.enableContinuousInput(-180, 180);
-    SmartDashboard.putNumber("TranslationSpeed", 1);
+    SmartDashboard.putNumber("TranslationSpeed", 4.8);
     SmartDashboard.putNumber("RotationSpeed", 4);
 
     // Set desired level of debugging verbosity for the swerve system
@@ -169,7 +170,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Avoid delays by preloading the pathfinding functionality
     // NOTE: Custom path following commands should be put before this.
-    PathfindingCommand.warmupCommand().schedule();
+    CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("WarmupCommand"));
   }
 
 
@@ -376,7 +377,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Obtain the base speed multipliers
     double dashTranslationSpeed = SmartDashboard.getNumber("TranslationSpeed", 4.8);
-    double dashAngularSpeed =  SmartDashboard.getNumber("RotationSpeed", 4.0);
+    double dashAngularSpeed = SmartDashboard.getNumber("RotationSpeed", 4.0);
 
     // Create a chassis speeds object from the information above, and then
     // convert it so that it's field oriented.

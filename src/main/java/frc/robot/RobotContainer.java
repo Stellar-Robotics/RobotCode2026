@@ -293,18 +293,7 @@ public class RobotContainer {
       ).handleInterrupt(() -> {
         swerveChassis.lock();
       });
-
-
-      // Command saferDriveCommand = swerveChassis.safegaurd(
-      //   () -> -stellarDriveController.getLeftX(),
-      //   () -> -stellarDriveController.getLeftY(), 
-      //   () -> stellarDriveController.getRightRotary(), 
-      //   deadband, 
-      //   2.7432,
-      //   2.4384
-      //    );
         
-      //swerveChassis.setDefaultCommand(driveCommand.withName("MainDriveCMD"));
       swerveChassis.setDefaultCommand(driveCommand.withName("DefaultDriveCommand"));
 
       // Obtain angle diff to hub and create orbit drive command, then bind it to right center
@@ -329,7 +318,23 @@ public class RobotContainer {
       );
 
       // Bind experimental follow me mode to a spare button
-      stellarDriveController.leftTop().whileTrue(swerveChassis.followMe(3, 5));
+      //stellarDriveController.leftTop().whileTrue(swerveChassis.followMe(3, 5));
+
+      // Create speed preset listeners
+      SmartDashboard.putData("Punch It Chewy!", Commands.runOnce(() -> {
+        SmartDashboard.putNumber("TranslationSpeed", 4.8);
+        SmartDashboard.putNumber("RotationSpeed", 4);
+      }));
+      SmartDashboard.putData("Moderate", Commands.runOnce(() -> {
+        SmartDashboard.putNumber("TranslationSpeed", 2.5);
+        SmartDashboard.putNumber("RotationSpeed", 4);
+      }));
+      SmartDashboard.putData("Mild (Use For Fair)", Commands.runOnce(() -> {
+        SmartDashboard.putNumber("TranslationSpeed", 1);
+        SmartDashboard.putNumber("RotationSpeed", 2);
+      }));
+      
+
     } else { // Setup Xbox controller and setup the swerve to use it
 
       // Define xbox controller object
