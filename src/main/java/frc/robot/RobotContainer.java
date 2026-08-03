@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.ActuatorConstants;
@@ -79,12 +78,7 @@ public class RobotContainer {
       SmartDashboard.putData("Select Auto", autoSelector);
 
       // Logical barrier to keep the robot in a defined space from where it started
-      SmartDashboard.putBoolean("EnableBoundingBox", true);
-      SmartDashboard.putNumber("WidthRestrictionMeters", 2.5);
-      SmartDashboard.putNumber("LengthRestrictionMeters", 2.5);
-      if (SmartDashboard.getBoolean("EnableBoundingBox", true)) {
-        swerveChassis.enableLogicalBarrier();
-      }
+      swerveChassis.setLogicalBarrier();
     }
   }
 

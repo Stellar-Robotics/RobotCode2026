@@ -5,19 +5,13 @@
 package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.MiscUtils;
 import frc.robot.Constants.MiscConstants;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -41,15 +35,10 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -97,8 +86,8 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.setCosineCompensator(!RobotBase.isSimulation()); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     swerveDrive.setAngularVelocityCompensation(true, false, 0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
     swerveDrive.resetOdometry(new Pose2d(
-      0, 
-      0, 
+      0.3, 
+      0.3, 
       Rotation2d.fromDegrees(0))
     );
     // swerveDrive.resetOdometry(new Pose2d(
@@ -272,33 +261,38 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
 
-  // Configures a trigger to keep the robot within a specified barrier
-  public void enableLogicalBarrier() {
+  // Configures a trigger to stop if it exceeds a set boundry
+  public void setLogicalBarrier() {
 
-    double[] boxDims = { // Obtain box dimensions from Dashboard
-      SmartDashboard.getNumber("LengthRestrictionMeters", 2.5), // X - Downfield
-      SmartDashboard.getNumber("WidthRestrictionMeters", 2.5) // Y - Left of downfield
-    };
+    // double[] boxDims = { // Obtain box dimensions from Dashboard
+    //   SmartDashboard.getNumber("LengthRestrictionMeters", 2.5), // X - Downfield
+    //   SmartDashboard.getNumber("WidthRestrictionMeters", 2.5) // Y - Left of downfield
+    // };
 
-    Pose2d boxCenter = new Pose2d(
-      (boxDims[0] / 2), 
-      (boxDims[1] / 2), 
-      Rotation2d.fromDegrees(0)
-    );
+    // Pose2d boxCenter = new Pose2d(
+    //   (boxDims[0] / 2), 
+    //   (boxDims[1] / 2), 
+    //   Rotation2d.fromDegrees(0)
+    // );
 
-    PathConstraints pathConsts = new PathConstraints( // About half of the speed in auto
-      swerveDrive.getMaximumChassisVelocity(),
-      2.0,
-      swerveDrive.getMaximumChassisAngularVelocity(),
-      Units.degreesToRadians(270));
+    // PathConstraints pathConsts = new PathConstraints( // About half of the speed in auto
+    //   swerveDrive.getMaximumChassisVelocity(),
+    //   2.0,
+    //   swerveDrive.getMaximumChassisAngularVelocity(),
+    //   Units.degreesToRadians(270));
+
+    // Create dashboard params
+    SmartDashboard.putBoolean("EnableBarrier", true);
+    SmartDashboard.putNumber("BarrierLengthFeet", 8);
+    SmartDashboard.putNumber("BarrierWidthFeet", 8);
 
     BooleanSupplier violConditions = () -> { // Returns true if in violation
       double odomEstX = getOdometryEstimate().getX();
       double odomEstY = getOdometryEstimate().getY();
 
       if (
-        odomEstX <= SmartDashboard.getNumber("LengthRestrictionMeters", 2.5) &&
-        odomEstY <= SmartDashboard.getNumber("WidthRestrictionMeters", 2.5) &&
+        odomEstX <= Units.feetToMeters(SmartDashboard.getNumber("BarrierLengthFeet", 8)) &&
+        odomEstY <= Units.feetToMeters(SmartDashboard.getNumber("BarrierWidthFeet", 8)) &&
         odomEstX >= 0 &&
         odomEstY >= 0
       ) {
@@ -308,11 +302,14 @@ public class SwerveSubsystem extends SubsystemBase {
       }
     };
 
-    // Create a trigger which uses the violation conditions as the criteria.
-    // Then bind it to a path following command. This will override the default
-    // drive command if triggered.
+    // Inturrupt drive command if barrier is crossed.
+    // Will command will only execute if barrier is enabled
     new Trigger(violConditions)
-      .onTrue(run(() -> {}).withName("RobotRepositionOverride"));
+      .onTrue(
+        run(() -> {})
+          .onlyIf(() -> SmartDashboard.getBoolean("EnableBarrier", true))
+          .withName("RobotStopOverride")
+      );
   }
 
 
