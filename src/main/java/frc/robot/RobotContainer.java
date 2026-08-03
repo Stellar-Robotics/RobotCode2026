@@ -127,7 +127,8 @@ public class RobotContainer {
 
     // Shooter Actions (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(3800, 0),
+      // Changed from 3800 for fair
+      shooterSubsystem.setShooterProfileCommand(2800, 0),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(2000, 0));
@@ -164,21 +165,19 @@ public class RobotContainer {
       * ------------------------- */
 
     // Teleop Start Actions
-    // if (MiscConstants.kTeleopExtendIntake) {
-    //     RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(true));
-    // }
+    if (MiscConstants.kTeleopExtendIntake) {
+        RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(false));
+    }
 
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.y().onTrue(toggleIntakeExtension);
-    //operatorController.povUp().whileTrue(shootFuelFar);
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.b().whileTrue(runEverythingBack);
-    operatorController.a().whileTrue(shooterSubsystem.test());
     operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
     stellarDriveController.rightTop().onTrue(intakeSubsystem.setExtensionCommand(true));
@@ -319,21 +318,6 @@ public class RobotContainer {
 
       // Bind experimental follow me mode to a spare button
       //stellarDriveController.leftTop().whileTrue(swerveChassis.followMe(3, 5));
-
-      // Create speed preset listeners
-      SmartDashboard.putData("Punch It Chewy!", Commands.runOnce(() -> {
-        SmartDashboard.putNumber("TranslationSpeed", 4.8);
-        SmartDashboard.putNumber("RotationSpeed", 4);
-      }));
-      SmartDashboard.putData("Moderate", Commands.runOnce(() -> {
-        SmartDashboard.putNumber("TranslationSpeed", 2.5);
-        SmartDashboard.putNumber("RotationSpeed", 4);
-      }));
-      SmartDashboard.putData("Mild (Use For Fair)", Commands.runOnce(() -> {
-        SmartDashboard.putNumber("TranslationSpeed", 1);
-        SmartDashboard.putNumber("RotationSpeed", 2);
-      }));
-      
 
     } else { // Setup Xbox controller and setup the swerve to use it
 

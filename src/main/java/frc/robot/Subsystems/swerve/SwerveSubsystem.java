@@ -7,12 +7,14 @@ package frc.robot.Subsystems.swerve;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.MiscUtils;
 import frc.robot.Constants.MiscConstants;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -62,8 +64,22 @@ public class SwerveSubsystem extends SubsystemBase {
     double maxSpeed = Units.feetToMeters(25);
 
     absoluteAnglePID.enableContinuousInput(-180, 180);
-    SmartDashboard.putNumber("TranslationSpeed", 4.8);
-    SmartDashboard.putNumber("RotationSpeed", 4);
+    SmartDashboard.putNumber("TranslationSpeed", 1);
+    SmartDashboard.putNumber("RotationSpeed", 2);
+
+    // Create speed preset listeners
+    SmartDashboard.putData("Punch It Chewy!", runOnce(() -> {
+      SmartDashboard.putNumber("TranslationSpeed", 4.8);
+      SmartDashboard.putNumber("RotationSpeed", 4);
+    }).ignoringDisable(true));
+    SmartDashboard.putData("Moderate", runOnce(() -> {
+      SmartDashboard.putNumber("TranslationSpeed", 2.5);
+      SmartDashboard.putNumber("RotationSpeed", 4);
+    }).ignoringDisable(true));
+    SmartDashboard.putData("Mild (Use For Fair)", runOnce(() -> {
+      SmartDashboard.putNumber("TranslationSpeed", 1);
+      SmartDashboard.putNumber("RotationSpeed", 2);
+    }).ignoringDisable(true));
 
     // Set desired level of debugging verbosity for the swerve system
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -309,8 +325,28 @@ public class SwerveSubsystem extends SubsystemBase {
       .onTrue(
         run(() -> {})
           .onlyIf(() -> SmartDashboard.getBoolean("EnableBarrier", true))
-          .withName("RobotStopOverride")
+          .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+          .withName("BarrierOverride")
       );
+  }
+
+
+  // A method that draws the barrier on the field
+  private void drawBarrierOnField() {
+    double lenMeters = Units.feetToMeters(SmartDashboard.getNumber("BarrierLengthFeet", 8));
+    double widMeters = Units.feetToMeters(SmartDashboard.getNumber("BarrierWidthFeet", 8));
+    List<Pose2d> poses = List.of(
+      new Pose2d(0, 0, Rotation2d.kZero),
+      new Pose2d(0, widMeters/2, Rotation2d.kZero),
+      new Pose2d(0, widMeters, Rotation2d.kZero),
+      new Pose2d(lenMeters/2, widMeters, Rotation2d.kZero),
+      new Pose2d(lenMeters, widMeters, Rotation2d.kZero),
+      new Pose2d(lenMeters, widMeters/2, Rotation2d.kZero),
+      new Pose2d(lenMeters, 0, Rotation2d.kZero),
+      new Pose2d(lenMeters/2, 0, Rotation2d.kZero)
+    );
+
+    swerveDrive.field.getObject("barrier").setPoses(poses);
   }
 
 
@@ -329,6 +365,12 @@ public class SwerveSubsystem extends SubsystemBase {
     if (swerveDrive.getRobotVelocity().vxMetersPerSecond >= lastVelocity) {
       SmartDashboard.putNumber("MaxVelocity", swerveDrive.getRobotVelocity().vxMetersPerSecond);
       lastVelocity = swerveDrive.getRobotVelocity().vxMetersPerSecond;
+    }
+
+    if (SmartDashboard.getBoolean("EnableBarrier", true)) {
+      drawBarrierOnField();
+    } else {
+      swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero);
     }
   }
 
