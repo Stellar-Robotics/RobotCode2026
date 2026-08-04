@@ -6,7 +6,9 @@ package frc.robot.Subsystems.swerve;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -55,6 +57,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private PIDController absoluteAnglePID = new PIDController(0.015, 0, 0);
   private double lastVelocity;
+
+  // Is the robot frozen
+  private boolean frozen;
 
 
   // SwerveSubsystem constructor
@@ -321,18 +326,27 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Inturrupt drive command if barrier is crossed.
     // Will command will only execute if barrier is enabled
+    Command com = new SequentialCommandGroup(
+      runOnce(() -> swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero)),
+      new WaitCommand(0.15),
+      runOnce(() -> drawBarrierOnField()),
+      new WaitCommand(0.25)
+    )
+    .repeatedly()
+    .handleInterrupt(() -> {frozen = false;});
+
     new Trigger(violConditions)
       .onTrue(
-        run(() -> {})
+        runOnce(() -> {frozen = true;}).andThen(com
           .onlyIf(() -> SmartDashboard.getBoolean("EnableBarrier", true))
           .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-          .withName("BarrierOverride")
+          ).withName("BarrierOverride")
       );
   }
 
 
   // A method that draws the barrier on the field
-  private void drawBarrierOnField() {
+  private void drawBarrierOnField(boolean clear) {
     double lenMeters = Units.feetToMeters(SmartDashboard.getNumber("BarrierLengthFeet", 8));
     double widMeters = Units.feetToMeters(SmartDashboard.getNumber("BarrierWidthFeet", 8));
     List<Pose2d> poses = List.of(
@@ -346,8 +360,10 @@ public class SwerveSubsystem extends SubsystemBase {
       new Pose2d(lenMeters/2, 0, Rotation2d.kZero)
     );
 
-    swerveDrive.field.getObject("barrier").setPoses(poses);
+    if (clear) { swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero); }
+    else { swerveDrive.field.getObject("barrier").setPoses(poses); }
   }
+  private void drawBarrierOnField() { drawBarrierOnField(false); }
 
 
   @Override
@@ -367,10 +383,12 @@ public class SwerveSubsystem extends SubsystemBase {
       lastVelocity = swerveDrive.getRobotVelocity().vxMetersPerSecond;
     }
 
-    if (SmartDashboard.getBoolean("EnableBarrier", true)) {
-      drawBarrierOnField();
-    } else {
-      swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero);
+    if (!frozen) {
+      if (SmartDashboard.getBoolean("EnableBarrier", true)) {
+        drawBarrierOnField();
+      } else {
+        swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero);
+      }
     }
   }
 
