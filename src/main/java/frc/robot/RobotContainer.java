@@ -131,13 +131,13 @@ public class RobotContainer {
       shooterSubsystem.setShooterProfileCommand(2800, 0),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(2000, 0));
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
     Command transportFuel = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(3800, 10),
+      shooterSubsystem.setShooterProfileCommand(0, 10),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(2000, 0));
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
 
     
 
@@ -181,6 +181,9 @@ public class RobotContainer {
     operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
     stellarDriveController.rightTop().onTrue(intakeSubsystem.setExtensionCommand(true));
+    stellarDriveController.leftTop().onTrue(swerveChassis.runOnce(
+      () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(0.3, 0.3, Rotation2d.kZero))
+    ));
 
 
 

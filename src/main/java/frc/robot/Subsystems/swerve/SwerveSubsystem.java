@@ -254,7 +254,7 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveDriveTest.setDriveSysIdRoutine(
         new Config(),
         this, 
-        swerveDrive, 
+        swerveDrive,
         12, 
         false
       ),
@@ -305,16 +305,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Create dashboard params
     SmartDashboard.putBoolean("EnableBarrier", true);
-    SmartDashboard.putNumber("BarrierLengthFeet", 8);
-    SmartDashboard.putNumber("BarrierWidthFeet", 8);
+    SmartDashboard.putNumber("BarrierLengthFeet", 7);
+    SmartDashboard.putNumber("BarrierWidthFeet", 5);
 
     BooleanSupplier violConditions = () -> { // Returns true if in violation
       double odomEstX = getOdometryEstimate().getX();
       double odomEstY = getOdometryEstimate().getY();
 
       if (
-        odomEstX <= Units.feetToMeters(SmartDashboard.getNumber("BarrierLengthFeet", 8)) &&
-        odomEstY <= Units.feetToMeters(SmartDashboard.getNumber("BarrierWidthFeet", 8)) &&
+        odomEstX <= Units.feetToMeters(SmartDashboard.getNumber("BarrierLengthFeet", 7)) &&
+        odomEstY <= Units.feetToMeters(SmartDashboard.getNumber("BarrierWidthFeet", 5)) &&
         odomEstX >= 0 &&
         odomEstY >= 0
       ) {
