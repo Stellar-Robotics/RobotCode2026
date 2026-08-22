@@ -86,6 +86,17 @@ public class Constants {
         public static final int kintakeRetractionChannel = 15;
         public static final int kRollerCANID = 11;
 
+        public static final int kIntakeMotorCANID = 0;  //change this
+        public static final int kExtendingMotorCANID = 0;  //change this
+
+        public static final double[] kIntakeMotorPID = {0, 0, 0};  //change this
+        public static final double[] kExtendingMotorPID = {0, 0, 0};  //change this
+
+        public static final double RetractedPosition = 0; //change this
+        public static final double ExtendedPosition = 0; //change this
+
+        public static final double intakingSpeed = 0;  //put value 0-1; change this
+
         public static final boolean kRollerInverted = false; // May need changed!
 
 

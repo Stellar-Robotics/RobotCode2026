@@ -2,69 +2,77 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-
 package frc.robot.Subsystems;
+
+import java.util.function.BooleanSupplier;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ActuatorConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
-  
-  // Declare variable to hold a class wide solenoid refrence
-  DoubleSolenoid extensionSolenoid; // Off is retracted
-  SparkMax rollerMotor = new SparkMax(ActuatorConstants.kRollerCANID, MotorType.kBrushless);
+
+  SparkFlex intakeMotor = new SparkFlex(ActuatorConstants.kIntakeMotorCANID, MotorType.kBrushless);
+  SparkFlex ExtendingMotor = new SparkFlex(ActuatorConstants.kExtendingMotorCANID, MotorType.kBrushless);
+
+  SparkClosedLoopController intakeMotorCLC = intakeMotor.getClosedLoopController();
+  SparkClosedLoopController ExtendingMotorCLC = ExtendingMotor.getClosedLoopController();
 
 
-  public IntakeSubsystem(PneumaticHub pneumatics) {
+  public IntakeSubsystem() {
+    SparkFlexConfig intakeMotorConfig = new SparkFlexConfig();
+    SparkFlexConfig ExtendingMotorConfig = new SparkFlexConfig();
+    
 
-    // Use given pneumatic hub to define the extension solenoid
-    extensionSolenoid = pneumatics.makeDoubleSolenoid(ActuatorConstants.kintakeExtensionChannel, ActuatorConstants.kintakeRetractionChannel);
+    intakeMotorConfig
+      .inverted(false)
+      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
+      .closedLoop.pid(ActuatorConstants.kExtendingMotorPID[0], 
+      ActuatorConstants.kExtendingMotorPID[1], 
+      ActuatorConstants.kExtendingMotorPID[2]);
 
-    // Configure roller motor
-    SparkMaxConfig rollerMotorConfig = new SparkMaxConfig();
-    rollerMotorConfig
-      .inverted(ActuatorConstants.kRollerInverted)
-      .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit);
-    rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      ExtendingMotorConfig
+      .inverted(false)
+      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
+      .closedLoop.pid(ActuatorConstants.kIntakeMotorPID[0], 
+      ActuatorConstants.kIntakeMotorPID[1], 
+      ActuatorConstants.kIntakeMotorPID[2]);
+
+    intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
   }
 
+  public BooleanSupplier isExtended() {return () -> ExtendingMotorCLC.getSetpoint() == ActuatorConstants.RetractedPosition ? false : true;}
 
-  // Standard and command methods to run the intake roller
-  private void setRollerPower(double powerPercentage) { rollerMotor.set(powerPercentage); }
-
-  public Command setRollerPowerRunCommand(double powerPercentage) {
-
-    return runEnd(() -> setRollerPower(powerPercentage), () -> { setRollerPower(0); });
+  public Command extendIntakeCmd() {
+    Command extendCmd = runOnce(() -> {
+      ExtendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
+        ActuatorConstants.RetractedPosition :
+        ActuatorConstants.ExtendedPosition, 
+        ControlType.kPosition);
+    }
+    );
+    return extendCmd;
   }
 
-  public Command setRollerPowerInstantCommand(double powerPercentage) {
-
-    return runOnce(() -> setRollerPower(powerPercentage));
+  public Command intakeCommand(Boolean isIntaking) {    //"isIntaking" checks to see if you are intaking or expeling
+    Command intakeCmd = runOnce(() -> {
+      intakeMotor.set(isIntaking ? 1 : -1 * ActuatorConstants.intakingSpeed);
+    }
+    ).handleInterrupt(() -> intakeMotor.set(0));
+    return intakeCmd;
   }
-
-
-  // Standard and command methods to set the intake's extension
-  private void setExtension(boolean extend) { extensionSolenoid.set( extend ? Value.kForward : Value.kReverse); }
-
-  public Command setExtensionCommand(boolean extend) { return runOnce(() -> setExtension(extend)); }
-
-
-  // Standard and Command methods to toggle the extension
-  public void toggleExtension() { extensionSolenoid.toggle(); }
-
-  public Command toggleExtensionCommand() { return runOnce(() -> extensionSolenoid.toggle()); }
-
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    // This method will be called once per scheduler run
+  }
 }

@@ -34,6 +34,8 @@ import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
 import frc.robot.Subsystems.HopperSubsystem;
 import frc.robot.Subsystems.IntakeSubsystem;
+import frc.robot.Subsystems.IntakeSubsystem;
+import frc.robot.Subsystems.OldIntakeSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -55,9 +57,10 @@ public class RobotContainer {
 
   // Declare subsystems, but do not define them yet
   SwerveSubsystem swerveChassis;
-  IntakeSubsystem intakeSubsystem;
+  OldIntakeSubsystem oldIntakeSubsystem;
   HopperSubsystem hopperSubsystem;
   ShooterSubsystem shooterSubsystem;
+  IntakeSubsystem intakeSubsystem;
 
 
   // This method will be called only once when the robot starts
@@ -90,7 +93,8 @@ public class RobotContainer {
     PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
 
     // Define subsystems
-    intakeSubsystem = new IntakeSubsystem(airBender);
+    oldIntakeSubsystem = new OldIntakeSubsystem(airBender);
+    intakeSubsystem = new IntakeSubsystem();
     hopperSubsystem = new HopperSubsystem();
     shooterSubsystem = new ShooterSubsystem(swerveChassis);
 
@@ -101,18 +105,18 @@ public class RobotContainer {
 
     // Intake Fuel Action
     Command intakeFuel = new ParallelCommandGroup(
-      intakeSubsystem.setRollerPowerRunCommand(1),
+      oldIntakeSubsystem.setRollerPowerRunCommand(1),
       hopperSubsystem.runHopperMechsRunCommand(false, false, false, true)
     );
 
     // Expel Fuel Action
     Command expelFuel = new ParallelCommandGroup(
-      intakeSubsystem.setRollerPowerRunCommand(-1),
+      oldIntakeSubsystem.setRollerPowerRunCommand(-1),
       hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
     );
 
     // Extend/Retract Intake Action
-    Command toggleIntakeExtension = intakeSubsystem.toggleExtensionCommand();
+    Command toggleIntakeExtension = oldIntakeSubsystem.toggleExtensionCommand();
 
     // Shooter Action (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     // Command shootFuelClose = new SequentialCommandGroup(
@@ -166,21 +170,24 @@ public class RobotContainer {
 
     // Teleop Start Actions
     if (MiscConstants.kTeleopExtendIntake) {
-        RobotModeTriggers.teleop().onTrue(intakeSubsystem.setExtensionCommand(false));
+        RobotModeTriggers.teleop().onTrue(oldIntakeSubsystem.setExtensionCommand(false));
     }
 
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     // Controller triggers
     operatorController.leftBumper().whileTrue(intakeFuel);
+    //operatorController.leftBumper().whileTrue(intakeSubsystem.intakeCommand(true));    //for new intake
     operatorController.leftTrigger(0.5).whileTrue(expelFuel);
+    //operatorController.leftTrigger(0.5).whileTrue(intakeSubsystem.intakeCommand(false));  //for new intake
     operatorController.y().onTrue(toggleIntakeExtension);
+    //operatorController.y().onTrue(intakeSubsystem.extendIntakeCmd());    //for new intake
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.b().whileTrue(runEverythingBack);
     operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
-    stellarDriveController.rightBottom().onTrue(intakeSubsystem.setExtensionCommand(false));
-    stellarDriveController.rightTop().onTrue(intakeSubsystem.setExtensionCommand(true));
+    stellarDriveController.rightBottom().onTrue(oldIntakeSubsystem.setExtensionCommand(false));
+    stellarDriveController.rightTop().onTrue(oldIntakeSubsystem.setExtensionCommand(true));
     stellarDriveController.leftTop().onTrue(swerveChassis.runOnce(
       () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(0.3, 0.3, Rotation2d.kZero))
     ));
@@ -216,11 +223,11 @@ public class RobotContainer {
 
       // Create key/val pairs of commands we want to map (All should be instant commands)
       // Intake bindings
-      autoCommandBindings.put("extendIntake", intakeSubsystem.setExtensionCommand(true));
-      autoCommandBindings.put("retractIntake", intakeSubsystem.setExtensionCommand(false));
-      autoCommandBindings.put("setIntakeIn", intakeSubsystem.setRollerPowerInstantCommand(1));
-      autoCommandBindings.put("setIntakeOut", intakeSubsystem.setRollerPowerInstantCommand(-1));
-      autoCommandBindings.put("stopIntake", intakeSubsystem.setRollerPowerInstantCommand(0));
+      autoCommandBindings.put("extendIntake", oldIntakeSubsystem.setExtensionCommand(true));
+      autoCommandBindings.put("retractIntake", oldIntakeSubsystem.setExtensionCommand(false));
+      autoCommandBindings.put("setIntakeIn", oldIntakeSubsystem.setRollerPowerInstantCommand(1));
+      autoCommandBindings.put("setIntakeOut", oldIntakeSubsystem.setRollerPowerInstantCommand(-1));
+      autoCommandBindings.put("stopIntake", oldIntakeSubsystem.setRollerPowerInstantCommand(0));
 
       // Hopper Bindings
       autoCommandBindings.put("setHopperFeed", hopperSubsystem.runHopperMechsInstantCommand(false, true, true, true));
