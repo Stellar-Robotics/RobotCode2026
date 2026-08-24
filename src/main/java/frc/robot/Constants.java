@@ -86,8 +86,8 @@ public class Constants {
         public static final int kintakeRetractionChannel = 15;
         public static final int kRollerCANID = 11;
 
-        public static final int kIntakeMotorCANID = 0;  //change this
-        public static final int kExtendingMotorCANID = 0;  //change this
+        public static final int kIntakeMotorCANID = 60;  //change this
+        public static final int kExtendingMotorCANID = 61;  //change this
 
         public static final double[] kIntakeMotorPID = {0, 0, 0};  //change this
         public static final double[] kExtendingMotorPID = {0, 0, 0};  //change this
