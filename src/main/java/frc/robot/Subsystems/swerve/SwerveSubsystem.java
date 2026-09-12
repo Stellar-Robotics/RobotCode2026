@@ -69,8 +69,8 @@ public class SwerveSubsystem extends SubsystemBase {
     double maxSpeed = Units.feetToMeters(25);
 
     absoluteAnglePID.enableContinuousInput(-180, 180);
-    SmartDashboard.putNumber("TranslationSpeed", 1);
-    SmartDashboard.putNumber("RotationSpeed", 2);
+    SmartDashboard.putNumber("TranslationSpeed", 4.8);
+    SmartDashboard.putNumber("RotationSpeed", 4);
 
     // Create speed preset listeners
     SmartDashboard.putData("Punch It Chewy!", runOnce(() -> {

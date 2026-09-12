@@ -28,9 +28,9 @@ public class Constants {
         public static final int kPneumaticHubCANID = 5;
 
         // Use these to adjust global current limits across most motors
-        public static final int kCommonNeoCurrentLimit = 40;
+        public static final int kCommonNeoCurrentLimit = 30;
         public static final int kCommonNeo550CurrentLimit = 30;
-        public static final int kvortexCurrentLimit = 40;  //change this
+        public static final int kvortexCurrentLimit = 30;  //change this
 
 
         // Shooter Constants

@@ -34,7 +34,6 @@ import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
 import frc.robot.Subsystems.HopperSubsystem;
 import frc.robot.Subsystems.IntakeSubsystem;
-import frc.robot.Subsystems.IntakeSubsystem;
 import frc.robot.Subsystems.OldIntakeSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
@@ -81,7 +80,7 @@ public class RobotContainer {
       SmartDashboard.putData("Select Auto", autoSelector);
 
       // Logical barrier to keep the robot in a defined space from where it started
-      swerveChassis.setLogicalBarrier();
+      //swerveChassis.setLogicalBarrier();
     }
   }
 
@@ -132,16 +131,16 @@ public class RobotContainer {
     // Shooter Actions (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
       // Changed from 3800 for fair
-      shooterSubsystem.setShooterProfileCommand(2800, 0),
+      shooterSubsystem.setShooterProfileCommand(4000, 0),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(1000, 0));
 
     Command transportFuel = new SequentialCommandGroup(
-      shooterSubsystem.setShooterProfileCommand(0, 10),
+      shooterSubsystem.setShooterProfileCommand(4000, 10),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
+    ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(1000, 0));
 
     
 
