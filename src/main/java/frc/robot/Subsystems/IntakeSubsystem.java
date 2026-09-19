@@ -6,13 +6,18 @@ package frc.robot.Subsystems;
 
 import java.util.function.BooleanSupplier;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,16 +25,16 @@ import frc.robot.Constants.ActuatorConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  SparkFlex intakeMotor = new SparkFlex(ActuatorConstants.kIntakeMotorCANID, MotorType.kBrushless);
-  SparkFlex ExtendingMotor = new SparkFlex(ActuatorConstants.kExtendingMotorCANID, MotorType.kBrushless);
+  SparkMax intakeMotor = new SparkMax(ActuatorConstants.kIntakeMotorCANID, MotorType.kBrushless);
+  SparkMax ExtendingMotor = new SparkMax(ActuatorConstants.kExtendingMotorCANID, MotorType.kBrushless);
 
   SparkClosedLoopController intakeMotorCLC = intakeMotor.getClosedLoopController();
   SparkClosedLoopController ExtendingMotorCLC = ExtendingMotor.getClosedLoopController();
 
 
   public IntakeSubsystem() {
-    SparkFlexConfig intakeMotorConfig = new SparkFlexConfig();
-    SparkFlexConfig ExtendingMotorConfig = new SparkFlexConfig();
+    SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
+    SparkMaxConfig ExtendingMotorConfig = new SparkMaxConfig();
     
 
     intakeMotorConfig
@@ -39,12 +44,14 @@ public class IntakeSubsystem extends SubsystemBase {
       ActuatorConstants.kExtendingMotorPID[1], 
       ActuatorConstants.kExtendingMotorPID[2]);
 
-      ExtendingMotorConfig
+    ExtendingMotorConfig
       .inverted(false)
       .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
       .closedLoop.pid(ActuatorConstants.kIntakeMotorPID[0], 
-      ActuatorConstants.kIntakeMotorPID[1], 
-      ActuatorConstants.kIntakeMotorPID[2]);
+      ActuatorConstants.kIntakeMotorPID[1],
+      ActuatorConstants.kIntakeMotorPID[2])
+      .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);;
+
 
     intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

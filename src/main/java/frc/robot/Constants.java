@@ -99,6 +99,8 @@ public class Constants {
 
         public static final boolean kRollerInverted = false; // May need changed!
 
+        //conversion factor of extending motor 1/50
+
 
         // Climber Constants
         public static final int kClimberCANID = 12; // Change me!
