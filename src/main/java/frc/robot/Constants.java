@@ -95,7 +95,7 @@ public class Constants {
         public static final double RetractedPosition = 0; //change this
         public static final double ExtendedPosition = 0; //change this
 
-        public static final double intakingSpeed = 0;  //put value 0-1; change this
+        public static final double intakingSpeed = 0.7;  //put value 0-1; change this
 
         public static final boolean kRollerInverted = false; // May need changed!
 
