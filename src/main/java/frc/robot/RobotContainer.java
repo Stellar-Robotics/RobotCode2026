@@ -102,20 +102,20 @@ public class RobotContainer {
      * Command Actions
      * ------------------------- */
 
-    // Intake Fuel Action
-    Command intakeFuel = new ParallelCommandGroup(
-      oldIntakeSubsystem.setRollerPowerRunCommand(1),
-      hopperSubsystem.runHopperMechsRunCommand(false, false, false, true)
-    );
+    // // Intake Fuel Action
+    // Command intakeFuel = new ParallelCommandGroup(
+    //   oldIntakeSubsystem.setRollerPowerRunCommand(1),
+    //   hopperSubsystem.runHopperMechsRunCommand(false, false, false, true)
+    // );
 
-    // Expel Fuel Action
-    Command expelFuel = new ParallelCommandGroup(
-      oldIntakeSubsystem.setRollerPowerRunCommand(-1),
-      hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
-    );
+    // // Expel Fuel Action
+    // Command expelFuel = new ParallelCommandGroup(
+    //   oldIntakeSubsystem.setRollerPowerRunCommand(-1),
+    //   hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
+    // );
 
-    // Extend/Retract Intake Action
-    Command toggleIntakeExtension = oldIntakeSubsystem.toggleExtensionCommand();
+    // // Extend/Retract Intake Action
+    // Command toggleIntakeExtension = oldIntakeSubsystem.toggleExtensionCommand();
 
     // Shooter Action (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     // Command shootFuelClose = new SequentialCommandGroup(
@@ -174,12 +174,12 @@ public class RobotContainer {
 
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     // Controller triggers
-    operatorController.leftBumper().whileTrue(intakeFuel);
-    //operatorController.leftBumper().whileTrue(intakeSubsystem.intakeCommand(true));    //for new intake
-    operatorController.leftTrigger(0.5).whileTrue(expelFuel);
-    //operatorController.leftTrigger(0.5).whileTrue(intakeSubsystem.intakeCommand(false));  //for new intake
-    operatorController.y().onTrue(toggleIntakeExtension);
-    //operatorController.y().onTrue(intakeSubsystem.extendIntakeCmd());    //for new intake
+    //operatorController.leftBumper().whileTrue(intakeFuel);
+    operatorController.leftBumper().whileTrue(intakeSubsystem.intakeCommand(true));    //for new intake
+    //operatorController.leftTrigger(0.5).whileTrue(expelFuel);
+    operatorController.leftTrigger(0.5).whileTrue(intakeSubsystem.intakeCommand(false));  //for new intake
+    //operatorController.y().onTrue(toggleIntakeExtension);
+    operatorController.y().onTrue(intakeSubsystem.extendIntakeCmd());    //for new intake
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
