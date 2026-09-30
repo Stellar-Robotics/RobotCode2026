@@ -34,7 +34,6 @@ import frc.robot.Constants.MiscConstants;
 import frc.robot.StellarHID.CommandStellarHID;
 import frc.robot.Subsystems.HopperSubsystem;
 import frc.robot.Subsystems.IntakeSubsystem;
-import frc.robot.Subsystems.OldIntakeSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
 import frc.robot.Subsystems.swerve.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -56,7 +55,6 @@ public class RobotContainer {
 
   // Declare subsystems, but do not define them yet
   SwerveSubsystem swerveChassis;
-  OldIntakeSubsystem oldIntakeSubsystem;
   HopperSubsystem hopperSubsystem;
   ShooterSubsystem shooterSubsystem;
   IntakeSubsystem intakeSubsystem;
@@ -92,7 +90,6 @@ public class RobotContainer {
     PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
 
     // Define subsystems
-    oldIntakeSubsystem = new OldIntakeSubsystem(airBender);
     intakeSubsystem = new IntakeSubsystem();
     hopperSubsystem = new HopperSubsystem();
     shooterSubsystem = new ShooterSubsystem(swerveChassis);
@@ -169,7 +166,7 @@ public class RobotContainer {
 
     // Teleop Start Actions
     if (MiscConstants.kTeleopExtendIntake) {
-        RobotModeTriggers.teleop().onTrue(oldIntakeSubsystem.setExtensionCommand(false));
+        RobotModeTriggers.teleop().onTrue(intakeSubsystem.extendIntakeCmd());
     }
 
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
@@ -185,8 +182,8 @@ public class RobotContainer {
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.b().whileTrue(runEverythingBack);
     operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
-    stellarDriveController.rightBottom().onTrue(oldIntakeSubsystem.setExtensionCommand(false));
-    stellarDriveController.rightTop().onTrue(oldIntakeSubsystem.setExtensionCommand(true));
+    stellarDriveController.rightBottom().onTrue(intakeSubsystem.extendIntakeCmd());
+    stellarDriveController.rightTop().onTrue(intakeSubsystem.extendIntakeCmd());
     stellarDriveController.leftTop().onTrue(swerveChassis.runOnce(
       () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(0.3, 0.3, Rotation2d.kZero))
     ));
@@ -222,11 +219,11 @@ public class RobotContainer {
 
       // Create key/val pairs of commands we want to map (All should be instant commands)
       // Intake bindings
-      autoCommandBindings.put("extendIntake", oldIntakeSubsystem.setExtensionCommand(true));
-      autoCommandBindings.put("retractIntake", oldIntakeSubsystem.setExtensionCommand(false));
-      autoCommandBindings.put("setIntakeIn", oldIntakeSubsystem.setRollerPowerInstantCommand(1));
-      autoCommandBindings.put("setIntakeOut", oldIntakeSubsystem.setRollerPowerInstantCommand(-1));
-      autoCommandBindings.put("stopIntake", oldIntakeSubsystem.setRollerPowerInstantCommand(0));
+      autoCommandBindings.put("extendIntake", intakeSubsystem.extensionCommand(true));
+      autoCommandBindings.put("retractIntake", intakeSubsystem.extensionCommand(false));
+      autoCommandBindings.put("setIntakeIn", intakeSubsystem.intakeCommand(true));
+      autoCommandBindings.put("setIntakeOut", intakeSubsystem.intakeCommand(false));
+      autoCommandBindings.put("stopIntake", intakeSubsystem.stopIntake());
 
       // Hopper Bindings
       autoCommandBindings.put("setHopperFeed", hopperSubsystem.runHopperMechsInstantCommand(false, true, true, true));

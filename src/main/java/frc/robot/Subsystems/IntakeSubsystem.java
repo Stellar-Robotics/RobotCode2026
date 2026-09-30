@@ -53,13 +53,24 @@ public class IntakeSubsystem extends SubsystemBase {
     extendingMotor.configure(extendingMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public BooleanSupplier isExtended() {return () -> ExtendingMotorCLC.getSetpoint() == ActuatorConstants.RetractedPosition ? false : true;}
+  public BooleanSupplier isExtended() {return () -> ExtendingMotorCLC.getSetpoint() == ActuatorConstants.retractedPosition ? false : true;}
 
   public Command extendIntakeCmd() {
     Command extendCmd = runOnce(() -> {
       ExtendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
-        ActuatorConstants.RetractedPosition :
-        ActuatorConstants.ExtendedPosition, 
+        ActuatorConstants.retractedPosition :
+        ActuatorConstants.extendedPosition, 
+        ControlType.kPosition);
+    }
+    );
+    return extendCmd;
+  }
+
+  public Command extensionCommand(boolean isExtending) {
+    Command extendCmd = runOnce(() -> {
+      ExtendingMotorCLC.setSetpoint(isExtending ? 
+        ActuatorConstants.extendedPosition :
+        ActuatorConstants.retractedPosition, 
         ControlType.kPosition);
     }
     );
@@ -73,6 +84,8 @@ public class IntakeSubsystem extends SubsystemBase {
     ).handleInterrupt(() -> intakeMotor.set(0));
     return intakeCmd;
   }
+
+  public Command stopIntake() {return runOnce(() -> intakeMotor.set(0));}
 
   @Override
   public void periodic() {

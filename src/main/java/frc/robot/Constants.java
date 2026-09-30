@@ -92,8 +92,8 @@ public class Constants {
         public static final double[] kIntakeMotorPID = {0, 0, 0};  //change this
         public static final double[] kExtendingMotorPID = {0, 0, 0};  //change this
 
-        public static final double RetractedPosition = 0; //change this
-        public static final double ExtendedPosition = 0; //change this
+        public static final double retractedPosition = 0; //change this
+        public static final double extendedPosition = 0; //change this
 
         public static final double intakingSpeed = 0.7;  //put value 0-1; change this
 
