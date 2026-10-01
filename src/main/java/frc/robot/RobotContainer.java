@@ -137,6 +137,8 @@ public class RobotContainer {
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(1000, 0));
 
+    SmartDashboard.putNumber("intake angle", intakeSubsystem.oscilateExtendingMotor().get());
+
     
 
     // Command shootFuelFar = new SequentialCommandGroup(

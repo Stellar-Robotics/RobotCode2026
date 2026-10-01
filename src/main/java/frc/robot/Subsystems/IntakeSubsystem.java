@@ -5,6 +5,7 @@
 package frc.robot.Subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -79,20 +80,19 @@ public class IntakeSubsystem extends SubsystemBase {
     return extendCmd;
   }
 
-  public void oscilateExtendingMotor() {
+  public Supplier<Double> oscilateExtendingMotor() {
     double frequency = 3;
     double constant = 0.85;
     double height = 7;  //this increases the amplitude(not sure about this terminology) of the wave
     /*oscilation should be height * 2 */
-    double setpoint = Math.sin(Timer.getFPGATimestamp() * frequency) * height + constant;
-    extendingMotorCLC.setSetpoint(setpoint, ControlType.kPosition);  /*I beleive this should oscelate 14 degrees*/
+    return  () -> Math.sin(Timer.getFPGATimestamp() * frequency) * height + constant;
   }
 
   public Command intakeCommand(Boolean isIntaking) {    //"isIntaking" checks to see if you are intaking or expeling
     Command intakeCmd = runEnd(() -> {
       intakeMotor.set(isIntaking ? ActuatorConstants.intakingSpeed : -1 * ActuatorConstants.intakingSpeed);
       new WaitCommand(1);
-      oscilateExtendingMotor();
+      extendingMotorCLC.setSetpoint(oscilateExtendingMotor().get(), ControlType.kPosition);
     }, () -> {
       intakeMotor.set(0);
     }
