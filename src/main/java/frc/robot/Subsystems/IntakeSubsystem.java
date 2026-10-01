@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ActuatorConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -56,7 +57,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public BooleanSupplier isExtended() {return () -> extendingMotorCLC.getSetpoint() == ActuatorConstants.retractedPosition ? false : true;}
 
-  public Command extendIntakeCmd() {
+  public Command toggleExtension() {//this should flip the extension to what it isnt
     Command extendCmd = runOnce(() -> {
       extendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
         ActuatorConstants.retractedPosition :
@@ -67,7 +68,7 @@ public class IntakeSubsystem extends SubsystemBase {
     return extendCmd;
   }
 
-  public Command extensionCommand(boolean isExtending) {
+  public Command extensionCommand(boolean isExtending) {//this takes in an agrument to decide if it extends or retracts
     Command extendCmd = runOnce(() -> {
       extendingMotorCLC.setSetpoint(isExtending ? 
         ActuatorConstants.extendedPosition :
@@ -78,22 +79,24 @@ public class IntakeSubsystem extends SubsystemBase {
     return extendCmd;
   }
 
-  public Command oscilateExtendingMotor() {
-    Command command = runOnce(() -> {
-      double frequency = 3;
-      double constant = 0.85;
-      double setpoint = Math.sin(Timer.getFPGATimestamp() * frequency) + constant;
-      extendingMotorCLC.setSetpoint(setpoint, ControlType.kPosition);
-    }
-    );
-    return command;
+  public void oscilateExtendingMotor() {
+    double frequency = 3;
+    double constant = 0.85;
+    double height = 7;  //this increases the amplitude(not sure about this terminology) of the wave
+    /*oscilation should be height * 2 */
+    double setpoint = Math.sin(Timer.getFPGATimestamp() * frequency) * height + constant;
+    extendingMotorCLC.setSetpoint(setpoint, ControlType.kPosition);  /*I beleive this should oscelate 14 degrees*/
   }
 
   public Command intakeCommand(Boolean isIntaking) {    //"isIntaking" checks to see if you are intaking or expeling
-    Command intakeCmd = runOnce(() -> {
+    Command intakeCmd = runEnd(() -> {
       intakeMotor.set(isIntaking ? ActuatorConstants.intakingSpeed : -1 * ActuatorConstants.intakingSpeed);
+      new WaitCommand(1);
+      oscilateExtendingMotor();
+    }, () -> {
+      intakeMotor.set(0);
     }
-    ).handleInterrupt(() -> intakeMotor.set(0));
+    );
     return intakeCmd;
   }
 

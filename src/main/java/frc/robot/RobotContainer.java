@@ -19,12 +19,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -87,7 +85,7 @@ public class RobotContainer {
   private void initMechanisms() {
 
     // Shared Pneumatic hub
-    PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
+    // PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
 
     // Define subsystems
     intakeSubsystem = new IntakeSubsystem();
@@ -166,7 +164,7 @@ public class RobotContainer {
 
     // Teleop Start Actions
     if (MiscConstants.kTeleopExtendIntake) {
-        RobotModeTriggers.teleop().onTrue(intakeSubsystem.extendIntakeCmd());
+        RobotModeTriggers.teleop().onTrue(intakeSubsystem.toggleExtension());
     }
 
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
@@ -176,14 +174,14 @@ public class RobotContainer {
     //operatorController.leftTrigger(0.5).whileTrue(expelFuel);
     operatorController.leftTrigger(0.5).whileTrue(intakeSubsystem.intakeCommand(false));  //for new intake
     //operatorController.y().onTrue(toggleIntakeExtension);
-    operatorController.y().onTrue(intakeSubsystem.extendIntakeCmd());    //for new intake
+    operatorController.y().onTrue(intakeSubsystem.toggleExtension());    //for new intake
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.b().whileTrue(runEverythingBack);
     operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
-    stellarDriveController.rightBottom().onTrue(intakeSubsystem.extendIntakeCmd());
-    stellarDriveController.rightTop().onTrue(intakeSubsystem.extendIntakeCmd());
+    stellarDriveController.rightBottom().onTrue(intakeSubsystem.toggleExtension());
+    stellarDriveController.rightTop().onTrue(intakeSubsystem.toggleExtension());
     stellarDriveController.leftTop().onTrue(swerveChassis.runOnce(
       () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(0.3, 0.3, Rotation2d.kZero))
     ));
@@ -224,6 +222,7 @@ public class RobotContainer {
       autoCommandBindings.put("setIntakeIn", intakeSubsystem.intakeCommand(true));
       autoCommandBindings.put("setIntakeOut", intakeSubsystem.intakeCommand(false));
       autoCommandBindings.put("stopIntake", intakeSubsystem.stopIntake());
+      autoCommandBindings.put("oscilateIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.oscilateExtendingMotor()));
 
       // Hopper Bindings
       autoCommandBindings.put("setHopperFeed", hopperSubsystem.runHopperMechsInstantCommand(false, true, true, true));
