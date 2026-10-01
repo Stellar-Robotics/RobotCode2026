@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ActuatorConstants;
@@ -25,7 +26,7 @@ public class IntakeSubsystem extends SubsystemBase {
   SparkMax extendingMotor = new SparkMax(ActuatorConstants.kExtendingMotorCANID, MotorType.kBrushless);
 
   SparkClosedLoopController intakeMotorCLC = intakeMotor.getClosedLoopController();
-  SparkClosedLoopController ExtendingMotorCLC = extendingMotor.getClosedLoopController();
+  SparkClosedLoopController extendingMotorCLC = extendingMotor.getClosedLoopController();
 
 
   public IntakeSubsystem() {
@@ -53,11 +54,11 @@ public class IntakeSubsystem extends SubsystemBase {
     extendingMotor.configure(extendingMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public BooleanSupplier isExtended() {return () -> ExtendingMotorCLC.getSetpoint() == ActuatorConstants.retractedPosition ? false : true;}
+  public BooleanSupplier isExtended() {return () -> extendingMotorCLC.getSetpoint() == ActuatorConstants.retractedPosition ? false : true;}
 
   public Command extendIntakeCmd() {
     Command extendCmd = runOnce(() -> {
-      ExtendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
+      extendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
         ActuatorConstants.retractedPosition :
         ActuatorConstants.extendedPosition, 
         ControlType.kPosition);
@@ -68,13 +69,24 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command extensionCommand(boolean isExtending) {
     Command extendCmd = runOnce(() -> {
-      ExtendingMotorCLC.setSetpoint(isExtending ? 
+      extendingMotorCLC.setSetpoint(isExtending ? 
         ActuatorConstants.extendedPosition :
         ActuatorConstants.retractedPosition, 
         ControlType.kPosition);
     }
     );
     return extendCmd;
+  }
+
+  public Command oscilateExtendingMotor() {
+    Command command = runOnce(() -> {
+      double frequency = 3;
+      double constant = 0.85;
+      double setpoint = Math.sin(Timer.getFPGATimestamp() * frequency) + constant;
+      extendingMotorCLC.setSetpoint(setpoint, ControlType.kPosition);
+    }
+    );
+    return command;
   }
 
   public Command intakeCommand(Boolean isIntaking) {    //"isIntaking" checks to see if you are intaking or expeling
