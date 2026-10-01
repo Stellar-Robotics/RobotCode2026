@@ -5,7 +5,6 @@
 package frc.robot;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,7 +24,14 @@ public class MiscUtils {
         return Math.abs(linearInput) * linearInput;
     }
 
-    // Circular Deadband
+    
+    /**
+     * Filters out a deadband range in a circular fasion (good for swerve translation)
+     * @param xRadius x value
+     * @param yRadius y value
+     * @param deadbandRadius radius percentage (0 to 1)
+     * @return the filtered values
+     */
     public static double[] circularDeadband(double xRadius, double yRadius, double deadbandRadius) {
 
         // Calculate magnitude formed for X and Y inputs
@@ -74,7 +80,10 @@ public class MiscUtils {
         }
     }
 
-    // A quick function to get red aliance status
+    /**
+     * Quick method to check if the robot is on the red alliance
+     * @return is red alliance
+     */
     public static BooleanSupplier isRedAlliance() {
         // Return an anonymous function for the caller to run when needed
         return () -> {
@@ -87,30 +96,14 @@ public class MiscUtils {
         };
     }
 
-    // A function to normaize the PID setpoint in order to eliminate osscilations along -180 and 180
-    public static double normalizeAngle(double angle) {
-        if (angle > 180) {
-            return angle - 360;
-        } else if (angle < -180) {
-            return angle + 360;
-        } else {
-            return angle;
-        }
-    }
 
-    // A function that will incrament a value every loop of the code, creating a ramp
-    public static void ramp(double incrament, double cap, Consumer<Double> operation) {
-        // DONT USE, CURRENTLY CAUSES STACK OVERFLOW
-        if (incrament < cap) {
-            operation.accept(incrament);
-            ramp(incrament, cap, operation);
-        } else {
-            return;
-        }
-
-    }
-
-    // Averages two poses
+    /**
+     * Average 2 Pose2D objects
+     * 
+     * @param  pose1  first pose
+     * @param  pose2  second pose
+     * @return  the averaged pose
+     */
     public static Pose2d averageTwoPoses(Pose2d pose1, Pose2d pose2) {
         Translation2d translation1 = pose1.getTranslation();
         Translation2d translation2 = pose2.getTranslation();
@@ -129,6 +122,20 @@ public class MiscUtils {
 
         Pose2d averagePose = new Pose2d(averageTranslation, averageRotation);
         return averagePose;
+    }
+
+
+    /**
+     * Normalizes a percentage (0 to 1) to a positive range (e.g 25 to 98).
+     * Values must all be positive!
+     *
+     * @param   valuePercent  The input value from 0 to 1
+     * @param   min  The minimum number in the range
+     * @param   max  The maximum number in the range
+     * @return  the normalized value
+     */
+    public static double normalizeToRange(double valuePercent, double min, double max) {
+        return ((max - min) * valuePercent) + min;
     }
 
 
