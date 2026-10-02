@@ -17,6 +17,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -86,8 +87,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Supplier<Double> oscilateExtendingMotor() {
     double frequency = 3;
-    double constant = 0.85;
-    double height = 7;  //this increases the amplitude(not sure about this terminology) of the wave
+    double constant = 0.065;
+    double height = 0.0625;  //this increases the amplitude(not sure about this terminology) of the wave
     /*oscilation should be height * 2 */
     return  () -> Math.sin(Timer.getFPGATimestamp() * frequency) * height + constant;
   }
@@ -108,6 +109,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("oscelation", oscilateExtendingMotor().get());
   }
 }
