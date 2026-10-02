@@ -44,25 +44,29 @@ public class IntakeSubsystem extends SubsystemBase {
       ActuatorConstants.kExtendingMotorPID[2]);
 
     extendingMotorConfig
-      .inverted(false)
+      .inverted(true)
       .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
       .closedLoop.pid(ActuatorConstants.kIntakeMotorPID[0], 
       ActuatorConstants.kIntakeMotorPID[1],
       ActuatorConstants.kIntakeMotorPID[2])
-      .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);;
+      .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+      .positionWrappingEnabled(true)
+      .positionWrappingInputRange(0, 1);
 
 
     intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     extendingMotor.configure(extendingMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public BooleanSupplier isExtended() {return () -> extendingMotorCLC.getSetpoint() == ActuatorConstants.retractedPosition ? false : true;}
+  public BooleanSupplier isExtended() {return () -> extendingMotorCLC.getSetpoint() < 0.2 && 
+    extendingMotorCLC.getSetpoint() > 0.3 
+    ? false : true;}
 
   public Command toggleExtension() {//this should flip the extension to what it isnt
     Command extendCmd = runOnce(() -> {
       extendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
-        ActuatorConstants.retractedPosition :
-        ActuatorConstants.extendedPosition, 
+        ActuatorConstants.extendedPosition :
+        ActuatorConstants.retractedPosition, 
         ControlType.kPosition);
     }
     );
