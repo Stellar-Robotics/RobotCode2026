@@ -383,13 +383,13 @@ public class SwerveSubsystem extends SubsystemBase {
       lastVelocity = swerveDrive.getRobotVelocity().vxMetersPerSecond;
     }
 
-    if (!frozen) {
-      if (SmartDashboard.getBoolean("EnableBarrier", true)) {
-        drawBarrierOnField();
-      } else {
-        swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero);
-      }
-    }
+    // if (!frozen) {
+    //   if (SmartDashboard.getBoolean("EnableBarrier", true)) {
+    //     drawBarrierOnField();
+    //   } else {
+    //     swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero);
+    //   }
+    // }
   }
 
   /* -------------------------

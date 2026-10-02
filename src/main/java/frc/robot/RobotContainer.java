@@ -224,12 +224,15 @@ public class RobotContainer {
       autoCommandBindings.put("setIntakeIn", intakeSubsystem.intakeCommand(true));
       autoCommandBindings.put("setIntakeOut", intakeSubsystem.intakeCommand(false));
       autoCommandBindings.put("stopIntake", intakeSubsystem.stopIntake());
-      autoCommandBindings.put("oscilateIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.oscilateExtendingMotor()));
+      autoCommandBindings.put("oscilateIntake6S", intakeSubsystem.runOnce(() -> intakeSubsystem.oscilateExtendingMotor())
+        .withTimeout(6));
 
       // Hopper Bindings
       autoCommandBindings.put("setHopperFeed", hopperSubsystem.runHopperMechsInstantCommand(false, true, true, true));
       autoCommandBindings.put("setHopperFeed3S", hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
         .withTimeout(3));
+        autoCommandBindings.put("setHopperFeed6S", hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
+        .withTimeout(6));
       autoCommandBindings.put("setHopperExpel", hopperSubsystem.runHopperMechsInstantCommand(true, true, true, true));
       autoCommandBindings.put("setHopperStop", hopperSubsystem.runOnce(() -> hopperSubsystem.stopAll()));
 
