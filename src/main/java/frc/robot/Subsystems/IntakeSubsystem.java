@@ -7,6 +7,7 @@ package frc.robot.Subsystems;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.FeedbackSensor;
@@ -31,6 +32,8 @@ public class IntakeSubsystem extends SubsystemBase {
   SparkClosedLoopController intakeMotorCLC = intakeMotor.getClosedLoopController();
   SparkClosedLoopController extendingMotorCLC = extendingMotor.getClosedLoopController();
 
+  AbsoluteEncoder extendingMotorAE = extendingMotor.getAbsoluteEncoder();
+
 
   public IntakeSubsystem() {
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
@@ -38,36 +41,35 @@ public class IntakeSubsystem extends SubsystemBase {
     
 
     intakeMotorConfig
-      .inverted(false)
-      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
-      .closedLoop.pid(ActuatorConstants.kExtendingMotorPID[0], 
-      ActuatorConstants.kExtendingMotorPID[1], 
-      ActuatorConstants.kExtendingMotorPID[2]);
+      .inverted(true)
+      .smartCurrentLimit(ActuatorConstants.weakCurrentLimit)
+      .closedLoop.pid(ActuatorConstants.kIntakeMotorPID[0], 
+      ActuatorConstants.kIntakeMotorPID[1], 
+      ActuatorConstants.kIntakeMotorPID[2]);
 
     extendingMotorConfig
       .inverted(true)
-      .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
-      .closedLoop.pid(ActuatorConstants.kIntakeMotorPID[0], 
-      ActuatorConstants.kIntakeMotorPID[1],
-      ActuatorConstants.kIntakeMotorPID[2])
+      .smartCurrentLimit(ActuatorConstants.weakCurrentLimit)
+      .closedLoop.pid(ActuatorConstants.kExtendingMotorPID[0], 
+      ActuatorConstants.kExtendingMotorPID[1],
+      ActuatorConstants.kExtendingMotorPID[2])
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
       .positionWrappingEnabled(true)
       .positionWrappingInputRange(0, 1);
+    extendingMotorConfig.absoluteEncoder.inverted(true);
 
 
     intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     extendingMotor.configure(extendingMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public BooleanSupplier isExtended() {return () -> extendingMotorCLC.getSetpoint() < 0.2 && 
-    extendingMotorCLC.getSetpoint() > 0.3 
-    ? false : true;}
+  public BooleanSupplier isExtended() {return () -> extendingMotorAE.getPosition() > 0.15;}
 
   public Command toggleExtension() {//this should flip the extension to what it isnt
     Command extendCmd = runOnce(() -> {
       extendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
-        ActuatorConstants.extendedPosition :
-        ActuatorConstants.retractedPosition, 
+        ActuatorConstants.retractedPosition :
+        ActuatorConstants.extendedPosition, 
         ControlType.kPosition);
     }
     );
@@ -96,8 +98,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command intakeCommand(Boolean isIntaking) {    //"isIntaking" checks to see if you are intaking or expeling
     Command intakeCmd = runEnd(() -> {
       intakeMotor.set(isIntaking ? ActuatorConstants.intakingSpeed : -1 * ActuatorConstants.intakingSpeed);
-      new WaitCommand(1);
-      extendingMotorCLC.setSetpoint(oscilateExtendingMotor().get(), ControlType.kPosition);
+      //new WaitCommand(1);
+      //extendingMotorCLC.setSetpoint(oscilateExtendingMotor().get(), ControlType.kPosition);
     }, () -> {
       intakeMotor.set(0);
     }

@@ -58,6 +58,7 @@ public class RobotContainer {
   IntakeSubsystem intakeSubsystem;
 
 
+
   // This method will be called only once when the robot starts
   public RobotContainer() {
 
@@ -172,11 +173,15 @@ public class RobotContainer {
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     // Controller triggers
     //operatorController.leftBumper().whileTrue(intakeFuel);
-    operatorController.leftBumper().whileTrue(intakeSubsystem.intakeCommand(true));    //for new intake
+    //operatorController.leftBumper().whileTrue(intakeSubsystem.intakeCommand(true));    //for new intake
+    operatorController.leftBumper().onTrue(intakeSubsystem.extensionCommand(false));
     //operatorController.leftTrigger(0.5).whileTrue(expelFuel);
-    operatorController.leftTrigger(0.5).whileTrue(intakeSubsystem.intakeCommand(false));  //for new intake
+    operatorController.leftTrigger().onTrue(intakeSubsystem.extensionCommand(true));
+    //operatorController.leftTrigger(0.5).whileTrue(intakeSubsystem.intakeCommand(false));  //for new intake
     //operatorController.y().onTrue(toggleIntakeExtension);
     operatorController.y().onTrue(intakeSubsystem.toggleExtension());    //for new intake
+    //operatorController.povDown().whileTrue(intakeSubsystem.intakeCommand(false));
+    //operatorController.povUp().whileTrue(intakeSubsystem.intakeCommand(true));
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
@@ -187,6 +192,10 @@ public class RobotContainer {
     stellarDriveController.leftTop().onTrue(swerveChassis.runOnce(
       () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(0.3, 0.3, Rotation2d.kZero))
     ));
+    operatorController.axisLessThan(1, -0.5).onTrue(intakeSubsystem.intakeCommand(false));
+    operatorController.axisGreaterThan(1, 0.5).onTrue(intakeSubsystem.intakeCommand(true));
+
+
 
 
 

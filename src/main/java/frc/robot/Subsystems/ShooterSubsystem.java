@@ -64,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
         .kV(ActuatorConstants.kFlywheelPID[3]);
     bonnetMotorConfig
         .inverted(ActuatorConstants.kBonnetInverted)
-        .smartCurrentLimit(ActuatorConstants.kCommonNeo550CurrentLimit).closedLoop
+        .smartCurrentLimit(5).closedLoop
         .pid(ActuatorConstants.kBonnetPID[0], ActuatorConstants.kBonnetPID[1], ActuatorConstants.kBonnetPID[2]);
 
     rightVortexMotorConfig

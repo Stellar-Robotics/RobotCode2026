@@ -32,6 +32,9 @@ public class Constants {
         public static final int kCommonNeo550CurrentLimit = 30;
         public static final int kvortexCurrentLimit = 30;  //change this
 
+        public static final int strongCurrentLimit = 60;
+        public static final int weakCurrentLimit = 0;
+
 
         // Shooter Constants
         public static final int kFlywheelCANID = 6;
@@ -90,10 +93,10 @@ public class Constants {
         public static final int kExtendingMotorCANID = 61;  //change this
 
         public static final double[] kIntakeMotorPID = {0, 0, 0};  //change this
-        public static final double[] kExtendingMotorPID = {1.3, 0, 0};  //change this
+        public static final double[] kExtendingMotorPID = {1.1, 0, 0};  //change this
 
-        public static final double retractedPosition = 0.95; //change this
-        public static final double extendedPosition = 0.25; //change this
+        public static final double retractedPosition = -0.05; //change this
+        public static final double extendedPosition = 0.35; //change this
 
         public static final double intakingSpeed = 0.7;  //put value 0-1; change this
 
