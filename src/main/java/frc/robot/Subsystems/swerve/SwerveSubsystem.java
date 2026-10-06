@@ -107,16 +107,11 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(!RobotBase.isSimulation()); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     swerveDrive.setAngularVelocityCompensation(true, false, 0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
-    swerveDrive.resetOdometry(new Pose2d(
+    swerveDrive.resetOdometry(new Pose2d( // Set inital pose for barrier logic
       0.3, 
       0.3, 
       Rotation2d.fromDegrees(0))
     );
-    // swerveDrive.resetOdometry(new Pose2d(
-    //   3.574, 
-    //   4.032, 
-    //   Rotation2d.fromDegrees(0))
-    // );
 
     // Initialize vision system
     if (visionUpdates) {
@@ -124,11 +119,7 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.stopOdometryThread(); // We'll manually update along with vision for better syncronization.
     }
 
-    // Initialize PathPlanner AutoBuilder
-    // if (MiscConstants.kUsePathplanner) {
-    //   initPathPlanner();
-    // }
-
+    // Telemetry
     SmartDashboard.putNumber("robotTravel", getOdometryEstimate().getX());
   }
 
@@ -196,17 +187,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
   // Cross all modules to keep the chassis from moving
-  public void lock() {
-
-    swerveDrive.lockPose();
-  }
+  public void lock() { swerveDrive.lockPose(); }
 
 
   // Zero the gyro to the red aliance station
-  public void zeroGyro() {
-
-    swerveDrive.zeroGyro();
-  }
+  public void zeroGyro() { swerveDrive.zeroGyro(); }
 
 
   // Drive relative to the robots frame of refrence
@@ -244,6 +229,7 @@ public class SwerveSubsystem extends SubsystemBase {
     );
   }
 
+
   /**
    * Command to characterize the robot drive motors using SysId
    *
@@ -263,6 +249,7 @@ public class SwerveSubsystem extends SubsystemBase {
       3.0
     );
   }
+
 
   /**
    * Command to characterize the robot angle motors using SysId
@@ -285,23 +272,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Configures a trigger to stop if it exceeds a set boundry
   public void setLogicalBarrier() {
-
-    // double[] boxDims = { // Obtain box dimensions from Dashboard
-    //   SmartDashboard.getNumber("LengthRestrictionMeters", 2.5), // X - Downfield
-    //   SmartDashboard.getNumber("WidthRestrictionMeters", 2.5) // Y - Left of downfield
-    // };
-
-    // Pose2d boxCenter = new Pose2d(
-    //   (boxDims[0] / 2), 
-    //   (boxDims[1] / 2), 
-    //   Rotation2d.fromDegrees(0)
-    // );
-
-    // PathConstraints pathConsts = new PathConstraints( // About half of the speed in auto
-    //   swerveDrive.getMaximumChassisVelocity(),
-    //   2.0,
-    //   swerveDrive.getMaximumChassisAngularVelocity(),
-    //   Units.degreesToRadians(270));
 
     // Create dashboard params
     SmartDashboard.putBoolean("EnableBarrier", true);
@@ -345,7 +315,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
 
-  // A method that draws the barrier on the field
+  // A method that draws the barrier on the field2d object
   private void drawBarrierOnField(boolean clear) {
     double lenMeters = Units.feetToMeters(SmartDashboard.getNumber("BarrierLengthFeet", 8));
     double widMeters = Units.feetToMeters(SmartDashboard.getNumber("BarrierWidthFeet", 8));
@@ -383,15 +353,16 @@ public class SwerveSubsystem extends SubsystemBase {
       lastVelocity = swerveDrive.getRobotVelocity().vxMetersPerSecond;
     }
 
-    // if (!frozen) {
-    //   if (SmartDashboard.getBoolean("EnableBarrier", true)) {
-    //     drawBarrierOnField();
-    //   } else {
-    //     swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero);
-    //   }
-    // }
+    if (!frozen) {
+      if (SmartDashboard.getBoolean("EnableBarrier", true)) {
+        drawBarrierOnField();
+      } else {
+        swerveDrive.field.getObject("barrier").setPose(Pose2d.kZero);
+      }
+    }
   }
 
+  
   /* -------------------------
   * Command methods
   * ------------------------- */

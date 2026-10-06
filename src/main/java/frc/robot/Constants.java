@@ -24,13 +24,10 @@ public class Constants {
     // Whole class is final, meaning values cannot be changed.
     public class ActuatorConstants {
 
-        // Shared pneumatic hub CAN
-        public static final int kPneumaticHubCANID = 5;
-
         // Use these to adjust global current limits across most motors
         public static final int kCommonNeoCurrentLimit = 30;
         public static final int kCommonNeo550CurrentLimit = 30;
-        public static final int kvortexCurrentLimit = 30;  //change this
+        public static final int kvortexCurrentLimit = 30;
 
         public static final int strongCurrentLimit = 60;
         public static final int weakCurrentLimit = 0;
@@ -39,8 +36,8 @@ public class Constants {
         // Shooter Constants
         public static final int kFlywheelCANID = 6;
         public static final int kBonnetCANID = 7;
-        public static final int leftVortexCANID = 15; //change this
-        public static final int rightVortexCANID = 14; //change this
+        public static final int leftVortexCANID = 15;
+        public static final int rightVortexCANID = 14;
 
         public static final boolean kFlywheelInverted = false;
         public static final boolean kBonnetInverted = false;
@@ -62,12 +59,8 @@ public class Constants {
             {2.309, 2.6, 5, 1000}, 
             {2.61, 2.83, 4, 1250}, 
             {2.84, /*3.4*/ 20, 5, 1400}
-            
         };
 
-        
-
-        
 
         // Hopper Constants
         public static final int kBeltCANID = 8;
@@ -78,22 +71,20 @@ public class Constants {
         public static final boolean kCorralInverted = false;
         public static final boolean kKickerInverted = true;
 
-        public static final double kKickerConversionFactor = 1.0; // May need changed
+        public static final double kKickerConversionFactor = 1.0;
 
-        public static final int kKickerMotorMaxRPM = 500; // Change Me!
+        public static final int kKickerMotorMaxRPM = 500;
         public static final double[] kKickerPID = {0.005, 0, 0}; // Tune me!
 
 
         // Intake Constants
-        public static final int kintakeExtensionChannel = 14;
-        public static final int kintakeRetractionChannel = 15;
         public static final int kRollerCANID = 11;
 
-        public static final int kIntakeMotorCANID = 60;  //change this
-        public static final int kExtendingMotorCANID = 61;  //change this
+        public static final int kIntakeMotorCANID = 60;
+        public static final int kExtendingMotorCANID = 61;
 
-        public static final double[] kIntakeMotorPID = {0, 0, 0};  //change this
-        public static final double[] kExtendingMotorPID = {1.1, 0, 0};  //change this
+        public static final double[] kIntakeMotorPID = {0, 0, 0}; // Is this needed?
+        public static final double[] kExtendingMotorPID = {1.1, 0, 0};
 
         public static final double retractedPosition = -0.05; //change this
         public static final double extendedPosition = 0.35; //change this
@@ -103,20 +94,6 @@ public class Constants {
         public static final boolean kRollerInverted = false; // May need changed!
 
         //conversion factor of extending motor 1/50
-
-
-        // Climber Constants
-        public static final int kClimberCANID = 12; // Change me!
-        public static final int kClimberExtensionChannel = 1; // Change me!
-        public static final int kLockSolenoidChannel = 2; // Change me!
-
-        public static final boolean kClimberInverted = false; // May need changed!
-
-        public static final double kClimberConversionFactor = 1.0; // Change me!
-
-        public static final int kClimberMaxExtensionMM = 50;
-
-        public static final double[] kClimberPID = {0.005, 0, 0,}; // Tune me!
     }
 
 
@@ -125,7 +102,9 @@ public class Constants {
         // Pose estimator arguments
         public static final String kCamera1Name = "stellarvision";
         public static final String kCamera2Name = "stellarvision2";
+
         public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+
         public static final Transform3d kRobotToCam1 = new Transform3d(
             new Translation3d(Units.inchesToMeters(11.75-0.75), Units.inchesToMeters(12-0.68-2.244094488), Units.inchesToMeters(9.5)), 
             new Rotation3d(0, Units.degreesToRadians(360-35), Units.degreesToRadians(360 - 20))
@@ -168,13 +147,16 @@ public class Constants {
             new Rotation2d()
         );
 
-        public static final double shootingHeight = 6;   
         //controls target max height. this is not to scale so you should use the desmos. it is the "B" slider
+        public static final double shootingHeight = 6;
 
-        public static final double hubHeight = 6;
         //this is the hub height in feet
+        public static final double hubHeight = 6;
 
-        public static final double speedMultiplier = 60;
         //this is the multiplier that the speed is calculated with
+        public static final double speedMultiplier = 60;
+
+        // Whether to enable the logical barrier (Use for outreach events)
+        public static final boolean logicalBarrierEnabled = false;
     }
 }

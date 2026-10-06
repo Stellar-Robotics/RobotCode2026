@@ -21,25 +21,24 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ActuatorConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
+  // Motor, CLC, and encoder refs
   SparkMax intakeMotor = new SparkMax(ActuatorConstants.kIntakeMotorCANID, MotorType.kBrushless);
   SparkMax extendingMotor = new SparkMax(ActuatorConstants.kExtendingMotorCANID, MotorType.kBrushless);
 
-  SparkClosedLoopController intakeMotorCLC = intakeMotor.getClosedLoopController();
   SparkClosedLoopController extendingMotorCLC = extendingMotor.getClosedLoopController();
-
   AbsoluteEncoder extendingMotorAE = extendingMotor.getAbsoluteEncoder();
 
 
   public IntakeSubsystem() {
+
+    // Motor configuration
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
     SparkMaxConfig extendingMotorConfig = new SparkMaxConfig();
     
-
     intakeMotorConfig
       .inverted(true)
       .smartCurrentLimit(ActuatorConstants.weakCurrentLimit)
@@ -58,14 +57,16 @@ public class IntakeSubsystem extends SubsystemBase {
       .positionWrappingInputRange(0, 1);
     extendingMotorConfig.absoluteEncoder.inverted(true);
 
-
     intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     extendingMotor.configure(extendingMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
+
   public BooleanSupplier isExtended() {return () -> extendingMotorAE.getPosition() > 0.15;}
 
-  public Command toggleExtension() {//this should flip the extension to what it isnt
+
+  //this should flip the extension to what it isnt
+  public Command toggleExtension() {
     Command extendCmd = runOnce(() -> {
       extendingMotorCLC.setSetpoint(isExtended().getAsBoolean() ? 
         ActuatorConstants.retractedPosition :
@@ -76,7 +77,9 @@ public class IntakeSubsystem extends SubsystemBase {
     return extendCmd;
   }
 
-  public Command extensionCommand(boolean isExtending) {//this takes in an agrument to decide if it extends or retracts
+
+  //this takes in an agrument to decide if it extends or retracts
+  public Command extensionCommand(boolean isExtending) {
     Command extendCmd = runOnce(() -> {
       extendingMotorCLC.setSetpoint(isExtending ? 
         ActuatorConstants.extendedPosition :
@@ -87,16 +90,19 @@ public class IntakeSubsystem extends SubsystemBase {
     return extendCmd;
   }
 
+
   public Supplier<Double> oscilateExtendingMotor() {
     double frequency = 3;
     double constant = 0.065;
-    double height = 0.0625;  //this increases the amplitude(not sure about this terminology) of the wave
+    double height = 0.0625;  // this increases the amplitude(not sure about this terminology) of the wave
     /*oscilation should be height * 2 */
     return  () -> Math.sin(Timer.getFPGATimestamp() * frequency) * height + constant;
   }
 
-  public Command intakeCommand(Boolean isIntaking) {    //"isIntaking" checks to see if you are intaking or expeling
+
+  public Command intakeCommand(Boolean isIntaking) {
     Command intakeCmd = runEnd(() -> {
+      //"isIntaking" checks to see if you are intaking or expeling
       intakeMotor.set(isIntaking ? ActuatorConstants.intakingSpeed : -1 * ActuatorConstants.intakingSpeed);
       //new WaitCommand(1);
       //extendingMotorCLC.setSetpoint(oscilateExtendingMotor().get(), ControlType.kPosition);
@@ -107,7 +113,9 @@ public class IntakeSubsystem extends SubsystemBase {
     return intakeCmd;
   }
 
+
   public Command stopIntake() {return runOnce(() -> intakeMotor.set(0));}
+
 
   @Override
   public void periodic() {

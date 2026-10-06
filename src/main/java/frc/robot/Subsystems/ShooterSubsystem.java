@@ -31,32 +31,29 @@ import frc.robot.Subsystems.swerve.SwerveSubsystem;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  // Create motor (motor controller) objects.
-  //SparkMax flywheelMotor = new SparkMax(ActuatorConstants.kFlywheelCANID, MotorType.kBrushless);
+  // Motor and CLC defs/refs
   SparkMax bonnetMotor = new SparkMax(ActuatorConstants.kBonnetCANID, MotorType.kBrushless);
   SparkFlex leftVortexMotor = new SparkFlex(ActuatorConstants.leftVortexCANID, MotorType.kBrushless);
   SparkFlex rightVortexMotor = new SparkFlex(ActuatorConstants.rightVortexCANID, MotorType.kBrushless);
 
-
-
-  // Store refrences to the motors' closed loop controllers.
-  //SparkClosedLoopController flywheelCLC = flywheelMotor.getClosedLoopController();
   SparkClosedLoopController bonnetCLC = bonnetMotor.getClosedLoopController();
   SparkClosedLoopController leftVortexCLC = leftVortexMotor.getClosedLoopController();
   SparkClosedLoopController rightVortexCLC = rightVortexMotor.getClosedLoopController();
 
+  // Swerve ref
   SwerveSubsystem swerveSubsystem;
-  /** Creates a new Shooter. */
+
+
   public ShooterSubsystem(SwerveSubsystem swerveObject) {
+
     swerveSubsystem = swerveObject;
 
-    // Create configuration objects for the motor controllers.
+    // Motor config
     SparkMaxConfig flywheelMotorConfig = new SparkMaxConfig();
     SparkMaxConfig bonnetMotorConfig = new SparkMaxConfig();
     SparkFlexConfig leftVortexMotorConfig = new SparkFlexConfig();
     SparkFlexConfig rightVortexMotorConfig = new SparkFlexConfig();
 
-    // Set configuration options by calling methods on the configuration objects.
     flywheelMotorConfig
         .inverted(ActuatorConstants.kFlywheelInverted)
         .smartCurrentLimit(ActuatorConstants.kCommonNeoCurrentLimit).closedLoop.pid(ActuatorConstants.kFlywheelPID[0],
@@ -66,20 +63,16 @@ public class ShooterSubsystem extends SubsystemBase {
         .inverted(ActuatorConstants.kBonnetInverted)
         .smartCurrentLimit(5).closedLoop
         .pid(ActuatorConstants.kBonnetPID[0], ActuatorConstants.kBonnetPID[1], ActuatorConstants.kBonnetPID[2]);
-
     rightVortexMotorConfig
       .inverted(false)
       .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit)
       .closedLoop.pid(ActuatorConstants.kFlywheelPID[0],
             ActuatorConstants.kFlywheelPID[1], ActuatorConstants.kFlywheelPID[2]).feedForward
         .kV(ActuatorConstants.kFlywheelPID[3]);
-
     leftVortexMotorConfig
       .inverted(false)
       .follow(ActuatorConstants.rightVortexCANID, true)
       .smartCurrentLimit(ActuatorConstants.kvortexCurrentLimit);
-
-    
 
     // (NOTE: Methods Below Require These To Be Set Correctly)
     // Set conversion factors (adjust so it corresponds with millimeters).
@@ -87,13 +80,9 @@ public class ShooterSubsystem extends SubsystemBase {
     // Set so we get accurate conversion of RPMs at the flywheel.
     flywheelMotorConfig.encoder.positionConversionFactor(ActuatorConstants.kFlywheelConversionFactor);
 
-    // Call the configure method on the motor objects in order to apply the config
-    // objects.
-    //flywheelMotor.configure(flywheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     bonnetMotor.configure(bonnetMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     leftVortexMotor.configure(leftVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightVortexMotor.configure(rightVortexMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
   }
 
   public Command test() {
@@ -104,18 +93,12 @@ public class ShooterSubsystem extends SubsystemBase {
   public void setVortexMotorSpeed(double flywheelSpeedRPMs) { //left vortex follows right
 
     // Clamp our specified speed to a safe range
-
-    // double clampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM,
-    //   ActuatorConstants.kFlywheelMaxRPM);
-
     double vortexClampedRPM = MathUtil.clamp(flywheelSpeedRPMs, -ActuatorConstants.kFlywheelMaxRPM, ActuatorConstants.kFlywheelMaxRPM);
 
-
     // sets the closed loop controller to the velocity (RPMs) specified in the parameter.
-    
-    //flywheelCLC.setSetpoint(clampedRPM, ControlType.kVelocity);
     rightVortexCLC.setSetpoint(vortexClampedRPM, ControlType.kVelocity);
   }
+
 
   public Command setVortexMotorSpeedCommand(double flywheelSpeedRPMs) {
 
@@ -134,6 +117,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Pass in our clamped value as the arguement.
     bonnetCLC.setSetpoint(clampedBonnetExtension, ControlType.kPosition);
   }
+
 
   // Method that returns a command to set the target extension of the bonnet.
   public Command setBonnetPositionCommand(double bonnetExtensionDegrees) {
@@ -160,6 +144,7 @@ public class ShooterSubsystem extends SubsystemBase {
       setBonnetPosition(bonnetDegrees);
     }
   }
+
 
   public Command setShooterProfileCommand(double speedRPM, double bonnetDegrees) {
 
@@ -188,6 +173,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return distance;
   }
 
+
   public Supplier<List<Double>> vertex() {
     Supplier<Double> distance = getDistanceToHub();
 
@@ -209,6 +195,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return vertex;
   }
 
+
   public Supplier<Double> angleFinder() {
     double[] vertex = {vertex().get().get(0), vertex().get().get(1)};
 
@@ -220,6 +207,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return () -> 90 - Math.atan(slope.get());
 
   }
+
 
   public double speedFinder() {
     double[] vertex = {vertex().get().get(0), vertex().get().get(1)};
@@ -234,8 +222,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void autoAim() {
 
-    //setShooterProfile(speedFinder(), angleFinder().get());
-
     for (double[] preset : ActuatorConstants.shooterPresets) {
       if (getDistanceToHub().get() >= preset[0] && getDistanceToHub().get() <= preset[1]) {
         setShooterProfile(preset[3], preset[2]);
@@ -248,10 +234,9 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
 
-  
-
-
   public Command autoAimInstantCommand() { return runOnce(() -> autoAim()); }
+
+  
   public Command autoAimRunCommand() { return runEnd(() -> autoAim(), () -> setShooterProfile(speedFinder(), angleFinder().get())); }
 
 

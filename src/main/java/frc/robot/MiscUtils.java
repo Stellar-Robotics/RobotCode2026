@@ -19,6 +19,7 @@ public class MiscUtils {
         return Math.min(Math.max(min, value), max);
     }
 
+    
     // Translate to non-linear response curve
     public static double transformRange(double linearInput, double exp) {
         return Math.abs(linearInput) * linearInput;
@@ -80,6 +81,7 @@ public class MiscUtils {
         }
     }
 
+
     /**
      * Quick method to check if the robot is on the red alliance
      * @return is red alliance
@@ -137,6 +139,4 @@ public class MiscUtils {
     public static double normalizeToRange(double valuePercent, double min, double max) {
         return ((max - min) * valuePercent) + min;
     }
-
-
 }

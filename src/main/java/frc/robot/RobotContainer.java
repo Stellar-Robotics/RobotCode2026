@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,7 +59,6 @@ public class RobotContainer {
   IntakeSubsystem intakeSubsystem;
 
 
-
   // This method will be called only once when the robot starts
   public RobotContainer() {
 
@@ -77,7 +77,7 @@ public class RobotContainer {
       SmartDashboard.putData("Select Auto", autoSelector);
 
       // Logical barrier to keep the robot in a defined space from where it started
-      //swerveChassis.setLogicalBarrier();
+      if (MiscConstants.logicalBarrierEnabled) { swerveChassis.setLogicalBarrier(); }
     }
   }
 
@@ -85,44 +85,15 @@ public class RobotContainer {
   // Dedicated method to initialize the mechanisms and assign button binds
   private void initMechanisms() {
 
-    // Shared Pneumatic hub
-    // PneumaticHub airBender = new PneumaticHub(ActuatorConstants.kPneumaticHubCANID);
-
     // Define subsystems
     intakeSubsystem = new IntakeSubsystem();
     hopperSubsystem = new HopperSubsystem();
     shooterSubsystem = new ShooterSubsystem(swerveChassis);
-
     
+
     /* -------------------------
      * Command Actions
      * ------------------------- */
-
-    // // Intake Fuel Action
-    // Command intakeFuel = new ParallelCommandGroup(
-    //   oldIntakeSubsystem.setRollerPowerRunCommand(1),
-    //   hopperSubsystem.runHopperMechsRunCommand(false, false, false, true)
-    // );
-
-    // // Expel Fuel Action
-    // Command expelFuel = new ParallelCommandGroup(
-    //   oldIntakeSubsystem.setRollerPowerRunCommand(-1),
-    //   hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
-    // );
-
-    // // Extend/Retract Intake Action
-    // Command toggleIntakeExtension = oldIntakeSubsystem.toggleExtensionCommand();
-
-    // Shooter Action (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
-    // Command shootFuelClose = new SequentialCommandGroup(
-    //   shooterSubsystem.setBonnetPositionCommand(0),
-    //   shooterSubsystem.setFlywheelSpeedCommand(180),
-    //   new WaitCommand(1.5),
-    //   hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    // ).handleInterrupt(() -> { 
-    //   shooterSubsystem.stopShooter(); 
-    //   CommandScheduler.getInstance().schedule(shooterSubsystem.setBonnetPositionCommand(0));
-    // });
 
     // Shooter Actions (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
@@ -140,22 +111,6 @@ public class RobotContainer {
 
     SmartDashboard.putNumber("intake angle", intakeSubsystem.oscilateExtendingMotor().get());
 
-    
-
-    // Command shootFuelFar = new SequentialCommandGroup(
-    //   shooterSubsystem.setShooterProfileCommand(6000, 10),
-    //   new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
-    //   hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    // ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(0, 0));
-
-    // Command shootFuelDynamic = new ParallelCommandGroup(
-    //   shooterSubsystem.autoAimRunCommand(),
-    //   new SequentialCommandGroup(
-    //     new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
-    //     hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
-    //   )
-    // );
-
     Command runEverythingBack = new SequentialCommandGroup(
       hopperSubsystem.runHopperMechsRunCommand(true, true, true, true)
     );
@@ -167,45 +122,41 @@ public class RobotContainer {
 
     // Teleop Start Actions
     if (MiscConstants.kTeleopExtendIntake) {
-        RobotModeTriggers.teleop().onTrue(intakeSubsystem.toggleExtension());
+        RobotModeTriggers.teleop().onTrue(intakeSubsystem.extensionCommand(true).onlyIf(
+          () -> DriverStation.isFMSAttached())); // Only execute if connected to FMS
     }
 
+    // Disable actions
     RobotModeTriggers.disabled().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
-    // Controller triggers
-    //operatorController.leftBumper().whileTrue(intakeFuel);
-    //operatorController.leftBumper().whileTrue(intakeSubsystem.intakeCommand(true));    //for new intake
-    operatorController.leftBumper().onTrue(intakeSubsystem.extensionCommand(false));
-    //operatorController.leftTrigger(0.5).whileTrue(expelFuel);
-    operatorController.leftTrigger().onTrue(intakeSubsystem.extensionCommand(true));
-    //operatorController.leftTrigger(0.5).whileTrue(intakeSubsystem.intakeCommand(false));  //for new intake
-    //operatorController.y().onTrue(toggleIntakeExtension);
-    operatorController.y().onTrue(intakeSubsystem.toggleExtension());    //for new intake
-    //operatorController.povDown().whileTrue(intakeSubsystem.intakeCommand(false));
-    //operatorController.povUp().whileTrue(intakeSubsystem.intakeCommand(true));
-    operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
-    operatorController.povDown().whileTrue(shootFuelClose);
-    operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
+
+    // Operator binds
+    operatorController.a().onTrue(Commands.none()); // assign me
     operatorController.b().whileTrue(runEverythingBack);
     operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
+    operatorController.y().onTrue(intakeSubsystem.toggleExtension());
+    operatorController.leftBumper().onTrue(intakeSubsystem.extensionCommand(false));
+    operatorController.leftTrigger().onTrue(intakeSubsystem.extensionCommand(true));
+    operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
+    operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
+    operatorController.povDown().whileTrue(shootFuelClose);
+    operatorController.axisLessThan(1, -0.5).onTrue(intakeSubsystem.intakeCommand(false));
+    operatorController.axisGreaterThan(1, 0.5).onTrue(intakeSubsystem.intakeCommand(true));
+
+    // Additional driver binds
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.toggleExtension());
     stellarDriveController.rightTop().onTrue(intakeSubsystem.toggleExtension());
     stellarDriveController.leftTop().onTrue(swerveChassis.runOnce(
       () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(0.3, 0.3, Rotation2d.kZero))
     ));
-    operatorController.axisLessThan(1, -0.5).onTrue(intakeSubsystem.intakeCommand(false));
-    operatorController.axisGreaterThan(1, 0.5).onTrue(intakeSubsystem.intakeCommand(true));
 
 
-
-
-
+    // Provision pathplanner
     if (MiscConstants.kUsePathplanner) {
 
-      // Path Finding Setup
+      // Path Finding positions and constraints
       Pose2d shootPoseLeft = new Pose2d(3, 5, Rotation2d.fromDegrees(-37.45));
       Pose2d shootPoseRight = new Pose2d(3, 3.000, Rotation2d.fromDegrees(30));
       Pose2d shootPoseCenter = new Pose2d(2.683, 4.05, Rotation2d.fromDegrees(0));
-
 
       Pose2d outOfTheWayLeft = new Pose2d(0.8, 7.306, Rotation2d.fromDegrees(0));
       Pose2d outOfTheWayRight = new Pose2d(0.8, 2.594, Rotation2d.fromDegrees(0));
@@ -223,6 +174,7 @@ public class RobotContainer {
         Units.degreesToRadians(250), Units.degreesToRadians(480)
       );
       
+
       // Autonomous bindings (Store in a hashmap (key/val pairs))
       HashMap<String, Command> autoCommandBindings = new HashMap<>();
 
@@ -240,7 +192,7 @@ public class RobotContainer {
       autoCommandBindings.put("setHopperFeed", hopperSubsystem.runHopperMechsInstantCommand(false, true, true, true));
       autoCommandBindings.put("setHopperFeed3S", hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
         .withTimeout(3));
-        autoCommandBindings.put("setHopperFeed6S", hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
+      autoCommandBindings.put("setHopperFeed6S", hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
         .withTimeout(6));
       autoCommandBindings.put("setHopperExpel", hopperSubsystem.runHopperMechsInstantCommand(true, true, true, true));
       autoCommandBindings.put("setHopperStop", hopperSubsystem.runOnce(() -> hopperSubsystem.stopAll()));
@@ -251,8 +203,7 @@ public class RobotContainer {
       autoCommandBindings.put("shooterPresetfar", shooterSubsystem.setShooterProfileCommand(ActuatorConstants.shooterPresets[2][3], ActuatorConstants.shooterPresets[2][2]));
       autoCommandBindings.put("shooterPresetStop", shooterSubsystem.setShooterProfileCommand(0, 0));
 
-      // Path Finding
-      // Shooting Poses
+      // Path Finding Shooting Poses
       autoCommandBindings.put("shootPoseLeft", AutoBuilder.pathfindToPoseFlipped(shootPoseLeft, commonPathConstraints));
       autoCommandBindings.put("shootPoseCenter", AutoBuilder.pathfindToPoseFlipped(shootPoseCenter, commonPathConstraints));
       autoCommandBindings.put("shootPoseRight", AutoBuilder.pathfindToPoseFlipped(shootPoseRight, commonPathConstraints));
@@ -279,7 +230,6 @@ public class RobotContainer {
         System.out.println("Could not load path from file for pathfinding! Some pathfinding autos may not work!");
       }
 
-
       // Register bindings in the HashMap
       NamedCommands.registerCommands(autoCommandBindings);
       autoCommandBindings.forEach((key, val) -> new EventTrigger(key).onTrue(val));
@@ -298,16 +248,12 @@ public class RobotContainer {
       // Define custom controller object
       stellarDriveController = new CommandStellarHID(MiscConstants.kDriverPort);
 
-      // Shorten our deadband constant
-      double deadband = MiscConstants.kDriverDeadband;
-      
-
       // Create and set the default drive command
       Command driveCommand = swerveChassis.driveFieldOrientedWithAbsoluteYawCommand(
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
         () -> stellarDriveController.getRightRotary(), 
-        deadband
+        MiscConstants.kDriverDeadband
       ).handleInterrupt(() -> {
         swerveChassis.lock();
       });
@@ -320,23 +266,17 @@ public class RobotContainer {
         () -> -stellarDriveController.getLeftY(), 
         () -> -stellarDriveController.getLeftX(), 
         () -> PhotonUtils.getYawToPose(swerveChassis.getSwerveDrive().getPose(), targetHub.get()),
-        deadband
+        MiscConstants.kDriverDeadband
       );
       stellarDriveController.rightCenter().whileTrue(driveAndOrbitCommand);
 
-      /*
-       * Other button binds for stellar controller
-       */
-
+      //Other button binds for stellar controller
       // Bind the center button on the controller for zeroing the gyro
       stellarDriveController.center().onTrue(
         Commands.runOnce(() -> {
           swerveChassis.zeroGyro();
         }, swerveChassis)
       );
-
-      // Bind experimental follow me mode to a spare button
-      //stellarDriveController.leftTop().whileTrue(swerveChassis.followMe(3, 5));
 
     } else { // Setup Xbox controller and setup the swerve to use it
 
@@ -367,7 +307,6 @@ public class RobotContainer {
         }, swerveChassis)
       );
     }
-    
   }
 
   
@@ -384,7 +323,6 @@ public class RobotContainer {
     } else {
 
       // Alternate auto:
-
       // Create and return command to drive robot forward in the x (field relative)
       // for a specific distance, and then stop.
       ChassisSpeeds desiredSpeed = new ChassisSpeeds(0.5, 0, Units.degreesToRadians(3.8));

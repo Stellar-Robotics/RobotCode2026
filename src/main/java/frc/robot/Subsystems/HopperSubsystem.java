@@ -20,12 +20,15 @@ import frc.robot.Constants.ActuatorConstants;
 
 public class HopperSubsystem extends SubsystemBase {
 
+  // Motor defs
   SparkMax beltMotor = new SparkMax(ActuatorConstants.kBeltCANID, MotorType.kBrushless);
   SparkMax corralMotor = new SparkMax(ActuatorConstants.kCorralCANID, MotorType.kBrushless);
   SparkMax kickerMotor = new SparkMax(ActuatorConstants.kKickerCANID, MotorType.kBrushless);
 
+
   public HopperSubsystem() {
 
+    // Motor configs
     SparkMaxConfig beltMotorConfig = new SparkMaxConfig();
     SparkMaxConfig corralMotorConfig = new SparkMaxConfig();
     SparkMaxConfig kickerMotorConfig = new SparkMaxConfig();
@@ -54,6 +57,7 @@ public class HopperSubsystem extends SubsystemBase {
   }
 
 
+  // Single, unified method to run all hopper mechanisms.  Handles belt and corral oscillation.
   public void runHopperMechs(boolean reversed, boolean corral, boolean kicker, boolean belt) {
 
     // Get the sign(+/-) of the power input to control the direction of oscillations.
@@ -75,13 +79,11 @@ public class HopperSubsystem extends SubsystemBase {
     Supplier<Double> beltOffsetSinWave = () -> Math.sin(Timer.getFPGATimestamp() * beltFrequency) + beltConst1;
     Supplier<Double> beltHybridWave = () -> (beltOffsetSinWave.get() * beltConst3 / Math.sqrt(Math.pow(beltConst2, 2) + Math.pow(beltOffsetSinWave.get(), 2))) * 0.75 + 0.25;
 
-
     if(reversed) {
       corralMotor.set(-1);
       kickerMotor.set(-1);
       beltMotor.set(-1);
-    }
-    else {
+    } else {
       corralMotor.set(corral ? (corralHybridWave.get() * powerSign) : 0);
       kickerMotor.set(kicker ? powerSign : 0);
       beltMotor.set(belt ? (beltHybridWave.get() * powerSign) : 0);
@@ -90,12 +92,14 @@ public class HopperSubsystem extends SubsystemBase {
     }
   }
 
+
   public Command runHopperMechsRunCommand(boolean reversed, boolean corral, boolean kicker, boolean belt) {
     return runEnd(
       () -> runHopperMechs(reversed, corral, kicker, belt),
       () -> stopAll()
     );
   }
+
 
   public Command runHopperMechsInstantCommand(boolean reversed, boolean corral, boolean kicker, boolean belt) {
     return runOnce(() -> runHopperMechs(reversed, corral, kicker, belt));
