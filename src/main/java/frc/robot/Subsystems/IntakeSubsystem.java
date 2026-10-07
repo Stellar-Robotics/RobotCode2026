@@ -55,7 +55,9 @@ public class IntakeSubsystem extends SubsystemBase {
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
       .positionWrappingEnabled(true)
       .positionWrappingInputRange(0, 1);
-    extendingMotorConfig.absoluteEncoder.inverted(true);
+    extendingMotorConfig.absoluteEncoder
+      .inverted(true)
+      .positionConversionFactor(360);
 
     intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     extendingMotor.configure(extendingMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
