@@ -16,19 +16,19 @@
     },
     {
       "anchor": {
-        "x": 3.3634578313253014,
-        "y": 2.4504819277108436
+        "x": 3.2213975903614456,
+        "y": 2.3084216867469887
       },
       "prevControl": {
-        "x": 3.0028433734939757,
-        "y": 2.472337349397591
+        "x": 2.86078313253012,
+        "y": 2.330277108433736
       },
       "nextControl": {
-        "x": 3.724072289156627,
-        "y": 2.4286265060240964
+        "x": 3.5820120481927713,
+        "y": 2.2865662650602414
       },
       "isLocked": false,
-      "linkedName": "underTheTrenchEndRight"
+      "linkedName": "rightUnderTheTrench"
     },
     {
       "anchor": {
@@ -48,32 +48,16 @@
     },
     {
       "anchor": {
-        "x": 6.980530120481928,
-        "y": 2.3084216867469887
+        "x": 7.078879518072289,
+        "y": 1.860385542168674
       },
       "prevControl": {
-        "x": 6.731952832001976,
-        "y": 2.3350549676555548
-      },
-      "nextControl": {
-        "x": 7.2865060240963855,
-        "y": 2.2756385542168687
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 7.876602409638554,
-        "y": 3.2482048192771082
-      },
-      "prevControl": {
-        "x": 8.138867469879518,
-        "y": 2.87666265060241
+        "x": 6.833016220925022,
+        "y": 1.905676149537908
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "rightThirdNeutral"
     }
   ],
   "rotationTargets": [
@@ -82,12 +66,8 @@
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 1.91873015873015,
+      "waypointRelativePos": 1.8228571428571483,
       "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 2.6133333333333213,
-      "rotationDegrees": -140.0
     }
   ],
   "constraintZones": [],
@@ -103,7 +83,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -140.0
   },
   "reversed": false,
   "folder": "cycle",

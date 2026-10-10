@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "rightTrenchToFuel"
+            "pathName": "leftTrenchToFuel (1)"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "rightNeutral"
+            "pathName": "leftNeutral (2)"
           }
         },
         {
@@ -49,7 +49,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "rightFuelToBump"
+            "pathName": "leftFuelToShoot (3)"
           }
         },
         {
@@ -59,13 +59,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "setHopperFeed6S"
+                  "name": "oscilateIntake6S"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "oscilateIntake6S"
+                  "name": "setHopperFeed6S"
                 }
               }
             ]
@@ -80,13 +80,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "rightShootToTrench"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "rightTrenchToFuel"
+            "pathName": "leftShootToFuel (4)"
           }
         },
         {
@@ -104,13 +98,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "rightNeutral"
+            "pathName": "leftSecondNeutral (5)"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "CycleAutos",
   "choreoAuto": false
 }

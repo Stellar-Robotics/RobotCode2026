@@ -12,9 +12,10 @@
   ],
   "autoFolders": [
     "Escape",
-    "TwoCycle",
+    "CycleAutos",
     "ShootPreloadedOnly",
-    "Sweep"
+    "Sweep",
+    "TwoCycle"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

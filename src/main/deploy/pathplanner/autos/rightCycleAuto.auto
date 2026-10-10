@@ -1,0 +1,110 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rightTrenchToFuel (1)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extendIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setIntakeIn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rightNeutral (2)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "retractIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shooterPresetClose"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rightFuelToShoot (3)"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "setHopperFeed6S"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "oscilateIntake6S"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "retractIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rightShootToFuel (4)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extendIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setIntakeIn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rightSecondNeutral (5)"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "CycleAutos",
+  "choreoAuto": false
+}
