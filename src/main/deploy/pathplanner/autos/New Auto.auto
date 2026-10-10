@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "UnderTheTrenchStartLeft"
+            "pathName": "rightTrenchToFuel"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "intakeCenterLeft"
+            "pathName": "rightNeutral"
           }
         },
         {
@@ -37,19 +37,38 @@
         {
           "type": "named",
           "data": {
+            "name": "retractIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "shooterPresetClose"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "UnderTheTrenchEndLeft"
+            "pathName": "rightFuelToBump"
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "setHopperFeed3S"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "setHopperFeed6S"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "oscilateIntake6S"
+                }
+              }
+            ]
           }
         },
         {
@@ -59,27 +78,33 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "setHopperFeed3S"
+            "pathName": "rightShootToTrench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rightTrenchToFuel"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shooterPresetStop"
+            "name": "extendIntake"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootPoseLeftRotated"
+            "name": "setIntakeIn"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "outOfTheWayLeft"
+            "pathName": "rightNeutral"
           }
         }
       ]

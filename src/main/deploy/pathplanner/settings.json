@@ -5,9 +5,10 @@
   "pathFolders": [
     "Depot",
     "Escape",
-    "UnderTheTrench",
+    "cycle",
     "ShootFromStart",
-    "Sweep"
+    "Sweep",
+    "UnderTheTrench"
   ],
   "autoFolders": [
     "Escape",
