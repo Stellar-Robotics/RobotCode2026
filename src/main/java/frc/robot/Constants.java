@@ -29,8 +29,8 @@ public class Constants {
         public static final int kCommonNeo550CurrentLimit = 30;
         public static final int kvortexCurrentLimit = 30;
 
-        public static final int strongCurrentLimit = 60;
-        public static final int weakCurrentLimit = 0;
+        public static final int strongCurrentLimit = 40;
+        public static final int weakCurrentLimit = 30;
 
 
         // Shooter Constants
@@ -83,11 +83,11 @@ public class Constants {
         public static final int kIntakeMotorCANID = 60;
         public static final int kExtendingMotorCANID = 61;
 
-        public static final double[] kIntakeMotorPID = {0, 0, 0}; // Is this needed?
-        public static final double[] kExtendingMotorPID = {1.1, 0, 0};
+        public static final double[] kExtendingMotorPID = {0.4, 0, 0};
+        //p values for position are different that p values for velocity
 
-        public static final double retractedPosition = -0.05; //change this
-        public static final double extendedPosition = 0.35; //change this
+        public static final double retractedPosition = -0.2; //change this
+        public static final double extendedPosition = 0.2; //change this
 
         public static final double intakingSpeed = 0.7;  //put value 0-1; change this
 
