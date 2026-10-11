@@ -105,13 +105,43 @@ public class Constants {
 
         public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
+        // Old tranforms
+        // public static final Transform3d kRobotToCam1 = new Transform3d(
+        //     new Translation3d(Units.inchesToMeters(11.75-0.75), Units.inchesToMeters(12-0.68-2.244094488), Units.inchesToMeters(9.5)), 
+        //     new Rotation3d(0, Units.degreesToRadians(360-35), Units.degreesToRadians(360 - 20))
+        // );
+        // public static final Transform3d kRobotToCam2 = new Transform3d(
+        //     new Translation3d(Units.inchesToMeters(11.75), Units.inchesToMeters(-12), Units.inchesToMeters(9.562)), 
+        //     new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(360-90))
+        // );
+
+        public static final double kDriveLenInches = 27;
+        public static final double kDriveWidInches = 27.5;
+
         public static final Transform3d kRobotToCam1 = new Transform3d(
-            new Translation3d(Units.inchesToMeters(11.75-0.75), Units.inchesToMeters(12-0.68-2.244094488), Units.inchesToMeters(9.5)), 
-            new Rotation3d(0, Units.degreesToRadians(360-35), Units.degreesToRadians(360 - 20))
+            new Translation3d(
+                Units.inchesToMeters((kDriveLenInches / 2) - 1.2), 
+                Units.inchesToMeters((kDriveWidInches / 2) - 2.07), 
+                Units.inchesToMeters(11.8)
+            ), 
+            new Rotation3d(
+                Units.degreesToRadians(7.5), 
+                Units.degreesToRadians(360 - 28), 
+                Units.degreesToRadians(360 - 62)
+            )
         );
+
         public static final Transform3d kRobotToCam2 = new Transform3d(
-            new Translation3d(Units.inchesToMeters(11.75), Units.inchesToMeters(-12), Units.inchesToMeters(9.562)), 
-            new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(360-90))
+            new Translation3d(
+                Units.inchesToMeters((kDriveLenInches / 2) - 1.92), 
+                Units.inchesToMeters((kDriveWidInches / 2) - 1.65), 
+                Units.inchesToMeters(9.562)
+            ), 
+            new Rotation3d(
+                0, 
+               0, 
+                Units.degreesToRadians(360-90)
+            )
         );
 
         // Standard Deviation Constraints
