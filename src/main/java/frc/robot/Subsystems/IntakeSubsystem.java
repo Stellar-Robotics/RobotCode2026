@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,14 +42,12 @@ public class IntakeSubsystem extends SubsystemBase {
     
     intakeMotorConfig
       .inverted(true)
-      .smartCurrentLimit(ActuatorConstants.weakCurrentLimit)
-      .closedLoop.pid(ActuatorConstants.kIntakeMotorPID[0], 
-      ActuatorConstants.kIntakeMotorPID[1], 
-      ActuatorConstants.kIntakeMotorPID[2]);
+      .smartCurrentLimit(ActuatorConstants.weakCurrentLimit);
 
     extendingMotorConfig
       .inverted(true)
       .smartCurrentLimit(ActuatorConstants.weakCurrentLimit)
+      .idleMode(IdleMode.kBrake)
       .closedLoop.pid(ActuatorConstants.kExtendingMotorPID[0], 
       ActuatorConstants.kExtendingMotorPID[1],
       ActuatorConstants.kExtendingMotorPID[2])
@@ -57,14 +56,15 @@ public class IntakeSubsystem extends SubsystemBase {
       .positionWrappingInputRange(0, 1);
     extendingMotorConfig.absoluteEncoder
       .inverted(true)
-      .positionConversionFactor(360);
+      .zeroOffset(0.425345);
+
 
     intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     extendingMotor.configure(extendingMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
 
-  public BooleanSupplier isExtended() {return () -> extendingMotorAE.getPosition() > 0.15;}
+  public BooleanSupplier isExtended() {return () -> extendingMotorAE.getPosition() > 0.15 && extendingMotorAE.getPosition() < 0.4;}
 
 
   //this should flip the extension to what it isnt
@@ -78,6 +78,8 @@ public class IntakeSubsystem extends SubsystemBase {
     );
     return extendCmd;
   }
+
+  public Command goToZero() {return runOnce(() -> extendingMotorCLC.setSetpoint(0, ControlType.kPosition));}
 
 
   //this takes in an agrument to decide if it extends or retracts
@@ -121,6 +123,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("intakeAbsoluteEncoderPosition", extendingMotorAE.getPosition());
     SmartDashboard.putNumber("oscelation", oscilateExtendingMotor().get());
   }
 }

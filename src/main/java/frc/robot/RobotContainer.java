@@ -139,8 +139,10 @@ public class RobotContainer {
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);
-    operatorController.axisLessThan(1, -0.5).onTrue(intakeSubsystem.intakeCommand(false));
-    operatorController.axisGreaterThan(1, 0.5).onTrue(intakeSubsystem.intakeCommand(true));
+    operatorController.axisLessThan(1, -0.5).whileTrue(intakeSubsystem.intakeCommand(false));
+    operatorController.axisGreaterThan(1, 0.5).whileTrue(intakeSubsystem.intakeCommand(true));
+
+    stellarDriveController.leftBottom().onTrue(intakeSubsystem.goToZero());
 
     // Additional driver binds
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.toggleExtension());
