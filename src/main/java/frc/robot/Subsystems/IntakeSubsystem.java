@@ -48,6 +48,7 @@ public class IntakeSubsystem extends SubsystemBase {
       .inverted(true)
       .smartCurrentLimit(ActuatorConstants.weakCurrentLimit)
       .idleMode(IdleMode.kBrake)
+      .closedLoopRampRate(0.5)
       .closedLoop.pid(ActuatorConstants.kExtendingMotorPID[0], 
       ActuatorConstants.kExtendingMotorPID[1],
       ActuatorConstants.kExtendingMotorPID[2])

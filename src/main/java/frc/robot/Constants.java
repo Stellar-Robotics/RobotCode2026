@@ -126,8 +126,8 @@ public class Constants {
             ), 
             new Rotation3d(
                 Units.degreesToRadians(7.5), 
-                Units.degreesToRadians(360 - 28), 
-                Units.degreesToRadians(360 - 62)
+                Units.degreesToRadians(360 - 62), 
+                Units.degreesToRadians(360 - 28)
             )
         );
 

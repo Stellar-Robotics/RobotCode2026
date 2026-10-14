@@ -42,6 +42,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.VisionConstants;
 
@@ -56,6 +57,8 @@ public class Vision {
     private Matrix<N3, N1> fwdCurStdDevs;
     private Matrix<N3, N1> sideCurStdDevs;
     private final EstimateConsumer estConsumer;
+
+    private Field2d fieldEst = new Field2d();
     
 
     /**
@@ -69,6 +72,8 @@ public class Vision {
         sideCam = new PhotonCamera(VisionConstants.kCamera2Name);
         forwardPoseEstimator = new PhotonPoseEstimator(VisionConstants.kTagLayout, VisionConstants.kRobotToCam1);
         sidePoseEstimator = new PhotonPoseEstimator(VisionConstants.kTagLayout, VisionConstants.kRobotToCam2);
+
+        SmartDashboard.putData("FieldVision", fieldEst);
     }
 
 
@@ -90,6 +95,8 @@ public class Vision {
                     // Change our trust in the measurement based on the tags we can see
                     var estStdDevs = getEstimationStdDevs(sideCam);
                     SmartDashboard.putBoolean("VisionEst", true);
+                    fieldEst.setRobotPose(est.estimatedPose.toPose2d());
+                    SmartDashboard.putData("FieldVision", fieldEst);
 
                     estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
                 });
