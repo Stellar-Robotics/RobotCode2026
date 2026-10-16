@@ -148,7 +148,7 @@ public class RobotContainer {
     stellarDriveController.rightBottom().onTrue(intakeSubsystem.toggleExtension());
     stellarDriveController.rightTop().onTrue(intakeSubsystem.toggleExtension());
     stellarDriveController.leftTop().onTrue(swerveChassis.runOnce(
-      () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(0.3, 0.3, Rotation2d.kZero))
+      () -> swerveChassis.getSwerveDrive().resetOdometry(new Pose2d(12.96, 4.05, Rotation2d.kZero.plus(Rotation2d.fromDegrees(180))))
     ));
 
 

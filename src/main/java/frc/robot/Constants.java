@@ -83,11 +83,11 @@ public class Constants {
         public static final int kIntakeMotorCANID = 60;
         public static final int kExtendingMotorCANID = 61;
 
-        public static final double[] kExtendingMotorPID = {1.3, 0.0001, 0};
+        public static final double[] kExtendingMotorPID = {1.8, 0, 0}; // I was 0.0001
         //p values for position are different that p values for velocity
 
-        public static final double retractedPosition = 0.875; //change this
-        public static final double extendedPosition = 0.27; //change this
+        public static final double retractedPosition = 0.9; //change this
+        public static final double extendedPosition = 0.26; //change this
 
         public static final double intakingSpeed = 0.7;  //put value 0-1; change this
 
@@ -122,7 +122,7 @@ public class Constants {
             new Translation3d(
                 Units.inchesToMeters((kDriveLenInches / 2) - 1.2), 
                 Units.inchesToMeters((kDriveWidInches / 2) - 2.07), 
-                Units.inchesToMeters(11.8)
+                Units.inchesToMeters(11.5)
             ), 
             new Rotation3d(
                 Units.degreesToRadians(7.5), 
