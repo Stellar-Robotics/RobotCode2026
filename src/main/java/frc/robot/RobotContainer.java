@@ -98,7 +98,7 @@ public class RobotContainer {
     // Shooter Actions (Spins up the shooter then feeds the fuel after a 1.5 seconds wait)
     Command shootFuelClose = new SequentialCommandGroup(
       // Changed from 3800 for fair
-      shooterSubsystem.setShooterProfileCommand(4000, 0),
+      shooterSubsystem.setShooterProfileCommand(4100, 0),
       new WaitCommand(ActuatorConstants.kFlywheelSpinUpTime),
       hopperSubsystem.runHopperMechsRunCommand(false, true, true, true)
     ).handleInterrupt(() -> shooterSubsystem.setShooterProfile(1000, 0));
@@ -134,8 +134,8 @@ public class RobotContainer {
     operatorController.b().whileTrue(runEverythingBack);
     operatorController.x().onTrue(shooterSubsystem.setShooterProfileCommand(0, 0));
     operatorController.y().onTrue(intakeSubsystem.toggleExtension());
-    operatorController.leftBumper().onTrue(intakeSubsystem.extensionCommand(false));
-    operatorController.leftTrigger().onTrue(intakeSubsystem.extensionCommand(true));
+    operatorController.leftBumper().whileTrue(intakeSubsystem.intakeCommand(true));
+    operatorController.leftTrigger().whileTrue(intakeSubsystem.intakeCommand(false));
     operatorController.rightTrigger(0.5).whileTrue(shootFuelClose);
     operatorController.povLeft().or(operatorController.povRight()).whileTrue(transportFuel);
     operatorController.povDown().whileTrue(shootFuelClose);

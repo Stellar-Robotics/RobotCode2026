@@ -27,7 +27,7 @@ public class Constants {
         // Use these to adjust global current limits across most motors
         public static final int kCommonNeoCurrentLimit = 30;
         public static final int kCommonNeo550CurrentLimit = 30;
-        public static final int kvortexCurrentLimit = 30;
+        public static final int kvortexCurrentLimit = 40;
 
         public static final int strongCurrentLimit = 40;
         public static final int weakCurrentLimit = 30;
